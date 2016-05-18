@@ -4,8 +4,6 @@
 'use strict'
 
 const apiai = require('apiai');
-const express = require('express');
-const bodyParser = require('body-parser');
 const uuid = require('node-uuid');
 const mysql = require('mysql');
 const fbAPIRequest = require('./FacebookAPIRequest');
@@ -15,18 +13,17 @@ const APIAI_ACCESS_TOKEN ='57cb248ef96449b88f14b554f0f42793';
 const askFoodLocation = "AskFoodLocation";
 const successMessage = "Success";
 const FB_VERIFY_TOKEN = 'hello';
-const REST_PORT = (process.env.PORT || 5000);
 const app_apiai = apiai(APIAI_ACCESS_TOKEN);
 var sender;
 
 //express
-const app = express();
-app.use(bodyParser.json());
-app.all('*', function (req, res, next) {
-    next();
-})
+var express = require('express');
+var router = express.Router();
 
-app.get('/webhook/', function (req, res) {
+router.get('/a', function(req, res) {
+    console.log('Huy');
+});
+router.get('/', function (req, res) {
     if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
         setTimeout(function () {
@@ -37,7 +34,7 @@ app.get('/webhook/', function (req, res) {
     }
 });
 
-app.post('/webhook/', function (req, res) {
+router.post('/', function (req, res) {
     try {
         var messaging_events = req.body.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
@@ -57,10 +54,6 @@ app.post('/webhook/', function (req, res) {
             error: err
         });
     }
-});
-
-app.listen(REST_PORT, function () {
-    console.log('Rest service ready on port ' + REST_PORT);
 });
 
 // api.ai processing
@@ -162,3 +155,5 @@ function connectToDatabase() {
 
     connection.end();
 }
+
+module.exports = router;

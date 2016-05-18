@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/webhook');
+var serverDispatch = require('./modules/ServerDispatch');
 
 var app = express();
 
@@ -18,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/webhook', users);
+app.use('/webhook', serverDispatch);
 //
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
