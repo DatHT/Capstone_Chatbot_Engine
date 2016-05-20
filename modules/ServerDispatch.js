@@ -85,7 +85,7 @@ function handleAPIResponse(response) {
     if(response.status.code === 200) {
         // action ask with food + location
         if (action === askFoodLocation) {
-            var splittedText = splitResponse(responseText);
+            var splittedText = util.splitResponse(responseText);
 
             if(splittedText.length>0 && splittedText.toString().trim() !== successMessage) {
                 for (var i = 0; i < splittedText.length; i++) {
@@ -126,47 +126,5 @@ function handleAPIResponse(response) {
     }
 }
 
-//handle response to messenger
-function splitResponse(str) {
-    if (str.length <= 320)
-    {
-        return [str];
-    }
-
-    var result = chunkString(str, 300);
-
-    return result;
-
-}
-
-function chunkString(s, len) {
-    var curr = len, prev = 0;
-
-    var output = [];
-
-    while(s[curr]) {
-        if(s[curr++] == ' ') {
-            output.push(s.substring(prev,curr));
-            prev = curr;
-            curr += len;
-        }
-        else
-        {
-            var currReverse = curr;
-            do {
-                if(s.substring(currReverse - 1, currReverse) == ' ')
-                {
-                    output.push(s.substring(prev,currReverse));
-                    prev = currReverse;
-                    curr = currReverse + len;
-                    break;
-                }
-                currReverse--;
-            } while(currReverse > prev)
-        }
-    }
-    output.push(s.substr(prev));
-    return output;
-}
 
 module.exports = router;
