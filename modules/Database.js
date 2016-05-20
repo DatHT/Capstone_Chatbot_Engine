@@ -4,27 +4,30 @@
 'use strict'
 const mysql = require('mysql');
 const request = require('request');
-
+var express = require('express');
+var router = express.Router();
 // handle process word from api.ai
-function connectToDatabase() {
-    var connection = mysql.createConnection({
-        host     : 'localhost',
-        user     : 'root',
-        password : '',
-        database : 'chatbot'
-    });
 
-    connection.connect();
+module.exports = {
+    connectToDatabase: function (param) {
+        var connection = mysql.createConnection({
+            host     : 'localhost',
+            user     : 'root',
+            password : '',
+            database : 'chatbot'
+        });
 
-    connection.query('select * from food', function(err, rows, fields) {
-        if (err) throw err;
+        connection.connect();
 
-        for(var i = 0; i < rows.length; i++) {
-            console.log(i + "-" + rows[i].name);
-        }
-    });
+        connection.query('select * from food where name like %' + param + '%', function(err, rows, fields) {
+            if (err) throw err;
 
-    connection.end();
-}
+            
+            return rows;
+        });
 
-module.exports = router;
+        connection.end();
+    }
+
+};
+
