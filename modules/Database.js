@@ -25,7 +25,7 @@ module.exports = {
 
         connection.connect();
 
-        connection.query('select * from food where name like ?', ['%' + param + '%'], function(err, rows, fields) {
+        connection.query('select * from food where name like ?', ['% ' + param + ' %'], function(err, rows, fields) {
             if (err) throw err;
             console.log("DAng o db");
             return callback(rows);
