@@ -3,7 +3,7 @@
  */
 'use strict';
 const request = require('request');
-var util = require('util');
+// var util = require('util');
 
 module.exports = {
     sendFBMessageTypeText: function(sender, pageAccessToken, messageData) {

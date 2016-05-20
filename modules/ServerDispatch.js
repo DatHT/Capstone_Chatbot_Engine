@@ -5,8 +5,8 @@
 
 const apiai = require('apiai');
 const uuid = require('node-uuid');
-const mysql = require('mysql');
-const fbAPIRequest = require('./FacebookAPIRequest');
+
+const fbAPIRequest = require('./FacebookAPI');
 
 const FB_PAGE_ACCESS_TOKEN = 'EAAYSqRpxAJABABOfTxnO9WemrfGKKJIuwONQ2D6nEZB8OCDGI7lb4sfO3y1Imi8ZBryzUUd6cHwWIK3fBXhms2HZAJQZAMaJzzOCWw1op22ZCrxYKAkbEnWm68iiMPWZBKPobc9EKxVlLDZB9r55zKrxIuiOs81cPGkEufpZA1Eta2mXHncn2SDO';
 const APIAI_ACCESS_TOKEN ='57cb248ef96449b88f14b554f0f42793';
@@ -20,9 +20,6 @@ var sender;
 var express = require('express');
 var router = express.Router();
 
-router.get('/a', function(req, res) {
-    console.log('Huy');
-});
 router.get('/', function (req, res) {
     if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
@@ -134,26 +131,3 @@ function chunkString(s, len) {
     return output;
 }
 
-// handle process word from api.ai
-function connectToDatabase() {
-    var connection = mysql.createConnection({
-        host     : 'localhost',
-        user     : 'root',
-        password : '',
-        database : 'DBTest'
-    });
-
-    connection.connect();
-
-    connection.query('select * from Food', function(err, rows, fields) {
-        if (err) throw err;
-
-        for (var i=0; i<rows.length; i++) {
-            console.log(rows[i].food);
-        }
-    });
-
-    connection.end();
-}
-
-module.exports = router;
