@@ -8,25 +8,32 @@ var express = require('express');
 var router = express.Router();
 // handle process word from api.ai
 
+var rowsData;
+
 module.exports = {
-    connectToDatabase: function (param) {
+
+    
+
+    connectToDatabase: function (param, callback) {
+
         var connection = mysql.createConnection({
             host     : 'localhost',
             user     : 'root',
-            password : '',
+            password : 'thanhdat',
             database : 'chatbot'
         });
 
         connection.connect();
 
-        connection.query('select * from food where name like %' + param + '%', function(err, rows, fields) {
+        connection.query('select * from food where name like ?', ['%' + param + '%'], function(err, rows, fields) {
             if (err) throw err;
+            console.log("DAng o db");
+            return callback(rows);
 
-            
-            return rows;
         });
 
         connection.end();
+
     }
 
 };

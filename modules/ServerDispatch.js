@@ -10,7 +10,7 @@ const fbAPIRequest = require('./FacebookAPI');
 const  databaseConnection = require('./Database');
 const  util = require('../common/CommonUtil');
 
-
+const FB_PAGE_ACCESS_TOKEN = "EAAIZAZB1QZCJjUBAFxK37a6N1pj6C4PuiAcGzv8C0M3vTlerS53D5q8Cx2s6FDySpgdExTBArtIBZCmyqZBit7ClgApuODgZAz7vSQ8YhUe7zM4pqsaOkFD0dZBYfZC3oMXFOSudWc5E0oEY1CF3PS8BJBZCRWQp9Lh4pWSq7NjotmQZDZD";
 const APIAI_ACCESS_TOKEN ='9685138af1cd40fc91ec8c0514532547';
 const askFoodLocation = "AskFoodLocation";
 const successMessage = "Success";
@@ -86,36 +86,39 @@ function handleAPIResponse(response) {
         // action ask with food + location
         if (action === askFoodLocation) {
             var splittedText = splitResponse(responseText);
-            if(splittedText.length>0 && splittedText !== successMessage) {
+
+            if(splittedText.length>0 && splittedText.toString().trim() !== successMessage) {
                 for (var i = 0; i < splittedText.length; i++) {
                     console.log(sender, splittedText[i]);
                     // fbClient.sendFBMessageTypeText(sender, FB_PAGE_ACCESS_TOKEN ,splittedText[i]);
                     console.log(fbClient);
                     fbClient.sendFBMessageTypeText(sender, splittedText[i]);
                 }
-            }else if(splittedText == successMessage) {
-                var params = response.result.parameters;
-                var rows = databaseConnection.connectToDatabase(params.Food);
-                for(var i = 0; i < rows.length; i++) {
-                    console.log(i + "-" + rows[i].name);
-                }
             }
-        } else {
+            
+            if(splittedText.toString().trim() === successMessage) {
+                console.log("Vo database");
+                var params = response.result.parameters;
+                var rows = databaseConnection.connectToDatabase(params.Food, function (rows) {
+                    for(var i = 0; i < rows.length; i++) {
+
+                        fbClient.sendFBMessageTypeText(sender, rows[i].name);
+                    }
+                });
+
+            }
+        } else if(action !== askFoodLocation) {
             var responseAPI = response.result.resolvedQuery;
             console.log("Chua co mon an va dia diem");
-            var responseText = response.result.fulfillment.speech;
-            var responseData = response.result.fulfillment.data;
+            // var responseText = response.result.fulfillment.speech;
+            // var responseData = response.result.fulfillment.data;
 
             if (util.isDefined(responseAPI)) {
                 try {
-                    console.log('Response as formatted message');
-                    console.log(responseAPI);
-                    console.log(FB_PAGE_ACCESS_TOKEN);
-                    console.log(sender);
-                    fbAPIRequest.sendFBMessageTypeText(sender, FB_PAGE_ACCESS_TOKEN, responseData.facebook);
+                    fbClient.sendFBMessageTypeText(sender, responseAPI);
 
                 } catch (err) {
-                    fbAPIRequest.sendFBMessageTypeText(sender, {text: err.message });
+                    fbClient.sendFBMessageTypeText(sender, {text: err.message });
                 }
             }
 
