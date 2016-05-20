@@ -16,17 +16,18 @@ const askFoodLocation = "AskFoodLocation";
 const successMessage = "Success";
 const FB_VERIFY_TOKEN = 'hello';
 const app_apiai = apiai(APIAI_ACCESS_TOKEN);
+const fbClient = fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 var sender;
 
 //express
 var express = require('express');
 var router = express.Router();
-
+module.exports = router;
 router.get('/', function (req, res) {
     if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
         setTimeout(function () {
-            fbAPIRequest.doSubscribeRequest(FB_PAGE_ACCESS_TOKEN);
+            fbClient.doSubscribeRequest();
         }, 3000);
     } else {
         res.send('Error, wrong validation token');
@@ -88,9 +89,10 @@ function handleAPIResponse(response) {
             if(splittedText.length>0 && splittedText !== successMessage) {
                 for (var i = 0; i < splittedText.length; i++) {
                     console.log(sender, splittedText[i]);
-                    fbAPIRequest.sendFBMessageTypeText(sender, FB_PAGE_ACCESS_TOKEN ,splittedText[i]);
+                    // fbClient.sendFBMessageTypeText(sender, FB_PAGE_ACCESS_TOKEN ,splittedText[i]);
+                    console.log(fbClient);
+                    fbClient.sendFBMessageTypeText(sender, splittedText[i]);
                 }
-
             }else if(splittedText == successMessage) {
                 var params = response.result.parameters;
                 var rows = databaseConnection.connectToDatabase(params.Food);
