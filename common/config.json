@@ -1,0 +1,21 @@
+{
+  "FACEBOOK_TOKEN" : {
+    "FB_PAGE_ACCESS_TOKEN" : "",
+    "VERIFY_TOKEN" : ""
+  },
+  "API_AI" : {
+    "CLIENT_ACCESS_TOKEN" : "HUYTCM",
+    "DEV_ACCESS_TOKEN" : ""
+  },
+  "GM_API" : {
+    "API_KEY" : "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
+  },
+  "database" : {
+    "connection" : {
+      "host" : "localhost",
+      "user" : "user",
+      "password" : "password",
+      "database" : "chatbot"
+    }
+  }
+}
