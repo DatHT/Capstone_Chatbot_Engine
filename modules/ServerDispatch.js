@@ -9,6 +9,7 @@ const uuid = require('node-uuid');
 const fbAPIRequest = require('./FacebookAPI');
 const  databaseConnection = require('./Database');
 const  util = require('../common/CommonUtil');
+const  structureObj = require('../model/StructureObject');
 
 const FB_PAGE_ACCESS_TOKEN = "EAAIZAZB1QZCJjUBAFxK37a6N1pj6C4PuiAcGzv8C0M3vTlerS53D5q8Cx2s6FDySpgdExTBArtIBZCmyqZBit7ClgApuODgZAz7vSQ8YhUe7zM4pqsaOkFD0dZBYfZC3oMXFOSudWc5E0oEY1CF3PS8BJBZCRWQp9Lh4pWSq7NjotmQZDZD";
 const APIAI_ACCESS_TOKEN ='9685138af1cd40fc91ec8c0514532547';
@@ -28,6 +29,7 @@ router.get('/', function (req, res) {
         res.send(req.query['hub.challenge']);
         setTimeout(function () {
             fbClient.doSubscribeRequest();
+            fbClient.sendWelcomeMessage();
         }, 3000);
     } else {
         res.send('Error, wrong validation token');
@@ -100,10 +102,20 @@ function handleAPIResponse(response) {
                 console.log("Vo database");
                 var params = response.result.parameters;
                 var rows = databaseConnection.connectToDatabase(params.Food, function (rows) {
+                    var elementArray = [];
                     for(var i = 0; i < rows.length; i++) {
 
-                        fbClient.sendFBMessageTypeText(sender, rows[i].name);
+                        //fbClient.sendFBMessageTypeText(sender, rows[i].name);
+                        structureObj.title = rows[i].name;
+                        console.log("title-", structureObj.title);
+                        var urls = "http://media.foody.vn/res/g9/84334/prof/s320x200/foody-mobile-640x400-jpg-635421657338858677.jpg";
+                        structureObj.image_url = urls;
+                        structureObj.buttons[1].url = urls;
+
+                        elementArray.push(structureObj);
                     }
+                    console.log(JSON.stringify(elementArray));
+                    fbClient.sendFBMessageTypeStructureMessage(sender, elementArray);
                 });
 
             }
@@ -112,6 +124,7 @@ function handleAPIResponse(response) {
             console.log("Chua co mon an va dia diem");
             // var responseText = response.result.fulfillment.speech;
             // var responseData = response.result.fulfillment.data;
+
 
             if (util.isDefined(responseAPI)) {
                 try {

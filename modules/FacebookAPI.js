@@ -44,6 +44,10 @@ FacebookAPI.prototype.sendFBMessageTypeStructureMessage = function (sender, elem
     return sendFBMessageTypeStructureMessage(sender, elementArray);
 };
 
+FacebookAPI.prototype.sendWelcomeMessage = function () {
+    return sendWelcomeMessage();
+};
+
 function sendFBMessageTypeText(sender, messageData) {
     console.log("do send text message");
     request({
@@ -199,9 +203,9 @@ function sendFBMessageTypeButtonTemplate(sender, pageAccessToken, buttonArray) {
         ]
     }] **/
 //send fb message type structure message
-function sendFBMessageTypeStructureMessage(sender, pageAccessToken, elementArray) {
+function sendFBMessageTypeStructureMessage(sender,elementArray) {
     request({
-        url: '',
+        url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
         method: 'POST',
         json: {
@@ -218,13 +222,34 @@ function sendFBMessageTypeStructureMessage(sender, pageAccessToken, elementArray
                 }
             }
         }
-    }), function (error, response, body) {
+    }, function (error, response, body) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
-    }
+    });
+}
+
+//send welcome message
+function sendWelcomeMessage(sender) {
+    console.log("send welcome message");
+
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: pageAccessToken},
+        method: 'POST',
+        json: {
+
+            message: {text: "chào mừng bạn đến với chat bot thông minh, bạn thích ăn món gì, ở đâu?"}
+        }
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        }
+    });
 }
 
 
