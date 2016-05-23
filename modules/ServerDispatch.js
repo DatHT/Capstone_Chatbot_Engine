@@ -9,7 +9,6 @@ const uuid = require('node-uuid');
 const fbAPIRequest = require('./FacebookAPI');
 const  databaseConnection = require('./Database');
 const  util = require('../common/CommonUtil');
-const  structureObj = require('../model/StructureObject');
 
 const FB_PAGE_ACCESS_TOKEN = "EAAIZAZB1QZCJjUBAFxK37a6N1pj6C4PuiAcGzv8C0M3vTlerS53D5q8Cx2s6FDySpgdExTBArtIBZCmyqZBit7ClgApuODgZAz7vSQ8YhUe7zM4pqsaOkFD0dZBYfZC3oMXFOSudWc5E0oEY1CF3PS8BJBZCRWQp9Lh4pWSq7NjotmQZDZD";
 const APIAI_ACCESS_TOKEN ='9685138af1cd40fc91ec8c0514532547';
@@ -19,6 +18,7 @@ const FB_VERIFY_TOKEN = 'hello';
 const app_apiai = apiai(APIAI_ACCESS_TOKEN);
 const fbClient = fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 var sender;
+var data;
 
 //express
 var express = require('express');
@@ -46,11 +46,22 @@ router.post('/', function (req, res) {
         var messaging_events = req.body.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
             var event = req.body.entry[0].messaging[i];
-            console.log(event.message.text);
 
             //sender
             sender = event.sender.id;
-            handleFacebookMessage(event.message.text);
+            //handle payload
+            if(util.isDefined(event.postback)) {
+                var textPayload = JSON.stringify((event.postback));
+
+                console.log("Post back ne: " + event.postback.payload);
+                var address = getLocation(event.postback.payload);
+                console.log("Address ne: " + address);
+                fbClient.sendFBMessageTypeText(sender, address);
+
+            }else {
+                handleFacebookMessage(event.message.text);
+            }
+
         }
         return res.status(200).json({
             status: "ok"
@@ -62,6 +73,20 @@ router.post('/', function (req, res) {
         });
     }
 });
+
+function getPrice() {
+    
+}
+
+function getLocation(ID) {
+    for(var i = 0; i < data.length; i++) {
+        
+        if(data[i].ID == ID) {
+            return data[i].address;
+        }
+    }
+    return "Chưa tìm thấy";
+}
 
 // api.ai processing
 function handleFacebookMessage(statements) {
@@ -101,17 +126,35 @@ function handleAPIResponse(response) {
             if(splittedText.toString().trim() === successMessage) {
                 console.log("Vo database");
                 var params = response.result.parameters;
-                var rows = databaseConnection.connectToDatabase(params.Food, function (rows) {
+                var sql = 'select * from food where name like "% ' + params.Food + ' %"';
+                data = databaseConnection.connectToDatabase(sql, function (rows) {
+                    data = rows;
                     var elementArray = [];
                     for(var i = 0; i < rows.length; i++) {
 
                         //fbClient.sendFBMessageTypeText(sender, rows[i].name);
+                        var structureObj = {};
                         structureObj.title = rows[i].name;
                         console.log("title-", structureObj.title);
                         var urls = "http://media.foody.vn/res/g9/84334/prof/s320x200/foody-mobile-640x400-jpg-635421657338858677.jpg";
                         structureObj.image_url = urls;
-                        structureObj.buttons[1].url = urls;
-
+                        var buttons = [];
+                        var button1 = {};
+                        button1.type = "web_url";
+                        button1.url = urls;
+                        button1.title = "Xem chi tiết";
+                        buttons.push(button1);
+                        var button2 = {};
+                        button2.type = "postback";
+                        button2.title = "Xem giá";
+                        button2.payload = "Payload_Price";
+                        buttons.push(button2);
+                        var button3 = {};
+                        button3.type = "postback";
+                        button3.title = "Xem địa chỉ";
+                        button3.payload = rows[i].ID;
+                        buttons.push(button3);
+                        structureObj.buttons = buttons;
                         elementArray.push(structureObj);
                     }
                     console.log(JSON.stringify(elementArray));

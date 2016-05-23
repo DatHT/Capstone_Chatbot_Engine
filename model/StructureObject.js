@@ -6,6 +6,7 @@
 const request = require('request');
 var express = require('express');
 var router = express.Router();
+
 var structureObj = {
     title: "",
     image_url: "",
@@ -19,8 +20,14 @@ var structureObj = {
             type: "web_url",
             url: "https://petersapparel.parseapp.com/view_item?item_id=100",
             title: "Xem cái chi"
+        },{
+            type:"postback",
+            title:"Xem giá",
+            payload:"Payload for first element in a generic bubble"
         }
+
         ]
 };
+
 
 module.exports = structureObj;
