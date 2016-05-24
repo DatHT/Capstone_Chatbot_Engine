@@ -6,7 +6,7 @@ const mysql = require('mysql');
 const request = require('request');
 var express = require('express');
 var router = express.Router();
-var config = require('../common/app-config');
+var config = require('../common/app-config').config;
 // handle process word from api.ai
 
 var rowsData;

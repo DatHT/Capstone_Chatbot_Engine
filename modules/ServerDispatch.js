@@ -3,21 +3,22 @@
  */
 'use strict'
 
-const apiai = require('apiai');
-const uuid = require('node-uuid');
-const config = require('../common/app-config').config;
+var apiai = require('apiai');
+var uuid = require('node-uuid');
+var config = require('../common/app-config').config;
 
-const fbAPIRequest = require('./FacebookAPI');
-const  databaseConnection = require('./Database');
-const  util = require('../common/CommonUtil');
+var fbAPIRequest = require('./FacebookAPI').FacebookAPI;
+var databaseConnection = require('./Database');
+var util = require('../common/CommonUtil');
 
-const FB_PAGE_ACCESS_TOKEN = config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN;
-const APIAI_ACCESS_TOKEN =config.API_AI.DEV_ACCESS_TOKEN;
 const askFoodLocation = "AskFoodLocation";
 const successMessage = "Success";
+
 const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
-const app_apiai = apiai(APIAI_ACCESS_TOKEN);
-const fbClient = fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
+
+var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
+var fbClient = new fbAPIRequest(config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN);
+
 var sender;
 var data;
 
@@ -25,6 +26,7 @@ var data;
 var express = require('express');
 var router = express.Router();
 module.exports = router;
+
 router.get('/', function (req, res) {
     if (req.query['hub.verify_token'] == FB_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
@@ -182,6 +184,4 @@ function handleAPIResponse(response) {
         }
     }
 }
-
-
 module.exports = router;

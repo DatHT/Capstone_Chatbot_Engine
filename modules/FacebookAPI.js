@@ -18,7 +18,7 @@ function createFacebookClient(fbPageAccessToken) {
     return new FacebookAPI(fbPageAccessToken);
 }
 
-module.exports = createFacebookClient;
+exports.FacebookAPI = createFacebookClient;
 
 FacebookAPI.prototype.sendFBMessageTypeText = function (sender, messageData) {
     return sendFBMessageTypeText(sender, messageData);

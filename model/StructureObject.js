@@ -1,11 +1,7 @@
 /**
  * Created by DatHT on 5/21/2016.
  */
-
 'use strict'
-const request = require('request');
-var express = require('express');
-var router = express.Router();
 
 var structureObj = {
     title: "",
