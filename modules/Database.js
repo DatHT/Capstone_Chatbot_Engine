@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const request = require('request');
 var express = require('express');
 var router = express.Router();
+var config = require('../common/app-config');
 // handle process word from api.ai
 
 var rowsData;
@@ -17,10 +18,10 @@ module.exports = {
     connectToDatabase: function (sql, callback) {
 
         var connection = mysql.createConnection({
-            host     : 'localhost',
-            user     : 'root',
-            password : 'thanhdat',
-            database : 'chatbot'
+            host     : config.database.connection.host,
+            user     : config.database.connection.user,
+            password : config.database.connection.password,
+            database : config.database.connection.database
         });
 
         connection.connect();

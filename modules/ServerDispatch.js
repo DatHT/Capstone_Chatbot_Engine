@@ -5,16 +5,17 @@
 
 const apiai = require('apiai');
 const uuid = require('node-uuid');
+const config = require('../common/app-config');
 
 const fbAPIRequest = require('./FacebookAPI');
 const  databaseConnection = require('./Database');
 const  util = require('../common/CommonUtil');
 
-const FB_PAGE_ACCESS_TOKEN = "EAAIZAZB1QZCJjUBAFxK37a6N1pj6C4PuiAcGzv8C0M3vTlerS53D5q8Cx2s6FDySpgdExTBArtIBZCmyqZBit7ClgApuODgZAz7vSQ8YhUe7zM4pqsaOkFD0dZBYfZC3oMXFOSudWc5E0oEY1CF3PS8BJBZCRWQp9Lh4pWSq7NjotmQZDZD";
-const APIAI_ACCESS_TOKEN ='9685138af1cd40fc91ec8c0514532547';
+const FB_PAGE_ACCESS_TOKEN = config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN;
+const APIAI_ACCESS_TOKEN =config.API_AI.DEV_ACCESS_TOKEN;
 const askFoodLocation = "AskFoodLocation";
 const successMessage = "Success";
-const FB_VERIFY_TOKEN = 'hello';
+const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 const app_apiai = apiai(APIAI_ACCESS_TOKEN);
 const fbClient = fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 var sender;
