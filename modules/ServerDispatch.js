@@ -5,7 +5,7 @@
 
 const apiai = require('apiai');
 const uuid = require('node-uuid');
-const config = require('../common/app-config');
+const config = require('../common/app-config').config;
 
 const fbAPIRequest = require('./FacebookAPI');
 const  databaseConnection = require('./Database');

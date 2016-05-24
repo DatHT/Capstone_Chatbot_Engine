@@ -4,4 +4,4 @@
 var fs = require('fs');
 var configFilePath = __dirname + "/config.json";
 
-module.exports = JSON.parse(fs.readFileSync(configFilePath));
+exports.config = JSON.parse(fs.readFileSync(configFilePath));
