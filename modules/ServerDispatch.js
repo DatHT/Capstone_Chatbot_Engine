@@ -58,7 +58,7 @@ router.post('/', function (req, res) {
                 console.log("Address ne: " + address);
                 fbClient.sendFBMessageTypeText(sender, address);
 
-            }else {
+            }else if (util.isDefined(event.message)){
                 handleFacebookMessage(event.message.text);
             }
 
