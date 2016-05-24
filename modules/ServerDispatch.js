@@ -41,7 +41,7 @@ router.get('/', function (req, res) {
 
 router.get('/test', function (req, res) {
     console.log("ADADA");
-})
+});
 
 router.post('/', function (req, res) {
     try {
