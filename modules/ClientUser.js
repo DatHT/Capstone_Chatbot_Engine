@@ -1,9 +1,9 @@
 /**
  * Created by ThanhTV0612 on 5/25/16.
  */
-
+var config = require('../common/app-config').config;
 const fbAPIRequest = require('./FacebookAPI').FacebookAPI;
-const FB_PAGE_ACCESS_TOKEN = "EAAYSqRpxAJABAN0iZAOYR5OEShZAlAIygyZBVhLzUPu0nv2dd5hFcyjU8Udpvh0qKcM1SeKw0CXrNweN4n6aeV0Mhni5OkCfAe0EyfpJO33wUcNf4IRxKJ8HUr2X2sIJoAvcbs7PnR71YJvEhAn1HkEqGYsjZBNp2tC333aG4eGWvCXwxjkF";
+const FB_PAGE_ACCESS_TOKEN = config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN;
 const fbClient = new fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 
 var sessionId;

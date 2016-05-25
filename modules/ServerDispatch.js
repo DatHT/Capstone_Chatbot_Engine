@@ -60,13 +60,15 @@ router.post('/', function (req, res) {
                     // check session ivalid
                     user = clientUser(uuid.v1(), sender);
                     userMappingObject.set(sender, user);
+                } else {
+                    var existUser = userMappingObject.get(sender);
                 }
 
                 var opt = {
-                    sessionId: user.getSessionID()
+                    sessionId: existUser.getSessionID()
                 };
                 handleFacebookMessage(event.message.text, opt, function (response) {
-                    handleAPIResponse(response, user);
+                    handleAPIResponse(response, existUser);
                 });
 
             }
@@ -151,11 +153,11 @@ function handleAPIResponse(response, user) {
                             structureObj.subtitle = "Soft white cotton t-shirt is back in style";
 
                             var buttons = [];
-                            var button1 = util.createButton("Xem chi tiết", "web_url", urls);
+                            var button1 = util.createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, urls);
                             buttons.push(button1);
-                            var button2 = util.createButton("Xem giá", "postback", urls);
+                            var button2 = util.createButton("Xem giá",config.BUTTON_TYPE.postback, urls);
                             buttons.push(button2);
-                            var button3 = util.createButton("Xem địa chỉ", "postback", rows[i].ID);
+                            var button3 = util.createButton("Xem địa chỉ", config.BUTTON_TYPE.postback, rows[i].ID);
                             buttons.push(button3);
                             structureObj.buttons = buttons;
                             elementArray.push(structureObj);
