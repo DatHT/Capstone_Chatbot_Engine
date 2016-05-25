@@ -1,11 +1,11 @@
 {
   "FACEBOOK_TOKEN" : {
-    "FB_PAGE_ACCESS_TOKEN" : "EAAV2dmmVZCWgBAMm1K6qFdZCLsE5ZAySiB5eAjZA3SXzT1QeIVmlmYR51Vi2fmys405wpfEaeQu2HZC5gdqqZBYCX9Bsos31oW20Kj0M9TumFVKCaMvIcuVe7grZCqmRIWG9dtRZA3ZCupnFEFKTQUpHyg5TuX5U9y2OUOX6cgQfmvQZDZD",
+    "FB_PAGE_ACCESS_TOKEN" : "EAAYSqRpxAJABAKKoK1dGeMGwNERxZBC4kaulOWDqEuz97S0iwdrq8M6VnZCmtzEGlyyaIw5yv4nZBxVhZCzWpJUXRZB9annGiv5ZBoDJoSKgttBrdAkfPTa2ZCDVdiGcFeY7T4TlutiioQAgCir4mmQWwCtDcYjwVZB8VaWFz60gGlt8oTZCNrb9z",
     "VERIFY_TOKEN" : "hello"
   },
   "API_AI" : {
     "CLIENT_ACCESS_TOKEN" : "",
-    "DEV_ACCESS_TOKEN" : "9685138af1cd40fc91ec8c0514532547"
+    "DEV_ACCESS_TOKEN" : "57cb248ef96449b88f14b554f0f42793"
   },
   "GM_API" : {
     "API_KEY" : "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
@@ -14,8 +14,8 @@
     "connection" : {
       "host" : "localhost",
       "user" : "root",
-      "password" : "thanhdat",
-      "database" : "chatbot"
+      "password" : "",
+      "database" : "system_engine_bot_db"
     }
   },
   "BUTTON_TYPE" : {

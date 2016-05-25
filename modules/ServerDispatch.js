@@ -60,13 +60,15 @@ router.post('/', function (req, res) {
                     // check session ivalid
                     user = clientUser(uuid.v1(), sender);
                     userMappingObject.set(sender, user);
+                } else {
+                    var existUser = userMappingObject.get(sender);
                 }
 
                 var opt = {
-                    sessionId: user.getSessionID()
+                    sessionId: existUser.getSessionID()
                 };
                 handleFacebookMessage(event.message.text, opt, function (response) {
-                    handleAPIResponse(response, user);
+                    handleAPIResponse(response, existUser);
                 });
 
             }
