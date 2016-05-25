@@ -10,7 +10,7 @@
   "GM_API" : {
     "API_KEY" : "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
   },
-  "DBManager" : {
+  "database" : {
     "connection" : {
       "host" : "localhost",
       "user" : "root",

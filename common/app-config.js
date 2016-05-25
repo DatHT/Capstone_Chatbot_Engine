@@ -2,6 +2,6 @@
  * Created by HuyTCM on 5/21/16.
  */
 var fs = require('fs');
-var configFile = "common/config.json";
+var configFilePath = __dirname + "/config.json";
 
-module.exports = JSON.parse(fs.readFileSync(configFile));
+exports.config = JSON.parse(fs.readFileSync(configFilePath));

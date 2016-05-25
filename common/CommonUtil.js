@@ -5,9 +5,6 @@
 
 'use strict'
 
-const request = require('request');
-var express = require('express');
-var router = express.Router();
 module.exports = {
 
     isDefined : function (obj) {
@@ -29,7 +26,7 @@ module.exports = {
         return [str];
     }
 
-    var result = chunkString(str, 300);
+    var result = this.chunkString(str, 300);
 
     return result;
 

@@ -5,6 +5,7 @@
 
 const apiai = require('apiai');
 const uuid = require('node-uuid');
+const config = require('../common/app-config');
 
 const fbAPIRequest = require('./FacebookAPI');
 const databaseConnection = require('./Database');
@@ -74,7 +75,6 @@ router.post('/', function (req, res) {
                 console.log("payload: " + JSON.stringify((event.postback)));
                 var address = getLocation(event.postback.payload);
                 user.sendFBMessageTypeText(address);
-
             }
         }
         return res.status(200).json({
