@@ -7,6 +7,7 @@ var apiai = require('apiai');
 var uuid = require('node-uuid');
 var config = require('../common/app-config').config;
 
+var clientUser = require('./ClientUser');
 var fbAPIRequest = require('./FacebookAPI').FacebookAPI;
 var databaseConnection = require('./Database');
 var util = require('../common/CommonUtil');
@@ -19,6 +20,9 @@ const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 var fbClient = new fbAPIRequest(config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN);
 
+var userMappingObject = new Map();
+
+var user;
 var sender;
 var data;
 
@@ -32,7 +36,7 @@ router.get('/', function (req, res) {
         res.send(req.query['hub.challenge']);
         setTimeout(function () {
             fbClient.doSubscribeRequest();
-            fbClient.sendWelcomeMessage();
+            // fbClient.sendWelcomeMessage();
         }, 3000);
     } else {
         res.send('Error, wrong validation token');
@@ -45,26 +49,34 @@ router.get('/test', function (req, res) {
 
 router.post('/', function (req, res) {
     try {
-
         var messaging_events = req.body.entry[0].messaging;
+
         for (var i = 0; i < messaging_events.length; i++) {
             var event = req.body.entry[0].messaging[i];
+            var sender = event.sender.id;
+            console.log(event);
+            if (event.message && event.message.text) {
+                if (!userMappingObject.has(sender)) {
+                    // check session ivalid
+                    user = clientUser(uuid.v1(), sender);
+                    userMappingObject.set(sender, user);
+                }
 
-            //sender
-            sender = event.sender.id;
-            //handle payload
-            if(util.isDefined(event.postback)) {
-                var textPayload = JSON.stringify((event.postback));
+                var opt = {
+                    sessionId: user.getSessionID()
+                };
+                handleFacebookMessage(event.message.text, opt, function (response) {
+                    handleAPIResponse(response, user);
+                });
 
-                console.log("Post back ne: " + event.postback.payload);
-                var address = getLocation(event.postback.payload);
-                console.log("Address ne: " + address);
-                fbClient.sendFBMessageTypeText(sender, address);
-
-            }else if (util.isDefined(event.message)){
-                handleFacebookMessage(event.message.text);
             }
 
+            //handle payload
+            if (util.isDefined(event.postback)) {
+                console.log("payload: " + JSON.stringify((event.postback)));
+                var address = getLocation(event.postback.payload);
+                user.sendFBMessageTypeText(address);
+            }
         }
         return res.status(200).json({
             status: "ok"
@@ -77,14 +89,10 @@ router.post('/', function (req, res) {
     }
 });
 
-function getPrice() {
-    
-}
-
 function getLocation(ID) {
-    for(var i = 0; i < data.length; i++) {
-        
-        if(data[i].ID == ID) {
+    for (var i = 0; i < data.length; i++) {
+
+        if (data[i].ID == ID) {
             return data[i].address;
         }
     }
@@ -92,95 +100,72 @@ function getLocation(ID) {
 }
 
 // api.ai processing
-function handleFacebookMessage(statements) {
-    var request = app_apiai.textRequest(statements);
+function handleFacebookMessage(statements, option, callback) {
+    var request = app_apiai.textRequest(statements, option);
 
-    request.on('response', function(response) {
-        console.log(response);
-
-        handleAPIResponse(response);
+    request.on('response', function (response) {
+        // handleAPIResponse(response);
+        return callback(response);
     });
 
     request.on('error', function (error) {
         console.log(error);
+        // return callback(error);
     });
 
     request.end();
 }
 
-function handleAPIResponse(response) {
-    var  action = response["result"]["action"];
+function handleAPIResponse(response, user) {
+    console.log(response);
+    console.log("session id:" + user.getSessionID);
+    var action = response["result"]["action"];
     var responseText = response.result.fulfillment.speech;
-
-    if(response.status.code === 200) {
+    if (response.status.code === 200) {
         // action ask with food + location
         if (action === askFoodLocation) {
             var splittedText = util.splitResponse(responseText);
 
-            if(splittedText.length>0 && splittedText.toString().trim() !== successMessage) {
+            if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
                 for (var i = 0; i < splittedText.length; i++) {
-                    console.log(sender, splittedText[i]);
-                    // fbClient.sendFBMessageTypeText(sender, FB_PAGE_ACCESS_TOKEN ,splittedText[i]);
-                    console.log(fbClient);
-                    fbClient.sendFBMessageTypeText(sender, splittedText[i]);
+                    console.log(user.getSessionID, splittedText[i]);
+                    user.sendFBMessageTypeText(splittedText[i]);
                 }
             }
-            
-            if(splittedText.toString().trim() === successMessage) {
-                console.log("Vo database");
-                var params = response.result.parameters;
-                var sql = 'select * from food where name like "% ' + params.Food + ' %"';
-                data = databaseConnection.connectToDatabase(sql, function (rows) {
-                    data = rows;
-                    var elementArray = [];
-                    for(var i = 0; i < rows.length; i++) {
 
-                        //fbClient.sendFBMessageTypeText(sender, rows[i].name);
-                        var structureObj = {};
-                        structureObj.title = rows[i].name;
-                        console.log("title-", structureObj.title);
-                        var urls = "http://media.foody.vn/res/g9/84334/prof/s320x200/foody-mobile-640x400-jpg-635421657338858677.jpg";
-                        structureObj.image_url = urls;
-                        var buttons = [];
-                        var button1 = {};
-                        button1.type = "web_url";
-                        button1.url = urls;
-                        button1.title = "Xem chi tiết";
-                        buttons.push(button1);
-                        var button2 = {};
-                        button2.type = "postback";
-                        button2.title = "Xem giá";
-                        button2.payload = "Payload_Price";
-                        buttons.push(button2);
-                        var button3 = {};
-                        button3.type = "postback";
-                        button3.title = "Xem địa chỉ";
-                        button3.payload = rows[i].ID;
-                        buttons.push(button3);
-                        structureObj.buttons = buttons;
-                        elementArray.push(structureObj);
+            if (splittedText.toString().trim() === successMessage) {
+                var params = response.result.parameters;
+                var sql = 'select * from food where name like "%' + params.Food + '%"' ;
+                databaseConnection.connectToDatabase(sql, function (rows) {
+                    console.log("callback");
+                    console.log(rows[0].name);
+                    data = rows;
+                    if (rows.length > 0) {
+                        var elementArray = [];
+                        for (var i = 0; i < rows.length; i++) {
+                            var structureObj = {};
+                            structureObj.title = rows[i].name;
+                            console.log("title-", structureObj.title);
+                            var urls = "http://media.foody.vn/res/g9/84334/prof/s320x200/foody-mobile-640x400-jpg-635421657338858677.jpg";
+                            structureObj.image_url = urls;
+                            structureObj.subtitle = "Soft white cotton t-shirt is back in style";
+
+                            var buttons = [];
+                            var button1 = util.createButton("Xem chi tiết", "web_url", urls);
+                            buttons.push(button1);
+                            var button2 = util.createButton("Xem giá", "postback", urls);
+                            buttons.push(button2);
+                            var button3 = util.createButton("Xem địa chỉ", "postback", rows[i].ID);
+                            buttons.push(button3);
+                            structureObj.buttons = buttons;
+                            elementArray.push(structureObj);
+                        }
+                        console.log(JSON.stringify(elementArray));
+                        user.sendFBMessageTypeStructureMessage(elementArray);
                     }
-                    console.log(JSON.stringify(elementArray));
-                    fbClient.sendFBMessageTypeStructureMessage(sender, elementArray);
                 });
 
             }
-        } else if(action !== askFoodLocation) {
-            var responseAPI = response.result.resolvedQuery;
-            console.log("Chua co mon an va dia diem");
-            // var responseText = response.result.fulfillment.speech;
-            // var responseData = response.result.fulfillment.data;
-
-
-            if (util.isDefined(responseAPI)) {
-                try {
-                    fbClient.sendFBMessageTypeText(sender, responseAPI);
-
-                } catch (err) {
-                    fbClient.sendFBMessageTypeText(sender, {text: err.message });
-                }
-            }
-
         }
     }
 }

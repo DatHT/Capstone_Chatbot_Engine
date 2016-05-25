@@ -1,6 +1,6 @@
 {
   "FACEBOOK_TOKEN" : {
-    "FB_PAGE_ACCESS_TOKEN" : "EAAIZAZB1QZCJjUBAFxK37a6N1pj6C4PuiAcGzv8C0M3vTlerS53D5q8Cx2s6FDySpgdExTBArtIBZCmyqZBit7ClgApuODgZAz7vSQ8YhUe7zM4pqsaOkFD0dZBYfZC3oMXFOSudWc5E0oEY1CF3PS8BJBZCRWQp9Lh4pWSq7NjotmQZDZD",
+    "FB_PAGE_ACCESS_TOKEN" : "EAAV2dmmVZCWgBAMm1K6qFdZCLsE5ZAySiB5eAjZA3SXzT1QeIVmlmYR51Vi2fmys405wpfEaeQu2HZC5gdqqZBYCX9Bsos31oW20Kj0M9TumFVKCaMvIcuVe7grZCqmRIWG9dtRZA3ZCupnFEFKTQUpHyg5TuX5U9y2OUOX6cgQfmvQZDZD",
     "VERIFY_TOKEN" : "hello"
   },
   "API_AI" : {
@@ -10,12 +10,16 @@
   "GM_API" : {
     "API_KEY" : "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
   },
-  "database" : {
+  "DBManager" : {
     "connection" : {
       "host" : "localhost",
       "user" : "root",
       "password" : "thanhdat",
       "database" : "chatbot"
     }
+  },
+  "BUTTON_TYPE" : {
+    "postback" : "postback",
+    "web_url" : "web_url"
   }
 }

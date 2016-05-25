@@ -57,6 +57,33 @@ module.exports = {
         }
         output.push(s.substr(prev));
         return output;
+    },
+    /**
+{
+    type :"web_url",
+        url :"https://petersapparel.parseapp.com/buy_item?item_id=100",
+    title :"Buy Item"
+},
+{
+    type: "postback",
+        title: "Bookmark Item",
+    payload: "USER_DEFINED_PAYLOAD_FOR_ITEM100"
+} */
+    createButton: function ( title, type, optionalString) {
+        var button = {};
+        switch (type) {
+            case "web_url":
+                button.type = type;
+                button.url = optionalString;
+                button.title = title;
+                return button;
+            case "postback" :
+                button.type = type;
+                button.title = title;
+                button.payload = optionalString;
+                return button;
+            default:
+                return;
+        }
     }
-
 };

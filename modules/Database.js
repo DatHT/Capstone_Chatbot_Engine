@@ -12,17 +12,15 @@ module.exports = {
     connectToDatabase: function (sql, callback) {
 
         var connection = mysql.createConnection({
-            host     : config.database.connection.host,
-            user     : config.database.connection.user,
-            password : config.database.connection.password,
-            database : config.database.connection.database
+            host     : config.DBManager.connection.host,
+            user     : config.DBManager.connection.user,
+            password : config.DBManager.connection.password,
+            database : config.DBManager.connection.database
         });
-
         connection.connect();
 
         connection.query(sql, function(err, rows, fields) {
-            if (err) throw err;
-            console.log("DAng o db");
+            if (err) return new Error("Error: " + err);
             return callback(rows);
 
         });
