@@ -8,10 +8,12 @@ const fbClient = new fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 
 var sessionId;
 var senderID;
-
+var food;
+var location;
 function ClientUser(session, fbID) {
-    sessionID = session;
+    sessionId = session;
     senderID = fbID;
+
 }
 
 function createClientUser(session, fbID) {
@@ -27,12 +29,28 @@ function createClientUser(session, fbID) {
 }
 
 module.exports = createClientUser;
+ClientUser.prototype.setFood = function (foodObj) {
+    food = foodObj;
+}
+
+ClientUser.prototype.setLocation = function (locationObj) {
+    location = locationObj;
+}
+
 ClientUser.prototype.getSessionID = function () {
     return sessionId;
 }
 
 ClientUser.prototype.getSenderID = function () {
     return senderID;
+}
+
+ClientUser.prototype.getFood = function () {
+    return food;
+}
+
+ClientUser.prototype.getLocation = function () {
+    return location;
 }
 
 ClientUser.prototype.sendFBMessageTypeText = function (messageData) {
