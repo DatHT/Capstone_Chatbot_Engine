@@ -23,8 +23,6 @@ const ACTION_RATING_REQUEST_FOOD_NO_LOCATION_ACCEPT = "rating.request.food.no.lo
 const ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT = "rating.request.food.no.location.not.accept";
 const ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT_ANSWER = "rating.request.food.no.location.not.accept.answer";
 const ACTION_FULL_TYPE_REQUEST = "full.type.request";
-const ACTION_FULL_TYPE_REQUEST_CHANGE_FOOD = "full.type.request.change.food";
-const ACTION_FULL_TYPE_REQUEST_CHANGE_LOCATION = "full.type.request.change.location";
 
 const successMessage = "success";
 const PAYLOAD_PRICE = "price";
@@ -59,7 +57,6 @@ router.get('/', function (req, res) {
         res.send(req.query['hub.challenge']);
         setTimeout(function () {
             fbClient.doSubscribeRequest();
-            // fbClient.sendWelcomeMessage();
         }, 3000);
     } else {
         res.send('Error, wrong validation token');
@@ -94,8 +91,8 @@ router.post('/', function (req, res) {
                 var opt = {
                     sessionId: existUser.getSessionID()
                 };
+                // check emoji to remove
 
-                console.log(event.message.text);
                 handleFacebookMessage(event.message.text, opt, function (response) {
                     handleAPIResponse(response, existUser);
                 });
@@ -128,43 +125,45 @@ router.post('/', function (req, res) {
              */
             //handle attachment
             if (event.message && event.message.attachments) {
-                var url = event.message.attachments[0].url;
-                var param = getURLParam("where1", decodeURIComponent(url));
-                var location = param.split("%2C");
-                var locationObj = {
-                    latitude: Number(location[0]),
-                    longitude: Number(location[1])
-                }
-                var sql = 'select * from food where name  "%' + existUser.getFood().toString().trim() + '%"';
-
-                databaseConnection.connectToDatabase(sql, function (rows) {
-                    data = rows;
-                    var distanceAccepted = calculatePositionOfUserWithStore(locationObj, rows);
-                    if (distanceAccepted.length > 0) {
-                        var elementArray = [];
-
-                        for (var i = 0; i < distanceAccepted.length; i++) {
-                            var structureObj = createItemOfStructureResponse(distanceAccepted[i]);
-                            elementArray.push(structureObj);
-                        }
-                        existUser.sendFBMessageTypeStructureMessage(elementArray);
-                    } else {
-                        var responseText = "Xin lỗi! Không có món bạn cần tìm ở gần đây :(";
-                        existUser.sendFBMessageTypeText(responseText);
+                var type = event.message.attachments[0].type;
+                if (type.toString() === "location") {
+                    var url = event.message.attachments[0].url;
+                    var param = getURLParam("where1", decodeURIComponent(url));
+                    var location = param.split("%2C");
+                    var locationObj = {
+                        latitude: Number(location[0]),
+                        longitude: Number(location[1])
                     }
-                });
+                    var sql = 'select * from food where name  "%' + existUser.getFood().toString().trim() + '%"';
 
+                    databaseConnection.connectToDatabase(sql, function (rows) {
+                        data = rows;
+                        var distanceAccepted = calculatePositionOfUserWithStore(locationObj, rows);
+                        if (distanceAccepted.length > 0) {
+                            var elementArray = [];
+
+                            for (var i = 0; i < distanceAccepted.length; i++) {
+                                var structureObj = createItemOfStructureResponse(distanceAccepted[i]);
+                                elementArray.push(structureObj);
+                            }
+                            existUser.sendFBMessageTypeStructureMessage(elementArray);
+                        } else {
+                            var responseText = "Xin lỗi! Không có món bạn cần tìm ở gần đây :(";
+                            existUser.sendFBMessageTypeText(responseText);
+                        }
+                    });
+                }
             }
         }
         return res.status(200).json({
             status: "ok"
         });
     } catch (err) {
-        console.log(err);
-        // return res.status(400).json({
-        //     status: "error",
-        //     error: err
-        // });
+        console.log("ERROR: " + err);
+        return res.status(400).json({
+            status: "error",
+            error: err
+        });
     }
 });
 
@@ -351,7 +350,7 @@ function handleWordProcessingFullTypeRequest(response, user) {
         }
 
     }
-    
+
 }
 //handle response processing rating request food no location
 function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
@@ -527,6 +526,7 @@ function handleWordProcessingLocationFirst(response, user) {
 
         // have location - do not have food
         if (!util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            user.setLocation(params.Location);
             var responseText = "Vâng bạn đổi địa điểm sang " + user.getLocation().toString().trim() + "! Bạn muốn ăn món gì :D";
             user.sendFBMessageTypeText(responseText);
         }
@@ -551,7 +551,7 @@ function handleWordProcessingLocationFirst(response, user) {
             }
 
             // an gi cung dc
-            if (params.Food_Ambiguity1) {
+            if (params.Food_Ambiguity) {
                 user.setFood(FOOD_AMBIGUITY1);
                 if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
                     sql = "select * from food";
@@ -640,6 +640,7 @@ function handleWordProcessingFoodFirst(response, user) {
 
         // have food - do not have location
         if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation())) {
+            user.setFood(params.Food);
             var responseText = "Vâng bạn đổi sang món " + user.getFood().toString().trim() + "! Bạn muốn ăn ở đâu?";
             user.sendFBMessageTypeText(responseText);
         }
