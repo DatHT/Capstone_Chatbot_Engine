@@ -23,6 +23,14 @@ const ACTION_RATING_REQUEST_FOOD_NO_LOCATION_ACCEPT = "rating.request.food.no.lo
 const ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT = "rating.request.food.no.location.not.accept";
 const ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT_ANSWER = "rating.request.food.no.location.not.accept.answer";
 const ACTION_FULL_TYPE_REQUEST = "full.type.request";
+const ACTION_SENSATION_STATEMENT = "sensation.statements";
+const ACTION_SENSATION_STATEMENT_ACCEPT = "sensation.statements.accept";
+const ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION = "sensation.statements.accept.acceptlocation";
+const ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION = "sensation.statements.accept.notacceptlocation";
+const ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER = "sensation.statements.accept.notacceptlocation.answer";
+const ACTION_SENSATION_STATEMENT_NOTACCEPT = "sensation.statements.notaccept";
+
+
 
 const successMessage = "success";
 const PAYLOAD_PRICE = "price";
@@ -40,6 +48,7 @@ const INPUT_INTENT_UNKNOWN = "Unknown";
 const INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION = "RatingRequestFood_InLocation";
 const INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION = "RatingRequestFood_NoLocation";
 const INPUT_INTENT_FULL_TYPE_REQUEST = "FullTypeRequest";
+const INPUT_INTENT_SENSATION_STATEMENT = "SensationStatement";
 
 const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 
@@ -86,8 +95,7 @@ router.post('/', function (req, res) {
             } else {
                 existUser = userMappingObject.get(sender);
             }
-
-
+            
             // normal event message
             if (event.message && event.message.text) {
                 var opt = {
@@ -106,7 +114,9 @@ router.post('/', function (req, res) {
                 var responseText;
                 if (objectJSON.type == PAYLOAD_CANCEL) {
                     console.log("remove current user");
-                    userMappingObject.removeItem(existUser.getSenderID());
+                    userMappingObject.delete(existUser.getSenderID());
+                    var responseText = "Cảm ơn bạn đã quan tâm :D";
+                    existUser.sendFBMessageTypeText(responseText);
                 }
 
                 if (objectJSON.type == PAYLOAD_CONTINUE) {
@@ -186,8 +196,6 @@ router.post('/', function (req, res) {
                     responseText = getPrice(objectJSON.id);
                     existUser.sendFBMessageTypeText(responseText);
                 }
-
-
             }
 
             /**
@@ -327,6 +335,92 @@ function handleAPIResponse(response, user) {
         if (intentName.indexOf(INPUT_INTENT_FULL_TYPE_REQUEST) > -1) {
             console.log("full type request");
             handleWordProcessingFullTypeRequest(response, user);
+        }
+
+        //sensation statement
+        if (intentName.indexOf(INPUT_INTENT_SENSATION_STATEMENT) > -1) {
+            console.log("sensation statement");
+            handleWordProccessingSensationStatements(response, user);
+        }
+    }
+}
+
+//handle response processing sensation statement
+function handleWordProccessingSensationStatements(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+
+    if (action === ACTION_SENSATION_STATEMENT) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                user.sendFBMessageTypeText(splittedText[i]);
+            }
+        }
+    }
+
+    if (action === ACTION_SENSATION_STATEMENT_NOTACCEPT) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                user.sendFBMessageTypeText(splittedText[i]);
+            }
+        }
+    }
+
+    if (action === ACTION_SENSATION_STATEMENT_ACCEPT) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                user.sendFBMessageTypeText(splittedText[i]);
+            }
+        }
+    }
+
+    if (action === ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION) {
+        if (splittedText.toString().trim() === successMessage) {
+            user.setFood(FOOD_AMBIGUITY1);
+            user.setLocation(LOCATION_AMBIGUITY2);
+            var sql = 'select * from food';
+            setTimeout(function () {
+                createStructureResponseQueryFromDatabase(sql, user);
+            }, 2000);
+        }
+    }
+
+    if (action === ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION) {
+        user.setFood(FOOD_AMBIGUITY1);
+        if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+            var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
+            user.sendFBMessageTypeText(responseText);
+        } else if (params.Location) {
+            user.sendFBMessageTypeText(responseText);
+            var sql;
+            user.setFood(FOOD_AMBIGUITY1);
+            user.setLocation(params.Location);
+
+            sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%"';
+            setTimeout(function () {
+                createStructureResponseQueryFromDatabase(sql, user);
+            }, 2000);
+        } else {
+            var responseText = "Bạn có thể cho tôi biết rõ bạn muốn ăn ở đâu";
+            user.sendFBMessageTypeText(responseText);
+        }
+    }
+
+    if (action === ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER) {
+        if (splittedText.toString().trim() === successMessage) {
+            if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
+                user.sendFBMessageTypeText(responseText);
+            } else {
+                user.setLocation(params.Location);
+                var sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%"';
+
+                setTimeout(function () {
+                    createStructureResponseQueryFromDatabase(sql, user);
+                }, 2000);
+            }
         }
     }
 }

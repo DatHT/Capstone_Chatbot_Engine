@@ -163,7 +163,7 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray) {
                     type: "template",
                     payload: {
                         template_type: "button",
-                        text: "What do you want to do next?",
+                        text: "Bạn có muốn tiếp tục xem những món mới không :D",
                         buttons: buttonArray
                     }
                 }
