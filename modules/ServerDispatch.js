@@ -27,6 +27,8 @@ const ACTION_FULL_TYPE_REQUEST = "full.type.request";
 const successMessage = "success";
 const PAYLOAD_PRICE = "price";
 const PAYLOAD_LOCATION = "location";
+const PAYLOAD_CANCEL = "cancel";
+const PAYLOAD_CONTINUE = "continue";
 const LOCATION_AMBIGUITY1 = "location_ambiguity1";
 const LOCATION_AMBIGUITY2 = "location_ambiguity2";
 const FOOD_AMBIGUITY1 = "Food_Ambiguity1";
@@ -79,19 +81,18 @@ router.post('/', function (req, res) {
             // get current user
             var existUser;
             if (!userMappingObject.has(sender)) {
-                console.log(uuid.v1());
                 existUser = clientUser(uuid.v1(), sender);
                 userMappingObject.set(sender, existUser);
             } else {
                 existUser = userMappingObject.get(sender);
             }
 
+
             // normal event message
             if (event.message && event.message.text) {
                 var opt = {
                     sessionId: existUser.getSessionID()
                 };
-                // check emoji to remove
 
                 handleFacebookMessage(event.message.text, opt, function (response) {
                     handleAPIResponse(response, existUser);
@@ -103,15 +104,90 @@ router.post('/', function (req, res) {
             if (event.postback) {
                 var objectJSON = JSON.parse(event.postback.payload);
                 var responseText;
+                if (objectJSON.type == PAYLOAD_CANCEL) {
+                    console.log("remove current user");
+                    userMappingObject.removeItem(existUser.getSenderID());
+                }
+
+                if (objectJSON.type == PAYLOAD_CONTINUE) {
+                    var elementArray = [];
+                    if (objectJSON.isNext === 1) {
+                        var temp;
+
+                        if (existUser.getCurrentPosition()+10 >= data.length) {
+                            temp = data.length - existUser.getCurrentPosition();
+
+                            for (var i = existUser.getCurrentPosition(); i < data.length; i++) {
+                                var structureObj = createItemOfStructureResponse(data[i]);
+                                elementArray.push(structureObj);
+                            }
+                            existUser.sendFBMessageTypeStructureMessage(elementArray);
+                            setTimeout(function () {
+                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                            }, 5000);
+
+                            existUser.setCurrentPositionItem(existUser.getCurrentPosition()+temp);
+                        } else if (existUser.getCurrentPosition()+10 < data.length) {
+                            for (var i = existUser.getCurrentPosition(); i < existUser.getCurrentPosition()+10; i++) {
+                                var structureObj = createItemOfStructureResponse(data[i]);
+                                elementArray.push(structureObj);
+                            }
+                            existUser.sendFBMessageTypeStructureMessage(elementArray);
+                            setTimeout(function () {
+                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                            }, 5000);
+                            existUser.setCurrentPositionItem(existUser.getCurrentPosition()+10);
+                        }
+                    }
+
+                    if (objectJSON.isNext === 0) {
+                        var temp;
+                        if (existUser.getCurrentPosition()-10 < 0 ) {
+                            temp = existUser.getCurrentPosition() - 0;
+                            existUser.setCurrentPositionItem(0);
+                            for (var i = existUser.getCurrentPosition(); i < temp; i++) {
+                                var structureObj = createItemOfStructureResponse(data[i]);
+                                elementArray.push(structureObj);
+                            }
+                            existUser.sendFBMessageTypeStructureMessage(elementArray);
+                            setTimeout(function () {
+                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                            }, 5000);
+                        } else if (existUser.getCurrentPosition()-10>=0) {
+                            existUser.setCurrentPositionItem(existUser.getCurrentPosition()-10);
+
+                            if (existUser.getCurrentPosition() - 10 < 0) {
+                                for (var i = 0; i < existUser.getCurrentPosition(); i) {
+                                    var structureObj = createItemOfStructureResponse(data[i]);
+                                    elementArray.push(structureObj);
+                                }
+
+                            } else if (existUser.getCurrentPosition() - 10 >= 0) {
+                                for (var i = existUser.getCurrentPosition() -10; i < existUser.getCurrentPosition(); i++) {
+                                    var structureObj = createItemOfStructureResponse(data[i]);
+                                    elementArray.push(structureObj);
+                                }
+                            }
+
+                            existUser.sendFBMessageTypeStructureMessage(elementArray);
+                            setTimeout(function () {
+                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                            }, 5000);
+                        }
+                    }
+                }
+
                 if (objectJSON.type === PAYLOAD_LOCATION) {
                     responseText = getLocation(objectJSON.id);
+                    existUser.sendFBMessageTypeText(responseText);
                 }
 
                 if (objectJSON.type === PAYLOAD_PRICE) {
                     responseText = getPrice(objectJSON.id);
+                    existUser.sendFBMessageTypeText(responseText);
                 }
 
-                existUser.sendFBMessageTypeText(responseText);
+
             }
 
             /**
@@ -684,12 +760,20 @@ function createStructureResponseQueryFromDatabase(sql, user) {
             data = rows;
             if (rows.length > 0) {
                 var elementArray = [];
-                var lengthArray = rows.length > 10 ? 10 : rows.length;
+                var lengthArray = rows.length >= 10 ? 10 : rows.length;
+                user.setCurrentPositionItem(lengthArray);
+                console.log("position: ", user.getCurrentPosition());
                 for (var i = 0; i < lengthArray; i++) {
                     var structureObj = createItemOfStructureResponse(rows[i]);
                     elementArray.push(structureObj);
                 }
                 user.sendFBMessageTypeStructureMessage(elementArray);
+                // nếu lớn hơn 10  thì mới paging
+                if (rows.length > 10 ) {
+                    setTimeout(function () {
+                        askToBeContinuing(user.getCurrentPosition(), user);
+                    }, 5000);
+                }
             } else {
                 var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
                 user.sendFBMessageTypeText(responseText);
@@ -767,4 +851,79 @@ function getURLParam(name, url) {
     var regex = new RegExp(regexS);
     var results = regex.exec(url);
     return results == null ? null : results[1];
+}
+
+
+/**
+ [{
+         type: "web_url",
+         url: "https://petersapparel.parseapp.com",
+         title: "Show Website"
+     },
+ {
+     type: "postback",
+     title: "Start Chatting",
+     payload: "USER_DEFINED_PAYLOAD"
+ }]
+ */
+function askToBeContinuing(position, user) {
+    var elementArray;
+    if (position <= 10) {
+        elementArray = [{
+                type: "postback",
+                title: "Next",
+                payload: JSON.stringify ({
+                    type: "continue",
+                    isNext: 1
+                })
+            },
+            {
+                type: "postback",
+                title: "Cancel",
+                payload: JSON.stringify ({
+                    type: "cancel",
+                })
+            }];
+    } else if (position === data.length) {
+        elementArray = [{
+            type: "postback",
+            title: "Previous",
+            payload: JSON.stringify ({
+                type: "continue",
+                isNext: 0
+            })
+        },
+            {
+                type: "postback",
+                title: "Cancel",
+                payload: JSON.stringify ({
+                    type: "cancel",
+                })
+            }];
+    } else {
+        elementArray = [{
+                type: "postback",
+                title: "Next",
+                payload: JSON.stringify ({
+                    type: "continue",
+                    isNext: 1
+                })
+            },
+            {
+                type: "postback",
+                title: "Trước",
+                payload: JSON.stringify ({
+                    type: "continue",
+                    isNext: 0
+                })
+            },
+            {
+                type: "postback",
+                title: "Cancel",
+                payload: JSON.stringify ({
+                    type: "cancel",
+                })
+            }];
+    }
+    user.sendFBMessageTypeButtonTemplate(elementArray);
 }

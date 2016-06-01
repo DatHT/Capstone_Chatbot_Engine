@@ -82,7 +82,7 @@ function doSubscribeRequest() {
         })
 }
 
-function sendFBMessageTypeImage(sender, pageAccessToken, urlString) {
+function sendFBMessageTypeImage(sender, urlString) {
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -109,7 +109,7 @@ function sendFBMessageTypeImage(sender, pageAccessToken, urlString) {
     })
 }
 
-function sendFBMessageTypeImageFile(sender, pageAccessToken, urlImageFile) {
+function sendFBMessageTypeImageFile(sender, urlImageFile) {
     var self = this;
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -149,7 +149,7 @@ function sendFBMessageTypeImageFile(sender, pageAccessToken, urlImageFile) {
  }]
  */
 // send fb message type button template
-function sendFBMessageTypeButtonTemplate(sender, pageAccessToken, buttonArray) {
+function sendFBMessageTypeButtonTemplate(sender, buttonArray) {
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -175,7 +175,7 @@ function sendFBMessageTypeButtonTemplate(sender, pageAccessToken, buttonArray) {
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
-    })
+    });
 }
 
 

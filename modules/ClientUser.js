@@ -10,10 +10,10 @@ var sessionId;
 var senderID;
 var food;
 var location;
+var currentPositionItem;
 function ClientUser(session, fbID) {
     sessionId = session;
     senderID = fbID;
-
 }
 
 function createClientUser(session, fbID) {
@@ -33,12 +33,20 @@ ClientUser.prototype.setFood = function (foodObj) {
     food = foodObj;
 }
 
+ClientUser.prototype.setCurrentPositionItem = function (position) {
+    currentPositionItem = position;
+}
+
 ClientUser.prototype.setLocation = function (locationObj) {
     location = locationObj;
 }
 
 ClientUser.prototype.getSessionID = function () {
     return sessionId;
+}
+
+ClientUser.prototype.getCurrentPosition = function () {
+    return currentPositionItem;
 }
 
 ClientUser.prototype.getSenderID = function () {
