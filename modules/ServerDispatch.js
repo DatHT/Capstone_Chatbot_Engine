@@ -11,6 +11,7 @@ var clientUser = require('./ClientUser');
 var fbAPIRequest = require('./FacebookAPI').FacebookAPI;
 var databaseConnection = require('./Database');
 var util = require('../common/CommonUtil');
+var geocoding = require('../lib/GoogleAPI/GMGeocodingAPI');
 
 const ACTION_FIND_FOOD = "find.food";
 const ACTION_FIND_LOCATION = "find.location";
@@ -210,31 +211,21 @@ router.post('/', function (req, res) {
             //handle attachment
             if (event.message && event.message.attachments) {
                 var type = event.message.attachments[0].type;
-                if (type.toString() === "location") {
+                if (type === "location" && existUser.getLocation() === LOCATION_AMBIGUITY1) {
                     var url = event.message.attachments[0].url;
                     var param = getURLParam("where1", decodeURIComponent(url));
                     var location = param.split("%2C");
-                    var locationObj = {
-                        latitude: Number(location[0]),
-                        longitude: Number(location[1])
-                    }
-                    var sql = 'select * from food where name  "%' + existUser.getFood().toString().trim() + '%" order by rate desc';
 
-                    databaseConnection.connectToDatabase(sql, function (rows) {
-                        data = rows;
-                        var distanceAccepted = calculatePositionOfUserWithStore(locationObj, rows);
-                        if (distanceAccepted.length > 0) {
-                            var elementArray = [];
+                    geocoding.reverseGeocodingIntoAddres(Number(location[0]), Number(location[1]), function (response) {
+                        var tmp = handleGoogleAPIRespnose(response);
+                        console.log('LOG: location of user: ' + tmp);
 
-                            for (var i = 0; i < distanceAccepted.length; i++) {
-                                var structureObj = createItemOfStructureResponse(distanceAccepted[i]);
-                                elementArray.push(structureObj);
-                            }
-                            existUser.sendFBMessageTypeStructureMessage(elementArray);
-                        } else {
-                            var responseText = "Xin lỗi! Không có món bạn cần tìm ở gần đây :(";
-                            existUser.sendFBMessageTypeText(responseText);
-                        }
+                        existUser.setLocation(tmp);
+                        var sql = 'select * from food where name like "%' + existUser.getFood().toString().trim() + '%" and address like "%' + existUser.getLocation().toString().trim() + '%" order by rate desc';
+
+                        setTimeout(function () {
+                            createStructureResponseQueryFromDatabase(sql, existUser);
+                        }, 1000);
                     });
                 }
             }
@@ -390,6 +381,7 @@ function handleWordProccessingSensationStatements(response, user) {
     if (action === ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION) {
         user.setFood(FOOD_AMBIGUITY1);
         if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+            user.setLocation(LOCATION_AMBIGUITY1);
             var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
             user.sendFBMessageTypeText(responseText);
         } else if (params.Location) {
@@ -411,6 +403,7 @@ function handleWordProccessingSensationStatements(response, user) {
     if (action === ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER) {
         if (splittedText.toString().trim() === successMessage) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -495,6 +488,7 @@ function handleWordProcessingFullTypeRequest(response, user) {
         // have all
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -551,6 +545,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
     if (action === ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT) {
         user.setFood(FOOD_AMBIGUITY1);
         if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+            user.setLocation(LOCATION_AMBIGUITY1);
             var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
             user.sendFBMessageTypeText(responseText);
         } else if (params.Location) {
@@ -573,6 +568,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
     if (action === ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT_ANSWER) {
         if (splittedText.toString().trim() === successMessage) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -597,6 +593,7 @@ function handleWordProccessingRatingFoodInLocationRequest(response, user) {
     if (action === ACTION_RATING_REQUEST_FOOD_IN_LOCATION) {
         if (splittedText.toString().trim() === successMessage) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -670,6 +667,7 @@ function handleWordProcessingLocationFirst(response, user) {
         // have all
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -757,6 +755,7 @@ function handleWordProcessingFoodFirst(response, user) {
     if (action === ACTION_FIND_LOCATION) {
         if (splittedText.toString().trim() === successMessage) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -819,6 +818,7 @@ function handleWordProcessingFoodFirst(response, user) {
     if (action == ACTION_CHANGE_LOCATION) {
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY1) {
+                user.setLocation(LOCATION_AMBIGUITY1);
                 var responseText = "Bạn có thể chia sẻ địa điểm chính xác của bạn cho tôi được không?";
                 user.sendFBMessageTypeText(responseText);
             } else {
@@ -1020,4 +1020,23 @@ function askToBeContinuing(position, user) {
             }];
     }
     user.sendFBMessageTypeButtonTemplate(elementArray);
+}
+
+function handleGoogleAPIRespnose(response) {
+    for (var i = 0; i< response.results.length; i++) {
+        for (var j = 0; j<response.results[i].types.length; j++) {
+            console.log(response.results[i].types[j]);
+            if (response.results[i].types[j] === 'street_address' || response.results[i].types[j] === 'premise' || response.results[i].types[j] === 'route') {
+                for (var k = 0; k < response.results[i].address_components.length; k++) {
+
+                    for (var z = 0; z < response.results[i].address_components[k].types.length; z++) {
+                        console.log(response.results[i].address_components[k].types[z]);
+                        if (response.results[i].address_components[k].types[z] === 'administrative_area_level_2') {
+                            return response.results[i].address_components[k].long_name;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

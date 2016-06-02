@@ -6,9 +6,7 @@ const mysql = require('mysql');
 var config = require('../common/app-config').config;
 
 module.exports = {
-
     
-
     connectToDatabase: function (sql, callback) {
 
         var connection = mysql.createConnection({
