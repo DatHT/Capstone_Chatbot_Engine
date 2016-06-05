@@ -28,7 +28,7 @@ module.exports = (sender, code, response) => {
             data = new Date() + ' : \n' + JSON.stringify(response, null, 2) + '\n';
         } else if (code === 300) {
             data = "==========>>>>>          300         <<<<<=============\n" +
-                new Date() + " : \n" + syntaxHighlight(JSON.stringify(response, null, 2)) +
+                new Date() + " : \n" + JSON.stringify(response, null, 2) +
                 "\n-------------------------------------------------------\n";
         }
         fs.exists(filePath, function (result) {
