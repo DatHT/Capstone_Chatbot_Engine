@@ -12,6 +12,7 @@ var fbAPIRequest = require('./FacebookAPI').FacebookAPI;
 var databaseConnection = require('./Database');
 var util = require('../common/CommonUtil');
 var geocoding = require('../lib/GoogleAPI/GMGeocodingAPI');
+var logHandle = require('./Logger');
 
 const ACTION_FIND_FOOD = "find.food";
 const ACTION_FIND_LOCATION = "find.location";
@@ -199,6 +200,13 @@ router.post('/', function (req, res) {
                 }
             }
 
+            // handle log
+            if (event.delivery) {
+                console.log(existUser.getResponseAPI());
+                console.log("status api: " + existUser.getStatusCode());
+                logHandle(existUser.getSenderID(), existUser.getStatusCode(), existUser.getResponseAPI());
+            }
+
             /**
              {attachments: [
                 payload: {
@@ -281,10 +289,12 @@ function handleFacebookMessage(statements, option, callback) {
 // handle
 function handleAPIResponse(response, user) {
     console.log(response);
+    user.setResponseAPI(response);
     var intentName = response.result.metadata.intentName;
     if (response.status.code === 200) {
         // greeting
         if (intentName.indexOf(INPUT_INTENT_GREETING) > -1) {
+            user.setStatusCode(200);
             var responseText = response.result.fulfillment.speech;
             var splittedText = util.splitResponse(responseText);
             for (var i = 0; i < splittedText.length; i++) {
@@ -295,42 +305,49 @@ function handleAPIResponse(response, user) {
         // food first
         if (intentName.indexOf(INPUT_INTENT_FOOD_FIRST) > -1) {
             console.log("food first");
+            user.setStatusCode(200);
             handleWordProcessingFoodFirst(response, user);
         }
 
         // location first
         if (intentName.indexOf(INPUT_INTENT_LOCATION_FIRST) > -1) {
             console.log("location first");
+            user.setStatusCode(200);
             handleWordProcessingLocationFirst(response, user);
         }
 
         // unknown request
         if (intentName.indexOf(INPUT_INTENT_UNKNOWN) > -1) {
             console.log("unknown");
+            user.setStatusCode(300);
             handleWordProccessingUnknown(response, user);
         }
 
         //rating request food in location
         if (intentName.indexOf(INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION) > -1) {
             console.log("rating request food in location");
+            user.setStatusCode(200);
             handleWordProccessingRatingFoodInLocationRequest(response, user)
         }
 
         // rating request food no location
         if (intentName.indexOf(INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION) > -1) {
             console.log("rating request food no location ");
+            user.setStatusCode(200);
             handleWordProcessingRatingFoodNoLocationRequest(response, user);
         }
 
         //full type request
         if (intentName.indexOf(INPUT_INTENT_FULL_TYPE_REQUEST) > -1) {
             console.log("full type request");
+            user.setStatusCode(200);
             handleWordProcessingFullTypeRequest(response, user);
         }
 
         //sensation statement
         if (intentName.indexOf(INPUT_INTENT_SENSATION_STATEMENT) > -1) {
             console.log("sensation statement");
+            user.setStatusCode(200);
             handleWordProccessingSensationStatements(response, user);
         }
     }
@@ -361,6 +378,10 @@ function handleWordProccessingSensationStatements(response, user) {
 
     if (action === ACTION_SENSATION_STATEMENT_ACCEPT) {
         if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
+            if (params.Food) {
+                user.setFood(params.Food);
+            }
+
             for (var i = 0; i < splittedText.length; i++) {
                 user.sendFBMessageTypeText(splittedText[i]);
             }
@@ -369,9 +390,15 @@ function handleWordProccessingSensationStatements(response, user) {
 
     if (action === ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION) {
         if (splittedText.toString().trim() === successMessage) {
-            user.setFood(FOOD_AMBIGUITY1);
-            user.setLocation(LOCATION_AMBIGUITY2);
-            var sql = 'select * from food  order by rate desc';
+            var sql;
+            if (user.getFood().toString().trim().length > 0) {
+                user.setLocation(LOCATION_AMBIGUITY2);
+                sql = 'select * from food where name like "%'+ user.getFood().toString().trim() +'%"  order by rate desc'
+            } else {
+                user.setFood(FOOD_AMBIGUITY1);
+                user.setLocation(LOCATION_AMBIGUITY2);
+                sql = 'select * from food  order by rate desc';
+            }
             setTimeout(function () {
                 createStructureResponseQueryFromDatabase(sql, user);
             }, 2000);
@@ -748,6 +775,7 @@ function handleWordProcessingFoodFirst(response, user) {
         if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
             for (var i = 0; i < splittedText.length; i++) {
                 user.sendFBMessageTypeText(splittedText[i]);
+
             }
         }
     }
@@ -869,6 +897,7 @@ function createStructureResponseQueryFromDatabase(sql, user) {
                     }, 5000);
                 }
             } else {
+                user.setStatusCode(404);
                 var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
                 user.sendFBMessageTypeText(responseText);
             }
@@ -902,40 +931,6 @@ function createItemOfStructureResponse(item) {
     structureObj.buttons = buttons;
 
     return structureObj;
-}
-
-// calcualate position
-function calculatePositionOfUserWithStore(userLocation, data) {
-    var distanceAccepted = [];
-
-    for (var i = 0; i < data.length; i++) {
-        var d = getDistanceFromLatLonInKm(userLocation.latitude, userLocation.longitude, data[i].latitude, data[i].longitude);
-        console.log("distance: " + d);
-
-        if (d <= 7) {
-            distanceAccepted.push(data[i]);
-        }
-    }
-
-    return distanceAccepted;
-}
-
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(lat2 - lat1);  // deg2rad below
-    var dLon = deg2rad(lon2 - lon1);
-    var a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2)
-        ;
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return d;
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI / 180)
 }
 
 function getURLParam(name, url) {
