@@ -22,10 +22,14 @@ module.exports = (sender, code, response) => {
         var data;
         if(code === 404) {
             data = "==========>>>>>          404         <<<<<=============\n" +
-                    new Date() + " : " + response +
+                    new Date() + " : \n" + JSON.stringify(response, null, 2) +
                     "\n-------------------------------------------------------\n";
-        } else {
-            data = new Date() + ' : ' + response + '\n';
+        } else if (code === 200) {
+            data = new Date() + ' : \n' + JSON.stringify(response, null, 2) + '\n';
+        } else if (code === 300) {
+            data = "==========>>>>>          300         <<<<<=============\n" +
+                new Date() + " : \n" + syntaxHighlight(JSON.stringify(response, null, 2)) +
+                "\n-------------------------------------------------------\n";
         }
         fs.exists(filePath, function (result) {
             if(result) {

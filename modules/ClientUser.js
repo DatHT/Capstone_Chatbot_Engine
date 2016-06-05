@@ -11,6 +11,8 @@ var senderID;
 var food;
 var location;
 var currentPositionItem;
+var responseAPI;
+var statusCode;
 function ClientUser(session, fbID) {
     sessionId = session;
     senderID = fbID;
@@ -29,6 +31,14 @@ function createClientUser(session, fbID) {
 }
 
 module.exports = createClientUser;
+ClientUser.prototype.setResponseAPI = function (response) {
+    responseAPI = response;
+}
+
+ClientUser.prototype.setStatusCode = function (status) {
+    statusCode = status;
+}
+
 ClientUser.prototype.setFood = function (foodObj) {
     food = foodObj;
 }
@@ -39,6 +49,14 @@ ClientUser.prototype.setCurrentPositionItem = function (position) {
 
 ClientUser.prototype.setLocation = function (locationObj) {
     location = locationObj;
+}
+
+ClientUser.prototype.getResponseAPI = function () {
+    return responseAPI;
+}
+
+ClientUser.prototype.getStatusCode = function () {
+     return statusCode;
 }
 
 ClientUser.prototype.getSessionID = function () {
