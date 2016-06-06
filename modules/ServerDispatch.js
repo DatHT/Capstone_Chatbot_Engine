@@ -31,8 +31,7 @@ const ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION = "sensation.statements.
 const ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION = "sensation.statements.accept.notacceptlocation";
 const ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER = "sensation.statements.accept.notacceptlocation.answer";
 const ACTION_SENSATION_STATEMENT_NOTACCEPT = "sensation.statements.notaccept";
-
-
+const ACTION_REFUSE = "refuse";
 
 const successMessage = "success";
 const PAYLOAD_PRICE = "price";
@@ -51,6 +50,7 @@ const INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION = "RatingRequestFood_InLocati
 const INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION = "RatingRequestFood_NoLocation";
 const INPUT_INTENT_FULL_TYPE_REQUEST = "FullTypeRequest";
 const INPUT_INTENT_SENSATION_STATEMENT = "SensationStatement";
+const INPUT_INTENT_REFUSE = "Refuse";
 
 const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 
@@ -87,10 +87,10 @@ router.post('/', function (req, res) {
         for (var i = 0; i < messaging_events.length; i++) {
             var event = req.body.entry[0].messaging[i];
             var sender = event.sender.id;
-            console.log(event);
+            // console.log(event);
 
             // get current user
-            var existUser;
+            var existUser ;
             if (!userMappingObject.has(sender)) {
                 existUser = clientUser(uuid.v1(), sender);
                 userMappingObject.set(sender, existUser);
@@ -105,6 +105,7 @@ router.post('/', function (req, res) {
                 };
 
                 handleFacebookMessage(event.message.text, opt, function (response) {
+
                     handleAPIResponse(response, existUser);
                 });
 
@@ -202,8 +203,6 @@ router.post('/', function (req, res) {
 
             // handle log
             if (event.delivery) {
-                console.log(existUser.getResponseAPI());
-                console.log("status api: " + existUser.getStatusCode());
                 logHandle(existUser.getSenderID(), existUser.getStatusCode(), existUser.getResponseAPI());
             }
 
@@ -229,7 +228,7 @@ router.post('/', function (req, res) {
                         console.log('LOG: location of user: ' + tmp);
 
                         existUser.setLocation(tmp);
-                        var sql = 'select * from food where name like "%' + existUser.getFood().toString().trim() + '%" and address like "%' + existUser.getLocation().toString().trim() + '%" order by rate desc';
+                        var sql = 'select * from product_address where productName like "%' + existUser.getFood().toString().trim() + '%" and addressName like "%' + existUser.getLocation().toString().trim() + '%" order by rate desc';
 
                         setTimeout(function () {
                             createStructureResponseQueryFromDatabase(sql, existUser);
@@ -254,7 +253,7 @@ router.post('/', function (req, res) {
 function getLocation(ID) {
     for (var i = 0; i < data.length; i++) {
         if (data[i].ID === ID) {
-            return "Món " + data[i].name + " có tại địa chỉ " + data[i].address;
+            return "Món " + data[i].productName + " có tại địa chỉ " + data[i].addressName;
         }
     }
     return "Xin lỗi bạn! Hiện tại không có thông tin về địa chỉ!";
@@ -263,7 +262,7 @@ function getLocation(ID) {
 function getPrice(ID) {
     for (var i = 0; i < data.length; i++) {
         if (data[i].ID === ID) {
-            return "Món " + data[i].name + " có giá " + data[i].price;
+            return "Món " + data[i].productName + " có giá " + data[i].price;
         }
     }
     return "Xin lỗi bạn! Hiện tại không có thông tin về giá của món ăn";
@@ -294,12 +293,18 @@ function handleAPIResponse(response, user) {
     if (response.status.code === 200) {
         // greeting
         if (intentName.indexOf(INPUT_INTENT_GREETING) > -1) {
-            user.setStatusCode(200);
-            var responseText = response.result.fulfillment.speech;
-            var splittedText = util.splitResponse(responseText);
-            for (var i = 0; i < splittedText.length; i++) {
-                user.sendFBMessageTypeText(splittedText[i]);
-            }
+            user.getSenderInformation(function (response) {
+                console.log(response);
+                var profile = JSON.parse(response);
+                user.setStatusCode(200);
+                var responseText = "Chào " + profile.last_name + profile.first_name + "! Tôi có thể giúp gì cho bạn :D";
+                user.sendFBMessageTypeText(responseText);
+                var gender = (profile.gender === "male") ? 1 : 0;
+                var sql = 'insert into facebookuser values ("'+user.getSenderID()+'","'+profile.first_name+'",'+gender+','+0+',"'+profile.last_name+'","'+profile.locale+'")';
+                databaseConnection.connectToDatabase(sql, function () {
+                    console.log("insert success");
+                })
+            });
         }
 
         // food first
@@ -350,6 +355,28 @@ function handleAPIResponse(response, user) {
             user.setStatusCode(200);
             handleWordProccessingSensationStatements(response, user);
         }
+
+        //refuse statement
+        if (intentName.indexOf(INPUT_INTENT_REFUSE)>-1) {
+            console.log("refuse");
+            user.setStatusCode(200);
+            handleWordProccessingRefuseStatement(response, user);
+        }
+    }
+}
+
+//handle response processing refuse statement
+function handleWordProccessingRefuseStatement(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+
+    if (action === ACTION_REFUSE) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== successMessage) {
+            var responseText = "Vâng cảm ơn bạn rất nhiều :D";
+            user.sendFBMessageTypeText(responseText);
+        }
     }
 }
 
@@ -393,11 +420,11 @@ function handleWordProccessingSensationStatements(response, user) {
             var sql;
             if (user.getFood().toString().trim().length > 0) {
                 user.setLocation(LOCATION_AMBIGUITY2);
-                sql = 'select * from food where name like "%'+ user.getFood().toString().trim() +'%"  order by rate desc'
+                sql = 'select * from product_address where productName like "%'+ user.getFood().toString().trim() +'%"  order by rate desc'
             } else {
                 user.setFood(FOOD_AMBIGUITY1);
                 user.setLocation(LOCATION_AMBIGUITY2);
-                sql = 'select * from food  order by rate desc';
+                sql = 'select * from product_address  order by rate desc';
             }
             setTimeout(function () {
                 createStructureResponseQueryFromDatabase(sql, user);
@@ -417,7 +444,7 @@ function handleWordProccessingSensationStatements(response, user) {
             user.setFood(FOOD_AMBIGUITY1);
             user.setLocation(params.Location);
 
-            sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+            sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
             setTimeout(function () {
                 createStructureResponseQueryFromDatabase(sql, user);
             }, 2000);
@@ -435,7 +462,7 @@ function handleWordProccessingSensationStatements(response, user) {
                 user.sendFBMessageTypeText(responseText);
             } else {
                 user.setLocation(params.Location);
-                var sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                var sql = 'select * from product_addressName where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
 
                 setTimeout(function () {
                     createStructureResponseQueryFromDatabase(sql, user);
@@ -463,10 +490,10 @@ function handleWordProcessingFullTypeRequest(response, user) {
                 user.setLocation(params.Location);
                 if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY2) {
                     user.setLocation(LOCATION_AMBIGUITY2)
-                    var sql = 'select * from food order by rate desc';
+                    var sql = 'select * from product_address order by rate desc';
                 } else if (params.Location) {
                     user.setLocation(params.Location);
-                    var sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                 }
 
                 setTimeout(function () {
@@ -484,12 +511,12 @@ function handleWordProcessingFullTypeRequest(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
                 } else {
                     user.sendFBMessageTypeText(responseText);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                        sql = 'select * from food order by rate desc';
+                        sql = 'select * from product_address order by rate desc';
 
                     }
                 }
@@ -498,9 +525,9 @@ function handleWordProcessingFullTypeRequest(response, user) {
                 if (params.Food_Ambiguity1) {
                     user.setFood(FOOD_AMBIGUITY1);
                     if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                        sql = "select * from food desc";
+                        sql = "select * from product_address desc";
                     } else {
-                        sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                        sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     }
                 }
                 setTimeout(function () {
@@ -523,15 +550,15 @@ function handleWordProcessingFullTypeRequest(response, user) {
 
                 if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY2) {
                     user.setLocation(LOCATION_AMBIGUITY2);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
                     if (user.getFood().toString().trim() === FOOD_AMBIGUITY1) {
-                        sql = 'select * from food order by rate desc';
+                        sql = 'select * from product_address order by rate desc';
                     }
                 } else {
                     user.setLocation(params.Location);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     if (user.getFood().toString().trim() === FOOD_AMBIGUITY1) {
-                        sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                        sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     }
                 }
                 setTimeout(function () {
@@ -561,7 +588,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
         if (splittedText.toString().trim() === successMessage) {
             user.setFood(FOOD_AMBIGUITY1);
             user.setLocation(LOCATION_AMBIGUITY2);
-            var sql = 'select * from food order by rate desc';
+            var sql = 'select * from product_address order by rate desc';
             setTimeout(function () {
                 createStructureResponseQueryFromDatabase(sql, user);
             }, 2000);
@@ -581,7 +608,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
             user.setFood(FOOD_AMBIGUITY1);
             user.setLocation(params.Location);
 
-            sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+            sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
             setTimeout(function () {
                 createStructureResponseQueryFromDatabase(sql, user);
             }, 2000);
@@ -600,7 +627,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
                 user.sendFBMessageTypeText(responseText);
             } else {
                 user.setLocation(params.Location);
-                var sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
 
                 setTimeout(function () {
                     createStructureResponseQueryFromDatabase(sql, user);
@@ -629,10 +656,10 @@ function handleWordProccessingRatingFoodInLocationRequest(response, user) {
 
                 if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY2) {
                     user.setLocation(params.Location_Ambiguity);
-                    sql = 'select * from food order by rate desc';
+                    sql = 'select * from product_address order by rate desc';
                 } else {
                     user.setLocation(params.Location);
-                    sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                 }
 
                 setTimeout(function () {
@@ -679,10 +706,10 @@ function handleWordProcessingLocationFirst(response, user) {
         if (splittedText.toString().trim() === successMessage) {
             var sql;
             if (params.Food_Ambiguity && params.Food_Ambiguity === FOOD_AMBIGUITY1) {
-                sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
             } else {
                 user.setFood(params.Food);
-                sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
             }
             setTimeout(function () {
                 createStructureResponseQueryFromDatabase(sql, user);
@@ -702,15 +729,15 @@ function handleWordProcessingLocationFirst(response, user) {
 
                 if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY2) {
                     user.setLocation(LOCATION_AMBIGUITY2);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
                     if (user.getFood().toString().trim() === FOOD_AMBIGUITY1) {
-                        sql = 'select * from food order by rate desc';
+                        sql = 'select * from product_address order by rate desc';
                     }
                 } else {
                     user.setLocation(params.Location);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from fproduct_addressood where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     if (user.getFood().toString().trim() === FOOD_AMBIGUITY1) {
-                        sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                        sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     }
                 }
                 setTimeout(function () {
@@ -735,12 +762,12 @@ function handleWordProcessingLocationFirst(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
                 } else {
                     user.sendFBMessageTypeText(responseText);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from food where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                        sql = 'select * from food order by rate desc';
+                        sql = 'select * from product_address order by rate desc';
                     }
                 }
             }
@@ -749,9 +776,9 @@ function handleWordProcessingLocationFirst(response, user) {
             if (params.Food_Ambiguity) {
                 user.setFood(FOOD_AMBIGUITY1);
                 if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                    sql = "select * from food order by rate desc";
+                    sql = "select * from product_address order by rate desc";
                 } else {
-                    sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                 }
             }
             setTimeout(function () {
@@ -790,10 +817,10 @@ function handleWordProcessingFoodFirst(response, user) {
                 var sql;
                 if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY2) {
                     user.setLocation(LOCATION_AMBIGUITY2);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood() + '%" order by rate desc';
                 } else {
                     user.setLocation(params.Location);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood() + '%" and addressName like "%' + user.getLocation() + '%" order by rate desc';
                 }
                 setTimeout(function () {
                     createStructureResponseQueryFromDatabase(sql, user);
@@ -810,12 +837,12 @@ function handleWordProcessingFoodFirst(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
                 } else {
                     user.sendFBMessageTypeText(responseText);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                        sql = 'select * from food order by rate desc';
+                        sql = 'select * from product_address order by rate desc';
                     }
                 }
             }
@@ -824,9 +851,9 @@ function handleWordProcessingFoodFirst(response, user) {
             if (params.Food_Ambiguity) {
                 user.setFood(FOOD_AMBIGUITY1);
                 if (user.getLocation().toString().trim() === LOCATION_AMBIGUITY2) {
-                    sql = "select * from food order by rate desc";
+                    sql = "select * from product_address order by rate desc";
                 } else {
-                    sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                 }
             }
 
@@ -854,15 +881,15 @@ function handleWordProcessingFoodFirst(response, user) {
 
                 if (params.Location_Ambiguity && params.Location_Ambiguity === LOCATION_AMBIGUITY2) {
                     user.setLocation(LOCATION_AMBIGUITY2);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
                     if (user.getFood().toString().trim() === FOOD_AMBIGUITY1) {
-                        sql = 'select * from food order by rate desc';
+                        sql = 'select * from product_address order by rate desc';
                     }
                 } else {
                     user.setLocation(params.Location);
-                    sql = 'select * from food where name like "%' + user.getFood().toString().trim() + '%" and address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                    sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     if (user.getFood().toString().trim() === FOOD_AMBIGUITY1) {
-                        sql = 'select * from food where address like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                        sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                     }
                 }
                 setTimeout(function () {
@@ -907,12 +934,12 @@ function createStructureResponseQueryFromDatabase(sql, user) {
 
 function createItemOfStructureResponse(item) {
     var structureObj = {};
-    structureObj.title = item.name;
+    structureObj.title = item.productName;
     structureObj.image_url = item.thumbpath;
     structureObj.subtitle = "Soft white cotton t-shirt is back in style";
 
     var buttons = [];
-    var button1 = util.createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.source);
+    var button1 = util.createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
     buttons.push(button1);
 
     var priceObjPostback = {
@@ -920,7 +947,7 @@ function createItemOfStructureResponse(item) {
         type: "price"
     };
     var button2 = util.createButton("Xem giá", config.BUTTON_TYPE.postback, JSON.stringify(priceObjPostback));
-    buttons.push(button2);
+    // buttons.push(button2);
 
     var locationObjPostback = {
         id: item.ID,
@@ -1020,12 +1047,9 @@ function askToBeContinuing(position, user) {
 function handleGoogleAPIRespnose(response) {
     for (var i = 0; i< response.results.length; i++) {
         for (var j = 0; j<response.results[i].types.length; j++) {
-            console.log(response.results[i].types[j]);
             if (response.results[i].types[j] === 'street_address' || response.results[i].types[j] === 'premise' || response.results[i].types[j] === 'route') {
                 for (var k = 0; k < response.results[i].address_components.length; k++) {
-
                     for (var z = 0; z < response.results[i].address_components[k].types.length; z++) {
-                        console.log(response.results[i].address_components[k].types[z]);
                         if (response.results[i].address_components[k].types[z] === 'administrative_area_level_2') {
                             return response.results[i].address_components[k].long_name;
                         }

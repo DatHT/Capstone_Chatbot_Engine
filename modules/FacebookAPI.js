@@ -48,6 +48,10 @@ FacebookAPI.prototype.sendWelcomeMessage = function () {
     return sendWelcomeMessage();
 };
 
+FacebookAPI.prototype.getSenderInformation = function (sender, callback) {
+    return getSenderInformation(sender, callback);
+};
+
 function sendFBMessageTypeText(sender, messageData) {
     console.log("do send text message");
     request({
@@ -83,6 +87,7 @@ function doSubscribeRequest() {
 }
 
 function sendFBMessageTypeImage(sender, urlString) {
+    console.log("do send  message");
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -110,7 +115,7 @@ function sendFBMessageTypeImage(sender, urlString) {
 }
 
 function sendFBMessageTypeImageFile(sender, urlImageFile) {
-    var self = this;
+    console.log("do send image file message");
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -150,6 +155,7 @@ function sendFBMessageTypeImageFile(sender, urlImageFile) {
  */
 // send fb message type button template
 function sendFBMessageTypeButtonTemplate(sender, buttonArray) {
+    console.log("do send button template message");
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -204,6 +210,7 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray) {
     }] **/
 //send fb message type structure message
 function sendFBMessageTypeStructureMessage(sender,elementArray) {
+    console.log("do send structure message");
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -234,7 +241,6 @@ function sendFBMessageTypeStructureMessage(sender,elementArray) {
 //send welcome message
 function sendWelcomeMessage(sender) {
     console.log("send welcome message");
-
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
@@ -251,6 +257,29 @@ function sendWelcomeMessage(sender) {
         }
     });
 }
+
+//send get sender information
+function getSenderInformation(sender, callback) {
+    console.log("send welcome message");
+    request({
+        url: 'https://graph.facebook.com/v2.6/' + sender +'/',
+        qs: {
+            access_token: pageAccessToken,
+            fields: 'first_name,last_name,profile_pic,locale,timezone,gender'
+        },
+        method: 'GET'
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error);
+        } else {
+            return callback(body);
+        }
+
+    });
+}
+
 
 
 

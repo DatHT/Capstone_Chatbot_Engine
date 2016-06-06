@@ -14,8 +14,8 @@ var currentPositionItem;
 var responseAPI;
 var statusCode;
 function ClientUser(session, fbID) {
-    sessionId = session;
-    senderID = fbID;
+    this.sessionId = session;
+    this.senderID = fbID;
 }
 
 function createClientUser(session, fbID) {
@@ -32,69 +32,75 @@ function createClientUser(session, fbID) {
 
 module.exports = createClientUser;
 ClientUser.prototype.setResponseAPI = function (response) {
-    responseAPI = response;
+    this.responseAPI = response;
 }
 
 ClientUser.prototype.setStatusCode = function (status) {
-    statusCode = status;
+    this.statusCode = status;
 }
 
 ClientUser.prototype.setFood = function (foodObj) {
-    food = foodObj;
+    this.food = foodObj;
 }
 
 ClientUser.prototype.setCurrentPositionItem = function (position) {
-    currentPositionItem = position;
+    this.currentPositionItem = position;
 }
 
 ClientUser.prototype.setLocation = function (locationObj) {
-    location = locationObj;
+    this.location = locationObj;
 }
 
 ClientUser.prototype.getResponseAPI = function () {
-    return responseAPI;
+    return this.responseAPI;
 }
 
 ClientUser.prototype.getStatusCode = function () {
-     return statusCode;
+     return this.statusCode;
 }
 
 ClientUser.prototype.getSessionID = function () {
-    return sessionId;
+    return this.sessionId;
 }
 
 ClientUser.prototype.getCurrentPosition = function () {
-    return currentPositionItem;
+    return this.currentPositionItem;
 }
 
 ClientUser.prototype.getSenderID = function () {
-    return senderID;
+    return this.senderID;
 }
 
 ClientUser.prototype.getFood = function () {
-    return food;
+    return this.food;
 }
 
 ClientUser.prototype.getLocation = function () {
-    return location;
+    return this.location;
 }
 
 ClientUser.prototype.sendFBMessageTypeText = function (messageData) {
-    return fbClient.sendFBMessageTypeText(senderID, messageData);
+    return fbClient.sendFBMessageTypeText(this.senderID, messageData);
 };
 
 ClientUser.prototype.sendFBMessageTypeImage = function (urlString) {
-    return fbClient.sendFBMessageTypeImage(senderID, urlString);
+    return fbClient.sendFBMessageTypeImage(this.senderID, urlString);
 };
 
 ClientUser.prototype.sendFBMessageTypeImageFile = function (urlImageFile) {
-    return fbClient.sendFBMessageTypeImageFile(senderID,urlImageFile);
+    return fbClient.sendFBMessageTypeImageFile(this.senderID,urlImageFile);
 };
 
 ClientUser.prototype.sendFBMessageTypeButtonTemplate = function (buttonArray) {
-    return fbClient.sendFBMessageTypeButtonTemplate(senderID, buttonArray);
+    return fbClient.sendFBMessageTypeButtonTemplate(this.senderID, buttonArray);
 };
 
 ClientUser.prototype.sendFBMessageTypeStructureMessage = function (elementArray) {
-    return fbClient.sendFBMessageTypeStructureMessage(senderID, elementArray);
+    return fbClient.sendFBMessageTypeStructureMessage(this.senderID, elementArray);
 };
+
+ClientUser.prototype.getSenderInformation = function (callback) {
+    fbClient.getSenderInformation(this.senderID, function (response) {
+        return callback(response);
+    });
+}
