@@ -13,10 +13,9 @@ module.exports = {
             host     : config.DBManager.connection.host,
             user     : config.DBManager.connection.user,
             password : config.DBManager.connection.password,
-            database : config.DBManager.connection.database
+            database : config.DBManager.connection.database,
         });
         connection.connect();
-
         connection.query(sql, function(err, rows, fields) {
             if (err) return new Error("Error: " + err);
             return callback(rows, err);
@@ -25,7 +24,24 @@ module.exports = {
 
         connection.end();
 
-    }
+    },
 
+    queryMultipleSQLStatements : function (sql, callback) {
+        var connection = mysql.createConnection({
+            host     : config.DBManager.connection.host,
+            user     : config.DBManager.connection.user,
+            password : config.DBManager.connection.password,
+            database : config.DBManager.connection.database,
+            multipleStatements: true
+        });
+        connection.connect();
+        connection.query(sql, function(err, rows, fields) {
+            if (err) return new Error("Error: " + err);
+            return callback(rows[1], err);
+
+        });
+
+        connection.end();
+    }
 };
 

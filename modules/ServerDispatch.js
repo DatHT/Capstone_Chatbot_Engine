@@ -32,6 +32,7 @@ const ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION = "sensation.statemen
 const ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER = "sensation.statements.accept.notacceptlocation.answer";
 const ACTION_SENSATION_STATEMENT_NOTACCEPT = "sensation.statements.notaccept";
 const ACTION_REFUSE = "refuse";
+const ACTION_RATING_REQUEST_LOCATION = "rating.request.location";
 
 const successMessage = "success";
 const PAYLOAD_PRICE = "price";
@@ -51,6 +52,7 @@ const INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION = "RatingRequestFood_NoLocati
 const INPUT_INTENT_FULL_TYPE_REQUEST = "FullTypeRequest";
 const INPUT_INTENT_SENSATION_STATEMENT = "SensationStatement";
 const INPUT_INTENT_REFUSE = "Refuse";
+const INPUT_INTENT_RATING_REQUEST_LOCATION = "RatingRequestLocation";
 
 const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 
@@ -90,7 +92,7 @@ router.post('/', function (req, res) {
             // console.log(event);
 
             // get current user
-            var existUser ;
+            var existUser;
             if (!userMappingObject.has(sender)) {
                 existUser = clientUser(uuid.v1(), sender);
                 userMappingObject.set(sender, existUser);
@@ -127,71 +129,71 @@ router.post('/', function (req, res) {
                     if (objectJSON.isNext === 1) {
                         var temp;
 
-                        if (existUser.getCurrentPosition()+10 >= data.length) {
+                        if (existUser.getCurrentPosition() + 10 >= data.length) {
                             temp = data.length - existUser.getCurrentPosition();
 
                             for (var i = existUser.getCurrentPosition(); i < data.length; i++) {
-                                var structureObj = createItemOfStructureResponse(data[i]);
+                                var structureObj = createItemOfStructureResponseForProduct(data[i]);
                                 elementArray.push(structureObj);
                             }
                             existUser.sendFBMessageTypeStructureMessage(elementArray);
                             setTimeout(function () {
-                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                                askToBeContinueing(existUser.getCurrentPosition(), existUser);
                             }, 5000);
 
-                            existUser.setCurrentPositionItem(existUser.getCurrentPosition()+temp);
-                        } else if (existUser.getCurrentPosition()+10 < data.length) {
-                            for (var i = existUser.getCurrentPosition(); i < existUser.getCurrentPosition()+10; i++) {
-                                var structureObj = createItemOfStructureResponse(data[i]);
+                            existUser.setCurrentPositionItem(existUser.getCurrentPosition() + temp);
+                        } else if (existUser.getCurrentPosition() + 10 < data.length) {
+                            for (var i = existUser.getCurrentPosition(); i < existUser.getCurrentPosition() + 10; i++) {
+                                var structureObj = createItemOfStructureResponseForProduct(data[i]);
                                 elementArray.push(structureObj);
                             }
                             existUser.sendFBMessageTypeStructureMessage(elementArray);
                             setTimeout(function () {
-                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                                askToBeContinueing(existUser.getCurrentPosition(), existUser);
                             }, 5000);
-                            existUser.setCurrentPositionItem(existUser.getCurrentPosition()+10);
+                            existUser.setCurrentPositionItem(existUser.getCurrentPosition() + 10);
                         }
                     }
 
                     if (objectJSON.isNext === 0) {
                         var temp;
-                        if (existUser.getCurrentPosition()-10 < 0 ) {
+                        if (existUser.getCurrentPosition() - 10 < 0) {
                             temp = existUser.getCurrentPosition() - 0;
                             existUser.setCurrentPositionItem(0);
                             for (var i = existUser.getCurrentPosition(); i < temp; i++) {
-                                var structureObj = createItemOfStructureResponse(data[i]);
+                                var structureObj = createItemOfStructureResponseForProduct(data[i]);
                                 elementArray.push(structureObj);
                             }
                             existUser.sendFBMessageTypeStructureMessage(elementArray);
                             setTimeout(function () {
-                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                                askToBeContinueing(existUser.getCurrentPosition(), existUser);
                             }, 5000);
-                        } else if (existUser.getCurrentPosition()-10>=0) {
-                            existUser.setCurrentPositionItem(existUser.getCurrentPosition()-10);
+                        } else if (existUser.getCurrentPosition() - 10 >= 0) {
+                            existUser.setCurrentPositionItem(existUser.getCurrentPosition() - 10);
 
                             if (existUser.getCurrentPosition() - 10 < 0) {
                                 for (var i = 0; i < existUser.getCurrentPosition(); i) {
-                                    var structureObj = createItemOfStructureResponse(data[i]);
+                                    var structureObj = createItemOfStructureResponseForProduct(data[i]);
                                     elementArray.push(structureObj);
                                 }
 
                             } else if (existUser.getCurrentPosition() - 10 >= 0) {
-                                for (var i = existUser.getCurrentPosition() -10; i < existUser.getCurrentPosition(); i++) {
-                                    var structureObj = createItemOfStructureResponse(data[i]);
+                                for (var i = existUser.getCurrentPosition() - 10; i < existUser.getCurrentPosition(); i++) {
+                                    var structureObj = createItemOfStructureResponseForProduct(data[i]);
                                     elementArray.push(structureObj);
                                 }
                             }
 
                             existUser.sendFBMessageTypeStructureMessage(elementArray);
                             setTimeout(function () {
-                                askToBeContinuing(existUser.getCurrentPosition(), existUser);
+                                askToBeContinueing(existUser.getCurrentPosition(), existUser);
                             }, 5000);
                         }
                     }
                 }
 
                 if (objectJSON.type === PAYLOAD_LOCATION) {
-                    responseText = getLocation(objectJSON.id);
+                    responseText = getLocation(objectJSON.productId, objectJSON.addressId);
                     existUser.sendFBMessageTypeText(responseText);
                 }
 
@@ -250,9 +252,9 @@ router.post('/', function (req, res) {
 });
 
 // location and price function
-function getLocation(ID) {
+function getLocation(productId, addressId) {
     for (var i = 0; i < data.length; i++) {
-        if (data[i].ID === ID) {
+        if (data[i].productId === productId && data[i].addressId === addressId) {
             return "Món " + data[i].productName + " có tại địa chỉ " + data[i].addressName;
         }
     }
@@ -300,7 +302,7 @@ function handleAPIResponse(response, user) {
                 var responseText = "Chào " + profile.last_name + profile.first_name + "! Tôi có thể giúp gì cho bạn :D";
                 user.sendFBMessageTypeText(responseText);
                 var gender = (profile.gender === "male") ? 1 : 0;
-                var sql = 'insert into facebookuser values ("'+user.getSenderID()+'","'+profile.first_name+'",'+gender+','+0+',"'+profile.last_name+'","'+profile.locale+'")';
+                var sql = 'insert into facebookuser values ("' + user.getSenderID() + '","' + profile.first_name + '",' + gender + ',' + 0 + ',"' + profile.last_name + '","' + profile.locale + '")';
                 databaseConnection.connectToDatabase(sql, function () {
                     console.log("insert success");
                 })
@@ -357,13 +359,69 @@ function handleAPIResponse(response, user) {
         }
 
         //refuse statement
-        if (intentName.indexOf(INPUT_INTENT_REFUSE)>-1) {
+        if (intentName.indexOf(INPUT_INTENT_REFUSE) > -1) {
             console.log("refuse");
             user.setStatusCode(200);
             handleWordProccessingRefuseStatement(response, user);
         }
+
+        //rating request location
+        if (intentName.indexOf(INPUT_INTENT_RATING_REQUEST_LOCATION) > -1) {
+            console.log("rating request location");
+            user.setStatusCode(200);
+            handleWordPrcccessingRatingRequestLocationStatement(response, user);
+        }
     }
 }
+
+//handle response processing rating request location
+function handleWordPrcccessingRatingRequestLocationStatement(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+
+    if (action === ACTION_RATING_REQUEST_LOCATION) {
+        if (splittedText.length > 0 && splittedText.toString().trim() === successMessage) {
+            user.setFood(params.Food);
+            user.setLocation(LOCATION_AMBIGUITY2);
+            var setSql = "SET `sql_mode` = '';";
+            var querySql = 'SELECT * FROM `product_address` where `productName` like "%' + user.getFood().toString().trim() + '%" group by `restaurantName` order by `rate` desc ';
+            var sql = setSql + querySql;
+            databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
+                if (err) {
+                    console.log("ERROR DB: " + err.message);
+                } else {
+                    console.log("quqery success");
+                    data = rows;
+                    if (rows.length > 0) {
+                        var elementArray = [];
+                        var lengthArray = rows.length >= 10 ? 10 : rows.length;
+                        user.setCurrentPositionItem(lengthArray);
+                        console.log("position: ", user.getCurrentPosition());
+                        for (var i = 0; i < lengthArray; i++) {
+                            var structureObj = createItemOfStructureResponseForRestaurant(rows[i]);
+                            elementArray.push(structureObj);
+                        }
+                        user.sendFBMessageTypeStructureMessage(elementArray);
+                        // nếu lớn hơn 10  thì mới paging
+                        if (rows.length > 10) {
+                            setTimeout(function () {
+                                askToBeContinueing(user.getCurrentPosition(), user);
+                            }, 5000);
+                        }
+                    } else {
+                        user.setStatusCode(404);
+                        var responseText = "Chân thành xin lỗi! Địa điểm bạn tìm hiện tại không có!";
+                        user.sendFBMessageTypeText(responseText);
+                    }
+                }
+
+            });
+        }
+    }
+}
+
 
 //handle response processing refuse statement
 function handleWordProccessingRefuseStatement(response, user) {
@@ -420,7 +478,7 @@ function handleWordProccessingSensationStatements(response, user) {
             var sql;
             if (user.getFood().toString().trim().length > 0) {
                 user.setLocation(LOCATION_AMBIGUITY2);
-                sql = 'select * from product_address where productName like "%'+ user.getFood().toString().trim() +'%"  order by rate desc'
+                sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%"  order by rate desc'
             } else {
                 user.setFood(FOOD_AMBIGUITY1);
                 user.setLocation(LOCATION_AMBIGUITY2);
@@ -462,7 +520,7 @@ function handleWordProccessingSensationStatements(response, user) {
                 user.sendFBMessageTypeText(responseText);
             } else {
                 user.setLocation(params.Location);
-                var sql = 'select * from product_addressName where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
 
                 setTimeout(function () {
                     createStructureResponseQueryFromDatabase(sql, user);
@@ -913,14 +971,14 @@ function createStructureResponseQueryFromDatabase(sql, user) {
                 user.setCurrentPositionItem(lengthArray);
                 console.log("position: ", user.getCurrentPosition());
                 for (var i = 0; i < lengthArray; i++) {
-                    var structureObj = createItemOfStructureResponse(rows[i]);
+                    var structureObj = createItemOfStructureResponseForProduct(rows[i]);
                     elementArray.push(structureObj);
                 }
                 user.sendFBMessageTypeStructureMessage(elementArray);
                 // nếu lớn hơn 10  thì mới paging
-                if (rows.length > 10 ) {
+                if (rows.length > 10) {
                     setTimeout(function () {
-                        askToBeContinuing(user.getCurrentPosition(), user);
+                        askToBeContinueing(user.getCurrentPosition(), user);
                     }, 5000);
                 }
             } else {
@@ -932,7 +990,8 @@ function createStructureResponseQueryFromDatabase(sql, user) {
     });
 }
 
-function createItemOfStructureResponse(item) {
+// do create structure response
+function createItemOfStructureResponseForProduct(item) {
     var structureObj = {};
     structureObj.title = item.productName;
     structureObj.image_url = item.thumbpath;
@@ -947,7 +1006,8 @@ function createItemOfStructureResponse(item) {
     buttons.push(button2);
 
     var locationObjPostback = {
-        id: item.ID,
+        productId: item.productId,
+        addressId: item.addressId,
         type: "location"
     };
     var button3 = util.createButton("Xem địa chỉ", config.BUTTON_TYPE.postback, JSON.stringify(locationObjPostback));
@@ -957,6 +1017,33 @@ function createItemOfStructureResponse(item) {
     return structureObj;
 }
 
+function createItemOfStructureResponseForRestaurant(item) {
+    var structureObj = {};
+    structureObj.title = item.restaurantName;
+    structureObj.image_url = item.thumbpath;
+    structureObj.subtitle = item.addressName;
+
+    var buttons = [];
+    var button1 = util.createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
+    buttons.push(button1);
+
+    var url = 'http://maps.google.com/maps?q=' + item.latitude + ',' + item.longitude;
+    var button2 = util.createButton("Xem Google Map", config.BUTTON_TYPE.web_url, url);
+    buttons.push(button2);
+
+    // var locationObjPostback = {
+    //     productId: item.productId,
+    //     addressId: item.addressId,
+    //     type: "location"
+    // };
+    // var button3 = util.createButton("Xem địa chỉ", config.BUTTON_TYPE.postback, JSON.stringify(locationObjPostback));
+    // buttons.push(button3);
+    structureObj.buttons = buttons;
+
+    return structureObj;
+}
+
+// get url param location
 function getURLParam(name, url) {
     if (!url) url = location.href;
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -967,6 +1054,7 @@ function getURLParam(name, url) {
 }
 
 
+// create structure for asking continue message
 /**
  [{
          type: "web_url",
@@ -979,21 +1067,21 @@ function getURLParam(name, url) {
      payload: "USER_DEFINED_PAYLOAD"
  }]
  */
-function askToBeContinuing(position, user) {
+function askToBeContinueing(position, user) {
     var elementArray;
     if (position <= 10) {
         elementArray = [{
-                type: "postback",
-                title: "Next",
-                payload: JSON.stringify ({
-                    type: "continue",
-                    isNext: 1
-                })
-            },
+            type: "postback",
+            title: "Next",
+            payload: JSON.stringify({
+                type: "continue",
+                isNext: 1
+            })
+        },
             {
                 type: "postback",
                 title: "Cancel",
-                payload: JSON.stringify ({
+                payload: JSON.stringify({
                     type: "cancel",
                 })
             }];
@@ -1001,7 +1089,7 @@ function askToBeContinuing(position, user) {
         elementArray = [{
             type: "postback",
             title: "Previous",
-            payload: JSON.stringify ({
+            payload: JSON.stringify({
                 type: "continue",
                 isNext: 0
             })
@@ -1009,23 +1097,23 @@ function askToBeContinuing(position, user) {
             {
                 type: "postback",
                 title: "Cancel",
-                payload: JSON.stringify ({
+                payload: JSON.stringify({
                     type: "cancel",
                 })
             }];
     } else {
         elementArray = [{
-                type: "postback",
-                title: "Next",
-                payload: JSON.stringify ({
-                    type: "continue",
-                    isNext: 1
-                })
-            },
+            type: "postback",
+            title: "Next",
+            payload: JSON.stringify({
+                type: "continue",
+                isNext: 1
+            })
+        },
             {
                 type: "postback",
                 title: "Trước",
-                payload: JSON.stringify ({
+                payload: JSON.stringify({
                     type: "continue",
                     isNext: 0
                 })
@@ -1033,7 +1121,7 @@ function askToBeContinuing(position, user) {
             {
                 type: "postback",
                 title: "Cancel",
-                payload: JSON.stringify ({
+                payload: JSON.stringify({
                     type: "cancel",
                 })
             }];
@@ -1041,9 +1129,10 @@ function askToBeContinuing(position, user) {
     user.sendFBMessageTypeButtonTemplate(elementArray);
 }
 
+// handle get location from google api
 function handleGoogleAPIRespnose(response) {
-    for (var i = 0; i< response.results.length; i++) {
-        for (var j = 0; j<response.results[i].types.length; j++) {
+    for (var i = 0; i < response.results.length; i++) {
+        for (var j = 0; j < response.results[i].types.length; j++) {
             if (response.results[i].types[j] === 'street_address' || response.results[i].types[j] === 'premise' || response.results[i].types[j] === 'route') {
                 for (var k = 0; k < response.results[i].address_components.length; k++) {
                     for (var z = 0; z < response.results[i].address_components[k].types.length; z++) {
