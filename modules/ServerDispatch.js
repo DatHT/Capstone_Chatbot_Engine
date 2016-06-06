@@ -942,12 +942,9 @@ function createItemOfStructureResponse(item) {
     var button1 = util.createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
     buttons.push(button1);
 
-    var priceObjPostback = {
-        id: item.ID,
-        type: "price"
-    };
-    var button2 = util.createButton("Xem giá", config.BUTTON_TYPE.postback, JSON.stringify(priceObjPostback));
-    // buttons.push(button2);
+    var url = 'http://maps.google.com/maps?q=' + item.latitude + ',' + item.longitude;
+    var button2 = util.createButton("Xem Google Map", config.BUTTON_TYPE.web_url, url);
+    buttons.push(button2);
 
     var locationObjPostback = {
         id: item.ID,
