@@ -20,13 +20,13 @@ module.exports = (sender, code, response) => {
     function writeLog(path) {
         var filePath = path + "/" + sender;
         var data;
-        if(code === 404) {
-            data = "==========>>>>>          404         <<<<<=============\n" +
-                    new Date() + " : " + response +
-                    "\n-------------------------------------------------------\n";
-        } else {
-            data = new Date() + ' : ' + response + '\n';
+        
+        if(code) {
+            data = ">>>>>          " + code + "         <<<<<=============\n" +
+                    response +
+                    "\n<<<<<" + code + "\n";
         }
+
         fs.exists(filePath, function (result) {
             if(result) {
                 fs.appendFileSync(filePath, data);
