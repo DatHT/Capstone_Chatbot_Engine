@@ -6,6 +6,7 @@ var path = require('path');
 
 module.exports = (sender, code, response) => {
     "use strict";
+    console.log('do write log');
     var date = new Date();
     var dateString = getDateString(date);
 
@@ -20,19 +21,15 @@ module.exports = (sender, code, response) => {
     function writeLog(path) {
         var filePath = path + "/" + sender;
         var data;
-        if(code === 404) {
-            data = "==========>>>>>          404         <<<<<=============\n" +
-                    new Date() + " : \n" + JSON.stringify(response, null, 2) +
-                    "\n-------------------------------------------------------\n";
-        } else if (code === 200) {
-            data = new Date() + ' : \n' + JSON.stringify(response, null, 2) + '\n';
-        } else if (code === 300) {
-            data = "==========>>>>>          300         <<<<<=============\n" +
-                new Date() + " : \n" + JSON.stringify(response, null, 2) +
-                "\n-------------------------------------------------------\n";
+
+        if (code) {
+            data = ">>>>>          " + code + "         <<<<<=============\n" +
+                JSON.stringify(response, null, 2) +
+                "\n<<<<<" + code + "\n";
         }
+
         fs.exists(filePath, function (result) {
-            if(result) {
+            if (result) {
                 fs.appendFileSync(filePath, data);
             } else {
                 fs.writeFileSync(filePath, data);

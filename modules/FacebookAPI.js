@@ -36,8 +36,8 @@ FacebookAPI.prototype.sendFBMessageTypeImageFile = function (sender, urlImageFil
     return sendFBMessageTypeImageFile(sender,urlImageFile);
 };
 
-FacebookAPI.prototype.sendFBMessageTypeButtonTemplate = function (sender, buttonArray) {
-    return sendFBMessageTypeButtonTemplate(sender, buttonArray);
+FacebookAPI.prototype.sendFBMessageTypeButtonTemplate = function (sender, buttonArray, responseText) {
+    return sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText);
 };
 
 FacebookAPI.prototype.sendFBMessageTypeStructureMessage = function (sender, elementArray) {
@@ -154,7 +154,7 @@ function sendFBMessageTypeImageFile(sender, urlImageFile) {
  }]
  */
 // send fb message type button template
-function sendFBMessageTypeButtonTemplate(sender, buttonArray) {
+function sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText) {
     console.log("do send button template message");
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -169,7 +169,7 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray) {
                     type: "template",
                     payload: {
                         template_type: "button",
-                        text: "Bạn có muốn tiếp tục xem những món mới không :D",
+                        text: responseText,
                         buttons: buttonArray
                     }
                 }

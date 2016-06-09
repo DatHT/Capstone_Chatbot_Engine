@@ -91,8 +91,8 @@ ClientUser.prototype.sendFBMessageTypeImageFile = function (urlImageFile) {
     return fbClient.sendFBMessageTypeImageFile(this.senderID,urlImageFile);
 };
 
-ClientUser.prototype.sendFBMessageTypeButtonTemplate = function (buttonArray) {
-    return fbClient.sendFBMessageTypeButtonTemplate(this.senderID, buttonArray);
+ClientUser.prototype.sendFBMessageTypeButtonTemplate = function (buttonArray, responseText) {
+    return fbClient.sendFBMessageTypeButtonTemplate(this.senderID, buttonArray, responseText);
 };
 
 ClientUser.prototype.sendFBMessageTypeStructureMessage = function (elementArray) {
