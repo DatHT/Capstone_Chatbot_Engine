@@ -59,10 +59,77 @@ const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 var fbClient = new fbAPIRequest(config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN);
-
 var userMappingObject = new Map();
-
 var data;
+
+/*
+    Memento Design Pattern
+ */
+//Care taker
+var CareTaker = function () {
+    this.mementos = {};
+
+    this.add = function (key, memento) {
+        this.mementos[key] = memento;
+    }
+
+    this.get = function (key) {
+        return this.mementos[key];
+    }
+}
+var caretaker = new CareTaker();
+
+// log helper
+var log = (function () {
+    var log = "";
+
+    return {
+        add: function (msg) {
+            log += msg + "\n";
+        },
+        show: function () {
+            // alert(log);
+            console.log(log);
+            log = "";
+        }
+    }
+})();
+
+// product address
+var ProductAddress = function (dataArray) {
+    this.dataArray = dataArray;
+}
+
+ProductAddress.prototype = {
+
+    hydrate: function () {
+        var memento = JSON.stringify(this);
+        return memento;
+    },
+
+    // dehydrate: function (memento) {
+    //     var m = JSON.parse(memento);
+    //     this.productId = m.productId;
+    //     this.addressId = m.addressId;
+    //     this.addressName = m.addressName;
+    //     this.districtName = m.districtName;
+    //     this.latitude = m.latitude;
+    //     this.longitude = m.longitude;
+    //     this.numOfSearch = m.numOfSearch;
+    //     this.productName = m.productName;
+    //     this.rate = m.rate;
+    //     this.restaurantName = m.restaurantName;
+    //     this.thumbpath = m.thumbpath;
+    //     this.urlrelate = m.urlrelate;
+    // },
+
+    dehydrate: function (dataArray) {
+        var m = JSON.parse(dataArray);
+        this.dataArray = m.dataArray;
+        return this.dataArray;
+
+    }
+}
 
 //express
 var express = require('express');
@@ -80,7 +147,24 @@ router.get('/', function (req, res) {
 });
 
 router.get('/test', function (req, res) {
-    console.log("ADADA");
+    // save state
+    caretaker.add(1, mike.hydrate());
+    caretaker.add(2, john.hydrate());
+
+    // mess up their names
+
+    mike.name = "King Kong";
+    john.name = "Superman";
+    // restore original state
+
+    mike.dehydrate(caretaker.get(1));
+    john.dehydrate(caretaker.get(2));
+    var newPerson = new Person();
+    newPerson.dehydrate(caretaker.get(2))
+
+    log.add(newPerson.name);
+
+    log.show();
 });
 
 router.post('/', function (req, res) {
@@ -90,7 +174,7 @@ router.post('/', function (req, res) {
         for (var i = 0; i < messaging_events.length; i++) {
             var event = req.body.entry[0].messaging[i];
             var sender = event.sender.id;
-            console.log(event);
+            // console.log(event);
             // get current user
             var existUser;
             if (!userMappingObject.has(sender)) {
@@ -186,7 +270,7 @@ router.post('/', function (req, res) {
                         } else {
                             sql = 'select * from product_address where productName like "%' + existUser.getFood().toString().trim() + '%" and addressName like "%' + existUser.getLocation().toString().trim() + '%" order by rate desc';
                         }
-                        createStructureResponseQueryFromDatabase(sql, existUser);
+                        checkQueryOrCache(user, sql);
                     });
                 }
             }
@@ -448,7 +532,7 @@ function handleAskLocationPostback(jsonObject, user) {
             console.log("send dummy request successfully");
         });
         var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
-        createStructureResponseQueryFromDatabase(sql, user);
+        checkQueryOrCache(user, sql)
     }
 
     if (jsonObject.locationType === 'my_location') {
@@ -471,7 +555,7 @@ function handleAskFoodPostback(jsonObject, user) {
             console.log("send dummy request successfully");
         })
         var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-        createStructureResponseQueryFromDatabase(sql, user);
+        checkQueryOrCache(user, sql);
     }
 
     if (jsonObject.foodType === 'my_food') {
@@ -592,7 +676,7 @@ function handleSensationPostback(jsonObject, user) {
         } else {
             sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
         }
-        createStructureResponseQueryFromDatabase(sql, user);
+        checkQueryOrCache(user, sql);
     }
 
     // my location
@@ -749,7 +833,7 @@ function handleWordProccessingSensationStatements(response, user) {
                 sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
             }
 
-            createStructureResponseQueryFromDatabase(sql, user);
+            checkQueryOrCache(user, sql);
         }
     }
 
@@ -783,7 +867,7 @@ function handleWordProccessingSensationStatements(response, user) {
         } else {
             user.setFood(params.Food);
             var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-            createStructureResponseQueryFromDatabase(sql, user);
+            checkQueryOrCache(user, sql);
         }
 
     }
@@ -799,9 +883,7 @@ function handleWordProccessingSensationStatements(response, user) {
                 user.setLocation(LOCATION_AMBIGUITY2);
                 sql = 'select * from product_address  order by rate desc';
             }
-            setTimeout(function () {
-                createStructureResponseQueryFromDatabase(sql, user);
-            }, 2000);
+            checkQueryOrCache(user, sql);
         }
     }
 }
@@ -829,7 +911,7 @@ function handleWordProcessingFullTypeRequest(response, user) {
                     user.setLocation(params.Location);
                     var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                 }
-                createStructureResponseQueryFromDatabase(sql, user);
+                checkQueryOrCache(user, sql);
             }
         }
     }
@@ -840,7 +922,7 @@ function handleWordProcessingFullTypeRequest(response, user) {
             if (params.Location) {
                 user.setLocation(params.Location);
                 sql = 'select * from fproduct_addressood where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-                createStructureResponseQueryFromDatabase(sql, user);
+                checkQueryOrCache(user, sql);
             }
         }
     }
@@ -852,7 +934,7 @@ function handleWordProcessingFullTypeRequest(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 var sql = 'select * from food where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-                createStructureResponseQueryFromDatabase(sql, user);
+                checkQueryOrCache(user, sql);
             }
 
         }
@@ -901,7 +983,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
                 }
             }
         }
-        createStructureResponseQueryFromDatabase(sql, user);
+        checkQueryOrCache(user, sql);
     }
 
     if (action == ACTION_CHANGE_LOCATION) {
@@ -913,7 +995,7 @@ function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
             } else {
                 sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
             }
-            createStructureResponseQueryFromDatabase(sql, user);
+            checkQueryOrCache(user, sql);
         }
     }
     // //show food rating cao
@@ -995,9 +1077,7 @@ function handleWordProccessingRatingFoodInLocationRequest(response, user) {
                     sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
                 }
 
-                setTimeout(function () {
-                    createStructureResponseQueryFromDatabase(sql, user);
-                }, 2000);
+                checkQueryOrCache(user, sql);
             }
         }
     }
@@ -1009,16 +1089,16 @@ function handleWordProccessingRatingFoodInLocationRequest(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                checkQueryOrCache(user, sql);
             }
         }
-        createStructureResponseQueryFromDatabase(sql, user);
     }
 
     if (action == ACTION_CHANGE_LOCATION) {
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             user.setLocation(params.Location);
             var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-            createStructureResponseQueryFromDatabase(sql, user);
+            checkQueryOrCache(user, sql);
         }
     }
 }
@@ -1059,7 +1139,7 @@ function handleWordProcessingLocationFirst(response, user) {
         if (splittedText.toString().trim() === successMessage) {
             user.setFood(params.Food);
             var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-            createStructureResponseQueryFromDatabase(sql, user);
+            checkQueryOrCache(user, sql);
         }
     }
 
@@ -1069,7 +1149,7 @@ function handleWordProcessingLocationFirst(response, user) {
             if (params.Location) {
                 user.setLocation(params.Location);
                 sql = 'select * from fproduct_addressood where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-                createStructureResponseQueryFromDatabase(sql, user);
+                checkQueryOrCache(user, sql);
             }
         }
     }
@@ -1081,7 +1161,7 @@ function handleWordProcessingLocationFirst(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 var sql = 'select * from food where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-                createStructureResponseQueryFromDatabase(sql, user);
+                checkQueryOrCache(user, sql);
             }
 
         }
@@ -1109,7 +1189,7 @@ function handleWordProcessingFoodFirst(response, user) {
         if (splittedText.toString().trim() === successMessage) {
             user.setLocation(params.Location);
             var sql = 'select * from product_address where productName like "%' + user.getFood().trim() + '%" and addressName like "%' + user.getLocation().trim() + '%" order by rate desc';
-            createStructureResponseQueryFromDatabase(sql, user);
+            checkQueryOrCache(user, sql);
         }
     }
 
@@ -1141,9 +1221,7 @@ function handleWordProcessingFoodFirst(response, user) {
                 }
             }
 
-            setTimeout(function () {
-                createStructureResponseQueryFromDatabase(sql, user);
-            }, 2000);
+            checkQueryOrCache(user, sql);
         }
 
         // have food - do not have location
@@ -1158,8 +1236,8 @@ function handleWordProcessingFoodFirst(response, user) {
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             if (params.Location) {
                 user.setLocation(params.Location);
-                sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-                createStructureResponseQueryFromDatabase(sql, user);
+                var sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" and addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+                checkQueryOrCache(user,sql);
             }
         }
     }
@@ -1172,20 +1250,34 @@ function createStructureResponseQueryFromDatabase(sql, user) {
             return new Error(err);
         } else {
             data = rows;
+
+            //create cache + add cache
+            var key = JSON.stringify({
+                food: user.getFood(),
+                location: user.getLocation()
+            })
+            var objProductAdress = new ProductAddress(rows);
+            caretaker.add(key, objProductAdress.hydrate());
+
+            // create message
             if (rows.length > 0) {
                 var elementArray = [];
                 var lengthArray = rows.length >= 10 ? 10 : rows.length;
                 user.setCurrentPositionItem(lengthArray);
-                console.log("position: ", user.getCurrentPosition());
                 for (var i = 0; i < lengthArray; i++) {
                     var structureObj = createItemOfStructureResponseForProduct(rows[i]);
                     elementArray.push(structureObj);
                 }
                 user.sendFBMessageTypeStructureMessage(elementArray);
+
                 // nếu lớn hơn 10  thì mới paging
-                if (rows.length > 10) {
+                if (data.length > 10) {
                     setTimeout(function () {
                         createItemOfStructureButtonNextItem(user.getCurrentPosition(), user);
+                    }, 5000);
+                } else {
+                    setTimeout(function () {
+                        createItemOfStructureButtonCancelOrChange(user);
                     }, 5000);
                 }
             } else {
@@ -1328,6 +1420,18 @@ function createItemOfStructureButtonNextItem(position, user) {
     user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
 }
 
+function createItemOfStructureButtonCancelOrChange(user) {
+    var elementArray = [{
+        type: "postback",
+        title: "Thay đổi",
+        payload: JSON.stringify({
+            type: "change",
+            changeType: 'request'
+        })
+    }];
+    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+}
+
 function createItemOfStructureButtonAskForChange() {
     var elementArray = [{
         type: "postback",
@@ -1437,10 +1541,38 @@ function sendDummyRequestToApi(statements, option, callback) {
     request.end();
 }
 
-//timer send cancel message
-function sendCancelMessage(user) {
-    setTimeout(function () {
-        var elementArray = createItemOfStructureButtonAskForChange();
-        var responseText = 'Bạn có muốn tiếp tục không :D';
-    }, 120000);
+// query and cache
+function checkQueryOrCache(user, sql) {
+    var dataQuery = caretaker.get(JSON.stringify({
+        food: user.getFood(),
+        location: user.getLocation()
+    }));
+    if (!util.isDefined(dataQuery)) {
+        console.log('QUERYYYYYYYYYYYYYYYYY');
+        createStructureResponseQueryFromDatabase(sql , user);
+    } else {
+        console.log('CACHEEEEEEEEEEEEEEEEE');
+        var temp = new ProductAddress();
+        data = temp.dehydrate(dataQuery);
+        if (data.length > 0) {
+            var elementArray = [];
+            var lengthArray = data.length >= 10 ? 10 : data.length;
+            user.setCurrentPositionItem(lengthArray);
+            for (var i = 0; i < lengthArray; i++) {
+                var structureObj = createItemOfStructureResponseForProduct(data[i]);
+                elementArray.push(structureObj);
+            }
+            user.sendFBMessageTypeStructureMessage(elementArray);
+            // nếu lớn hơn 10  thì mới paging
+            if (data.length > 10) {
+                setTimeout(function () {
+                    createItemOfStructureButtonNextItem(user.getCurrentPosition(), user);
+                }, 5000);
+            } else {
+                setTimeout(function () {
+                    createItemOfStructureButtonCancelOrChange(user);
+                }, 5000);
+            }
+        }
+    }
 }
