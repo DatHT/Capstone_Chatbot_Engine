@@ -13,6 +13,7 @@ var location;
 var currentPositionItem;
 var responseAPI;
 var statusCode;
+var data;
 function ClientUser(session, fbID) {
     this.sessionId = session;
     this.senderID = fbID;
@@ -31,6 +32,10 @@ function createClientUser(session, fbID) {
 }
 
 module.exports = createClientUser;
+ClientUser.prototype.setData = function (data) {
+    this.data = data;
+}
+
 ClientUser.prototype.setResponseAPI = function (response) {
     this.responseAPI = response;
 }
@@ -53,6 +58,10 @@ ClientUser.prototype.setLocation = function (locationObj) {
 
 ClientUser.prototype.getResponseAPI = function () {
     return this.responseAPI;
+}
+
+ClientUser.prototype.getData = function () {
+    return this.data;
 }
 
 ClientUser.prototype.getStatusCode = function () {

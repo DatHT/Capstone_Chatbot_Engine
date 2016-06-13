@@ -60,7 +60,6 @@ const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 var fbClient = new fbAPIRequest(config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN);
 var userMappingObject = new Map();
-var data;
 
 /*
     Memento Design Pattern
@@ -106,22 +105,6 @@ ProductAddress.prototype = {
         var memento = JSON.stringify(this);
         return memento;
     },
-
-    // dehydrate: function (memento) {
-    //     var m = JSON.parse(memento);
-    //     this.productId = m.productId;
-    //     this.addressId = m.addressId;
-    //     this.addressName = m.addressName;
-    //     this.districtName = m.districtName;
-    //     this.latitude = m.latitude;
-    //     this.longitude = m.longitude;
-    //     this.numOfSearch = m.numOfSearch;
-    //     this.productName = m.productName;
-    //     this.rate = m.rate;
-    //     this.restaurantName = m.restaurantName;
-    //     this.thumbpath = m.thumbpath;
-    //     this.urlrelate = m.urlrelate;
-    // },
 
     dehydrate: function (dataArray) {
         var m = JSON.parse(dataArray);
@@ -214,7 +197,7 @@ router.post('/', function (req, res) {
                 }
 
                 if (jsonObj.type === PAYLOAD_LOCATION) {
-                    responseText = getLocation(jsonObj.productId, jsonObj.addressId);
+                    responseText = getLocation(jsonObj.productId, jsonObj.addressId, existUser5.getData());
                     existUser.sendFBMessageTypeText(responseText);
                 }
 
@@ -288,7 +271,7 @@ router.post('/', function (req, res) {
 });
 
 // location and price function
-function getLocation(productId, addressId) {
+function getLocation(productId, addressId, data) {
     for (var i = 0; i < data.length; i++) {
         if (data[i].productId === productId && data[i].addressId === addressId) {
             return "Món " + data[i].productName + " có tại địa chỉ " + data[i].addressName;
@@ -419,6 +402,7 @@ function handleAPIResponse(response, user) {
 // handel continue query next item  post back
 function handelPagingItemPostback(jSonObject, user) {
     var elementArray = [];
+    var data = user.getData();
     if (jSonObject.isNext === 1) {
         var temp;
 
@@ -749,7 +733,8 @@ function handleWordPrcccessingRatingRequestLocationStatement(response, user) {
                     console.log("ERROR DB: " + err.message);
                 } else {
                     console.log("quqery success");
-                    data = rows;
+                    user.setData(rows);
+                    var data = user.getData();
                     if (rows.length > 0) {
                         var elementArray = [];
                         var lengthArray = rows.length >= 10 ? 10 : rows.length;
@@ -1249,7 +1234,8 @@ function createStructureResponseQueryFromDatabase(sql, user) {
         if (util.isDefined(err)) {
             return new Error(err);
         } else {
-            data = rows;
+            user.setData(rows);
+            var data = user.getData();
 
             //create cache + add cache
             var key = JSON.stringify({
@@ -1377,7 +1363,7 @@ function createItemOfStructureButtonNextItem(position, user) {
                 changeType: 'request'
             })
         }];
-    } else if (position === data.length) {
+    } else if (position === user.getData().length) {
         elementArray = [{
             type: "postback",
             title: "Previous",
@@ -1553,7 +1539,7 @@ function checkQueryOrCache(user, sql) {
     } else {
         console.log('CACHEEEEEEEEEEEEEEEEE');
         var temp = new ProductAddress();
-        data = temp.dehydrate(dataQuery);
+        var data = temp.dehydrate(dataQuery);
         if (data.length > 0) {
             var elementArray = [];
             var lengthArray = data.length >= 10 ? 10 : data.length;
