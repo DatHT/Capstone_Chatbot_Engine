@@ -197,7 +197,7 @@ router.post('/', function (req, res) {
                 }
 
                 if (jsonObj.type === PAYLOAD_LOCATION) {
-                    responseText = getLocation(jsonObj.productId, jsonObj.addressId, existUser5.getData());
+                    responseText = getLocation(jsonObj.productId, jsonObj.addressId, existUser.getData());
                     existUser.sendFBMessageTypeText(responseText);
                 }
 
@@ -253,7 +253,7 @@ router.post('/', function (req, res) {
                         } else {
                             sql = 'select * from product_address where productName like "%' + existUser.getFood().toString().trim() + '%" and addressName like "%' + existUser.getLocation().toString().trim() + '%" order by rate desc';
                         }
-                        checkQueryOrCache(user, sql);
+                        checkQueryOrCache(existUser, sql);
                     });
                 }
             }
