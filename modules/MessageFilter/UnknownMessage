@@ -1,0 +1,32 @@
+var config = require('../../common/app-config').config;
+var util = require('../../common/CommonUtil');
+function UnknownMessage(user) {
+    this.user = user;
+}
+
+function createUnknownMessage(user) {
+    if (!util.isDefined(user)) {
+        return new Error('lack of current user');
+    }
+    return new UnknownMessage(user);
+}
+
+UnknownMessage.prototype.handleUnknownMessage = function (response) {
+    return handleUnknownMessage(response, this.user);
+}
+
+function handleUnknownMessage(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+
+    if (action === config.ACTION_UNKNOWN) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== config.successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                user.sendFBMessageTypeText(splittedText[i]);
+            }
+        }
+    }
+}
+
+module.exports = createUnknownMessage;

@@ -2,6 +2,7 @@ var config = require('../common/app-config').config;
 var util = require('../common/CommonUtil');
 var greetingMessageFilter = require('./MessageFilter/GreetingMessage');
 var foodFirstMessageFilter = require('./MessageFilter/FoodFirstMessage');
+var unknownMessageFilter = require('./MessageFilter/UnknownMessage');
 
 module.exports = createMessageHandler;
 
@@ -37,6 +38,11 @@ function doDispathchingMesssage(response, user) {
         if (intentName.indexOf(config.INPUT_INTENT_FOOD_FIRST) > -1) {
             var foodFirstMessageFiterObject = foodFirstMessageFilter(user);
             return foodFirstMessageFiterObject.handleWordProcessingFoodFirst(response);
+        }
+
+        if (intentName.indexOf(config.INPUT_INTENT_UNKNOWN) > -1) {
+            var unknownMessageFilterObject = unknownMessageFilter(user);
+            return unknownMessageFilterObject.handleUnknownMessage(response);
         }
     }
 
