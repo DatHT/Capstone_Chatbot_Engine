@@ -1,30 +1,16 @@
 
-// function createFacebookClient(fbPageAccessToken) {
-//     if (fbPageAccessToken.length === 0) {
-//         throw new Error('Facebook Page Access Token Empty');
-//     }
-//
-//     return new FacebookAPI(fbPageAccessToken);
-// }
+var util = require('../common/CommonUtil');
 
-// var ProductAddress = function (productId,addressId,addressName,districtName,latitude,longitude,numOfSearch,productName,rate,restaurantName,thumbpath,urlrelate) {
-//     this.productId = productId;
-//     this.addressId = addressId;
-//     this.addressName = addressName;
-//     this.districtName = districtName;
-//     this.latitude = latitude;
-//     this.longitude = longitude;
-//     this.numOfSearch = numOfSearch;
-//     this.productName = productName;
-//     this.rate = rate;
-//     this.restaurantName = restaurantName;
-//     this.thumbpath = thumbpath;
-//     this.urlrelate = urlrelate;
-// }
-
-var ProductAddress = function (dataArray) {
-    this.dataArray = dataArray;
+function createProductAddress(dataArray) {
+    return new ProductAddress(dataArray);
 }
+
+module.exports = createProductAddress;
+
+function ProductAddress(dataArray) {
+    this.dataArray = dataArray || [];
+}
+
 
 ProductAddress.prototype = {
 
@@ -33,25 +19,9 @@ ProductAddress.prototype = {
         return memento;
     },
 
-    dehydrate: function (memento) {
-        var m = JSON.parse(memento);
-        this.productId = m.productId;
-        this.addressId = m.addressId;
-        this.addressName = m.addressName;
-        this.districtName = m.districtName;
-        this.latitude = m.latitude;
-        this.longitude = m.longitude;
-        this.numOfSearch = m.numOfSearch;
-        this.productName = m.productName;
-        this.rate = m.rate;
-        this.restaurantName = m.restaurantName;
-        this.thumbpath = m.thumbpath;
-        this.urlrelate = m.urlrelate;
-    },
-
-    dehydrateArray: function (dataArray) {
+    dehydrate: function (dataArray) {
         var m = JSON.parse(dataArray);
-        this.dataArray = m.dataArray;
+        return this.dataArray = m.dataArray;
 
     }
 }

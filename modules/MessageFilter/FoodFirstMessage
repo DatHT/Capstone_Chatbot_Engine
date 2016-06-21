@@ -1,0 +1,94 @@
+var config = require('../../common/app-config').config;
+var util = require('../../common/CommonUtil');
+
+module.exports = createFoodFirstMessage;
+
+function FoodFirstMessage(user) {
+    this.user = user;
+}
+
+function createFoodFirstMessage(user) {
+    if (!util.isDefined(user)) {
+        return new Error('lack of current user');
+    }
+    return new FoodFirstMessage(user);
+}
+
+FoodFirstMessage.prototype.handleWordProcessingFoodFirst = function (response) {
+    return handleWordProcessingFoodFirst(response, this.user);
+}
+
+function handleWordProcessingFoodFirst(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+
+    if (action === config.ACTION_FIND_FOOD) {
+        user.setFood(params.Food);
+        if (splittedText.length > 0 && splittedText.toString().trim() !== config.successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON)
+                user.sendFBMessageTypeButtonTemplate(elementArray, splittedText[i]);
+            }
+        }
+    }
+
+    if (action === config.ACTION_FIND_LOCATION) {
+        if (splittedText.toString().trim() === config.successMessage) {
+            user.setLocation(params.Location);
+            var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+            util.checkQueryOrCache(user, sql);
+        }
+    }
+
+    if (action === config.ACTION_CHANGE_FOOD) {
+        // have all
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            var sql;
+            // clear food
+            if (params.Food) {
+                user.setFood(params.Food);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+                } else {
+                    user.sendFBMessageTypeText(responseText);
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                        sql = 'select * from product_address order by rate desc';
+                    }
+                }
+            }
+
+            // an gi cung dc
+            if (params.Food_Ambiguity) {
+                user.setFood(config.FOOD_AMBIGUITY1);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = "select * from product_address order by rate desc";
+                } else {
+                    sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                }
+            }
+
+            util.checkQueryOrCache(user, sql);
+        }
+
+        // have food - do not have location
+        if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation())) {
+            user.setFood(params.Food);
+            var responseText = "Vâng bạn đổi sang món " + user.getFood().trim() + "! Bạn muốn ăn ở đâu?";
+            var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON, user);
+            user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+        }
+    }
+
+    if (action == config.ACTION_CHANGE_LOCATION) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            if (params.Location) {
+                user.setLocation(params.Location);
+                var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                util.checkQueryOrCache(user, sql);
+            }
+        }
+    }
+}

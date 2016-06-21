@@ -66,7 +66,7 @@ function sendFBMessageTypeText(sender, messageData) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error Text: ', response.body.error);
         }
     });
 }
@@ -109,7 +109,7 @@ function sendFBMessageTypeImage(sender, urlString) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error: Image ', response.body.error);
         }
     })
 }
@@ -136,7 +136,7 @@ function sendFBMessageTypeImageFile(sender, urlImageFile) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error Image File: ', response.body.error);
         }
     })
 }
@@ -179,7 +179,7 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error Button Template: ', response.body.error);
         }
     });
 }
@@ -233,7 +233,7 @@ function sendFBMessageTypeStructureMessage(sender,elementArray) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error Structure Message: ', response.body.error);
         }
     });
 }
@@ -272,7 +272,7 @@ function getSenderInformation(sender, callback) {
         if (error) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
-            console.log('Error: ', response.body.error);
+            console.log('Error Sender Information: ', response.body.error);
         } else {
             return callback(body);
         }

@@ -21,5 +21,47 @@
   "BUTTON_TYPE" : {
     "postback" : "postback",
     "web_url" : "web_url"
-  }
+  },
+  "LOCATION_AMBIGUITY1" : "location_ambiguity1",
+  "LOCATION_AMBIGUITY2" : "location_ambiguity2",
+  "FOOD_AMBIGUITY1" : "Food_Ambiguity1",
+
+  "ACTION_FIND_FOOD" : "find.food",
+  "ACTION_FIND_LOCATION" : "find.location",
+  "ACTION_CHANGE_FOOD" : "change.food",
+  "ACTION_UNKNOWN" : "unknown",
+  "ACTION_CHANGE_LOCATION" : "change.location",
+  "ACTION_RATING_REQUEST_FOOD_IN_LOCATION" : "rating.request.food.in.location",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION" : "rating.request.food.no.location",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_ACCEPT" : "rating.request.food.no.location.accept",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT" : "rating.request.food.no.location.not.accept",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT_ANSWER" : "rating.request.food.no.location.not.accept.answer",
+  "ACTION_FULL_TYPE_REQUEST" : "full.type.request",
+  "ACTION_SENSATION_STATEMENT" : "sensation.statements",
+  "ACTION_SENSATION_STATEMENT_ACCEPT" : "sensation.statements.accept",
+  "ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION" : "sensation.statements.accept.acceptlocation",
+  "ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION" : "sensation.statements.accept.notacceptlocation",
+  "ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER" : "sensation.statements.accept.notacceptlocation.answer",
+  "ACTION_SENSATION_STATEMENT_NOTACCEPT" : "sensation.statements.notaccept",
+  "ACTION_REFUSE" : "refuse",
+  "ACTION_RATING_REQUEST_LOCATION" : "rating.request.location",
+
+  "INPUT_INTENT_GREETING" : "Greeting",
+  "INPUT_INTENT_FOOD_FIRST" : "FoodFirst",
+  "INPUT_INTENT_LOCATION_FIRST" : "LocationFirst",
+  "INPUT_INTENT_UNKNOWN" : "Unknown",
+  "INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION" : "RatingRequestFood_InLocation",
+  "INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION" : "RatingRequestFood_NoLocation",
+  "INPUT_INTENT_FULL_TYPE_REQUEST" : "FullTypeRequest",
+  "INPUT_INTENT_SENSATION_STATEMENT" : "SensationStatement",
+  "INPUT_INTENT_REFUSE" : "Refuse",
+  "INPUT_INTENT_RATING_REQUEST_LOCATION" : "RatingRequestLocation",
+  "successMessage" : "success",
+
+  "PAGING_BUTTON" : "PAGING_BUTTON",
+  "CHANGE_BUTTON_TYPE_1" : "CHANGE_BUTTON_TYPE_1",
+  "CHANGE_BUTTON_TYPE_2" : "CHANGE_BUTTON_TYPE_2",
+  "ASK_FOOD_BUTTON" : "ASK_FOOD_BUTTON",
+  "ASK_LOCATION_BUTTON" : "ASK_LOCATION_BUTTON",
+  "ASK_FOOD_BUTTON_TYPE_SENSATION" : "ASK_FOOD_BUTTON_TYPE_SENSATION"
 }

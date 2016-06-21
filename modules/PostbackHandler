@@ -1,0 +1,395 @@
+var config = require('../common/app-config').config;
+var util = require('../common/CommonUtil');
+var apiai = require('apiai');
+var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
+
+const PAYLOAD_LOCATION = "location";
+const PAYLOAD_FOOD = "food";
+const PAYLOAD_REQUEST = "request";
+const PAYLOAD_CANCEL = "cancel";
+const PAYLOAD_CONTINUE = "continue";2
+const PAYLOAD_CHANGE = "change";
+const PAYLOAD_ASK_LOCATION = "ask_location";
+const PAYLOAD_ASK_FOOD = "ask_food";
+const PAYLOAD_YES_NO = 'yes_no';
+const PAYLOAD_SENSATION = 'sensation';
+
+module.exports = createPostbackHandler;
+
+function PostbackHandler(user, userMappingObject) {
+    this.user = user;
+    this.userMappingObj = userMappingObject || {};
+}
+
+function createPostbackHandler(user, userMappingObject) {
+    if (!util.isDefined(user)) {
+        return new Error('Lack of user ');
+    }
+
+    if (!util.isDefined(userMappingObject)) {
+        return new Error('Lack of userMappingObject ');
+    }
+
+    return new PostbackHandler(user, userMappingObject);
+}
+
+PostbackHandler.prototype.handelPostback = function (jsonObject) {
+    return handlePostback(jsonObject, this.user, this.userMappingObj);
+}
+
+function handlePostback(jsonObject, user, userMappingObject) {
+    switch (jsonObject.type) {
+        case PAYLOAD_CANCEL:
+            return handleCancelPostback(user, userMappingObject);
+        case PAYLOAD_LOCATION:
+            return handleGetLocationPostback(jsonObject, user);
+        case PAYLOAD_CONTINUE:
+            return handelPagingItemPostback(jsonObject, user);
+        case PAYLOAD_CHANGE:
+            return handleChangeItemPostback(jsonObject, user);
+        case PAYLOAD_ASK_LOCATION:
+            return handleAskLocationPostback(jsonObject, user);
+        case PAYLOAD_ASK_FOOD:
+            return handleAskFoodPostback(jsonObject, user);
+        case PAYLOAD_YES_NO:
+            return handleYesNoPostback(jsonObject, user);
+        case PAYLOAD_SENSATION:
+            return handleSensationPostback(jsonObject, user);
+        default:
+            break;
+    }
+}
+
+// handle postback cancel
+function handleCancelPostback(user, userMappingObject) {
+    var senderID = user.getSenderID();
+    userMappingObject.delete(user.getSenderID());
+    console.log(userMappingObject.contains(senderID));
+    var responseText = "Cảm ơn bạn đã quan tâm :D";
+    user.sendFBMessageTypeText(responseText);
+}
+
+// handle postback paging
+function handelPagingItemPostback(jSonObject, user) {
+    var elementArray = [];
+    var data = user.getData();
+    if (jSonObject.isNext === 1) {
+        var temp;
+
+        if (user.getCurrentPosition() + 10 >= data.length) {
+            temp = data.length - user.getCurrentPosition();
+
+            for (var i = user.getCurrentPosition(); i < data.length; i++) {
+                var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                elementArray.push(structureObj);
+            }
+            user.sendFBMessageTypeStructureMessage(elementArray);
+            setTimeout(function () {
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON,user);
+                user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+            }, 5000);
+
+            user.setCurrentPositionItem(user.getCurrentPosition() + temp);
+        } else if (user.getCurrentPosition() + 10 < data.length) {
+            for (var i = user.getCurrentPosition(); i < user.getCurrentPosition() + 10; i++) {
+                var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                elementArray.push(structureObj);
+            }
+            user.sendFBMessageTypeStructureMessage(elementArray);
+            setTimeout(function () {
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON,user);
+                user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+            }, 5000);
+            user.setCurrentPositionItem(user.getCurrentPosition() + 10);
+        }
+    }
+
+    if (jSonObject.isNext === 0) {
+        var temp;
+        if (user.getCurrentPosition() - 10 < 0) {
+            temp = user.getCurrentPosition() - 0;
+            user.setCurrentPositionItem(0);
+            for (var i = user.getCurrentPosition(); i < temp; i++) {
+                var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                elementArray.push(structureObj);
+            }
+            user.sendFBMessageTypeStructureMessage(elementArray);
+            setTimeout(function () {
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+            }, 5000);
+        } else if (user.getCurrentPosition() - 10 >= 0) {
+            user.setCurrentPositionItem(user.getCurrentPosition() - 10);
+
+            if (user.getCurrentPosition() - 10 < 0) {
+                for (var i = 0; i < existUser.getCurrentPosition(); i) {
+                    var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                    elementArray.push(structureObj);
+                }
+
+            } else if (user.getCurrentPosition() - 10 >= 0) {
+                for (var i = user.getCurrentPosition() - 10; i < user.getCurrentPosition(); i++) {
+                    var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                    elementArray.push(structureObj);
+                }
+            }
+
+            user.sendFBMessageTypeStructureMessage(elementArray);
+            setTimeout(function () {
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON,user);
+                user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+            }, 5000);
+        }
+    }
+}
+
+// handle change post back
+function handleChangeItemPostback(jsonObject, user) {
+    if (jsonObject.changeType === PAYLOAD_REQUEST) {
+        var elementArray = util.createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_1);
+        var responseText = 'Bạn muốn đổi món hay đổi địa điểm :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    if (jsonObject.changeType === PAYLOAD_FOOD) {
+        var responseText = 'Bạn có thể cho tôi biết bạn đổi sang món gì được không?'
+        user.sendFBMessageTypeText(responseText);
+    }
+
+    if (jsonObject.changeType === PAYLOAD_LOCATION) {
+        var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON);
+        var responseText = 'Bạn muốn đổi sang địa điểm nào :D ';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+}
+
+//handle ask location postback
+function handleAskLocationPostback(jsonObject, user) {
+    var opt = {
+        sessionId: user.getSessionID()
+    };
+
+    // near my place
+    if (jsonObject.locationType === config.LOCATION_AMBIGUITY1) {
+        user.setLocation(config.LOCATION_AMBIGUITY1);
+        sendDummyRequestToApi(config.LOCATION_AMBIGUITY1, opt, function (response) {
+            user.setStatusCode(200);
+            user.setResponseAPI(response);
+            console.log("send dummy request successfully");
+        })
+        var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+        user.sendFBMessageTypeText(responseText);
+    }
+
+    // any place
+    if (jsonObject.locationType === config.LOCATION_AMBIGUITY2) {
+        user.setLocation(config.LOCATION_AMBIGUITY2);
+        sendDummyRequestToApi(config.LOCATION_AMBIGUITY2, opt, function (response) {
+            user.setStatusCode(200);
+            user.setResponseAPI(response);
+            console.log("send dummy request successfully");
+        });
+        var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+        util.checkQueryOrCache(user, sql)
+    }
+
+    if (jsonObject.locationType === 'my_location') {
+        var responseText = 'Bạn có thể cho tôi biết bạn muốn ăn ở quận nào được không :D';
+        user.sendFBMessageTypeText(responseText);
+    }
+}
+
+//handle ask food postback
+function handleAskFoodPostback(jsonObject, user) {
+    var opt = {
+        sessionId: user.getSessionID()
+    };
+
+    if (jsonObject.foodType === config.FOOD_AMBIGUITY1) {
+        user.setFood(config.FOOD_AMBIGUITY1);
+        sendDummyRequestToApi(config.FOOD_AMBIGUITY1, opt, function (response) {
+            user.setStatusCode(200);
+            user.setResponseAPI(response);
+            console.log("send dummy request successfully");
+        })
+        var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+        util.checkQueryOrCache(user, sql);
+    }
+
+    if (jsonObject.foodType === 'my_food') {
+        var responseText = 'Bạn hãy nhập tên món ăn mà bạn muốn ăn :D';
+        user.sendFBMessageTypeText(responseText);
+    }
+}
+
+//handle yes no postback
+function handleYesNoPostback(jsonObject, user) {
+    var opt = {
+        sessionId: user.getSessionID()
+    };
+
+    sendDummyRequestToApi(jsonObject.isYes, opt, function (response) {
+        if (response) {
+            user.setStatusCode(200);
+            user.setResponseAPI(response);
+            console.log("send dummy request successfully");
+        }
+    });
+
+    if (jsonObject.isYes === 'no') {
+        var sql = 'select * from product_address order by rate desc';
+        util.createStructureResponseQueryFromDatabase(sql, user);
+    }
+
+    if (jsonObject.isYes === 'yes') {
+        var elementArray = [{
+            type: "postback",
+            title: "Ăn ở gần đây",
+            payload: JSON.stringify({
+                type: "ask_location",
+                locationType: config.LOCATION_AMBIGUITY1
+            })
+        }, {
+            type: "postback",
+            title: "Chỗ tôi chỉ định",
+            payload: JSON.stringify({
+                type: "ask_location",
+                locationType: "my_location"
+            })
+        }, {
+            type: "postback",
+            title: "Thôi no r`! Không ăn nữa đâu",
+            payload: JSON.stringify({
+                type: "cancel"
+            })
+        }];
+        var responseText = 'Bạn muốn ăn ở gần đây hay chỗ nào cũng đươc :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+}
+
+// handle sensation postback
+function handleSensationPostback(jsonObject, user) {
+    var opt = {
+        sessionId: user.getSessionID()
+    };
+
+    if (jsonObject.isYes === 'yes') {
+        var elementArray = util.createItemOfStructureButton(config.ASK_FOOD_BUTTON_TYPE_SENSATION);
+        sendDummyRequestToApi(jsonObject.isYes, opt, function (response) {
+            if (response) {
+                user.setStatusCode(200);
+                user.setResponseAPI(response);
+                console.log("send dummy request successfully");
+            }
+        });
+        var responseText = 'Bạn muốn ăn món gì nhỉ?';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    // near my place
+    if (jsonObject.locationType === config.LOCATION_AMBIGUITY1) {
+        user.setLocation(config.LOCATION_AMBIGUITY1);
+        sendDummyRequestToApi(config.LOCATION_AMBIGUITY1, opt, function (response) {
+            user.setStatusCode(200);
+            user.setResponseAPI(response);
+            console.log("send dummy request successfully");
+        })
+        var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+        user.sendFBMessageTypeText(responseText);
+    }
+
+    // any place
+    if (jsonObject.locationType === config.LOCATION_AMBIGUITY2) {
+        user.setLocation(config.LOCATION_AMBIGUITY2);
+        sendDummyRequestToApi(config.LOCATION_AMBIGUITY2, opt, function (response) {
+            user.setStatusCode(200);
+            user.setResponseAPI(response);
+            console.log("send dummy request successfully");
+        });
+        var sql;
+        if (user.getFood() === config.FOOD_AMBIGUITY1) {
+            sql = 'select * from product_address order by rate desc';
+        } else {
+            sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+        }
+        util.checkQueryOrCache(user, sql);
+    }
+
+    // my location
+    if (jsonObject.locationType === 'my_location') {
+        var responseText = 'Bạn có thể cho tôi biết bạn muốn ăn ở quận nào được không :D';
+        user.sendFBMessageTypeText(responseText);
+    }
+
+    // food ambiguity
+    if (jsonObject.foodType === config.FOOD_AMBIGUITY1) {
+        user.setFood(config.FOOD_AMBIGUITY1);
+        sendDummyRequestToApi(config.FOOD_AMBIGUITY1, opt, function (response) {
+            if (response) {
+                user.setStatusCode(200);
+                user.setResponseAPI(response);
+                console.log("send dummy request successfully");
+            }
+        });
+        var elementArray = [{
+            type: "postback",
+            title: "Chỗ nào gần đây thôi!",
+            payload: JSON.stringify({
+                type: "sensation",
+                locationType: config.LOCATION_AMBIGUITY1
+            })
+        }, {
+            type: "postback",
+            title: "Chỗ nào ngon là đi!",
+            payload: JSON.stringify({
+                type: "sensation",
+                locationType: config.LOCATION_AMBIGUITY2
+            })
+        }, {
+            type: "postback",
+            title: "Đê tôi chọn chỗ!",
+            payload: JSON.stringify({
+                type: "sensation",
+                locationType: 'my_location'
+            })
+        }];
+        var responseText = 'Vậy bạn muốn ăn ở gần đây hay ăn đâu cũng được nhỉ :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    if (jsonObject.foodType === 'my_food') {
+        var responseText = 'Xin hãy nhập tên món ăn bạn muốn :D';
+        user.sendFBMessageTypeText(responseText);
+    }
+}
+
+function handleGetLocationPostback(jsonObject, user) {
+    var responseText = getLocation(jsonObject.productId, jsonObject.addressId, user.getData());
+    user.sendFBMessageTypeText(responseText);
+}
+
+// location and price function
+function getLocation(productId, addressId, data) {
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].productId === productId && data[i].addressId === addressId) {
+            return "Món " + data[i].productName + " có tại địa chỉ " + data[i].addressName;
+        }
+    }
+    return "Xin lỗi bạn! Hiện tại không có thông tin về địa chỉ!";
+}
+
+// request dummy request api
+function sendDummyRequestToApi(statements, option, callback) {
+    var request = app_apiai.textRequest(statements, option);
+
+    request.on('response', function (response) {
+        return callback(response)
+    });
+
+    request.on('error', function (error) {
+        console.log(error);
+    });
+
+    request.end();
+}

@@ -1,0 +1,35 @@
+var config = require('../../common/app-config').config;
+var responseFilter = require('./FilterResponse');
+var databaseConnection = require('../Database');
+
+module.exports = {
+    getCurrentSenderInformation: (user => {
+        user.getSenderInformation((response) => {
+            console.log(response);
+            var profile = JSON.parse(response);
+            user.setStatusCode(200);
+            var responseText = responseFilter.randomGreetingMessageFilterResponse(profile);
+            console.log(responseText);
+            var elementArray = [{
+                type: "postback",
+                title: "Tìm món ăn ngon ",
+                payload: JSON.stringify({type: "rating_food", isNext: 1})
+            }, {
+                type: "postback",
+                title: "Chọc bot cho vui ",
+                payload: JSON.stringify({
+                    type: "cancel"
+                })
+            }];
+            user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+            var gender = (profile.gender === "male") ? 1 : 0;
+            var sql = 'insert into facebookuser values ("' + user.getSenderID() + '","' + profile.first_name + '",' + gender + ',' + 0 + ',"' + profile.last_name + '","' + profile.locale + '")';
+            databaseConnection.connectToDatabase(sql, function () {
+                console.log("save 1 user success");
+            })
+        });
+    })
+}
+
+
+

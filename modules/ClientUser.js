@@ -1,10 +1,11 @@
 /**
  * Created by ThanhTV0612 on 5/25/16.
  */
+
 var config = require('../common/app-config').config;
-const fbAPIRequest = require('./FacebookAPI').FacebookAPI;
-const FB_PAGE_ACCESS_TOKEN = config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN;
-const fbClient = new fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
+var FB_PAGE_ACCESS_TOKEN = config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN;
+var fbAPIRequest = require('./FacebookAPI').FacebookAPI;
+var fbClient = new fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 
 var sessionId;
 var senderID;
