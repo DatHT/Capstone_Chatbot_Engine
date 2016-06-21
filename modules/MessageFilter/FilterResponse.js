@@ -35,38 +35,38 @@ module.exports = {
     randomGreetingMessageFilterResponse: (profile => {
         var greetingMessageFilter = [`Chào ${profile.last_name} ${profile.first_name}! Tôi có thể giúp gì cho bạn :D`,
             `Xin chào ${profile.last_name} ${profile.first_name}! Tôi rất vui khi có thể giúp bạn tìm món ăn ngon :D`];
-        var rdValue = Math.floor(Math.random() * (greetingMessageFilter.length + 1));
+        var rdValue = Math.floor(Math.random() * (greetingMessageFilter.length));
         return greetingMessageFilter[rdValue];
     })
 }
 
 function randomObligingFilterResponse() {
-    var rdValue = Math.floor(Math.random() * (obligingFilter.length + 1));
+    var rdValue = Math.floor(Math.random() * (obligingFilter.length ));
     return obligingFilter[rdValue];
 }
 
 function randomRegretProductNotFoundFilterResponse() {
-    var rdValue = Math.floor(Math.random() * (regretProductNotFoundFilter.length + 1));
+    var rdValue = Math.floor(Math.random() * (regretProductNotFoundFilter.length ));
     return regretProductNotFoundFilter[rdValue];
 }
 
 function randomRegretRestaurantNotFoundFilterResponse() {
-    var rdValue = Math.floor(Math.random() * (regretRestaurantNotFoundFilter.length + 1));
+    var rdValue = Math.floor(Math.random() * (regretRestaurantNotFoundFilter.length));
     return regretRestaurantNotFoundFilter[rdValue];
 }
 
 function randomRequestPersonalLocationFilterResponse() {
-    var rdValue = Math.floor(Math.random() * (requestPersonalLocationFilter.length + 1));
+    var rdValue = Math.floor(Math.random() * (requestPersonalLocationFilter.length ));
     return requestPersonalLocationFilter[rdValue];
 }
 
 function randomRequestLocationFilterResponse() {
-    var rdValue = Math.floor(Math.random() * (requestLocationFilter.length + 1));
+    var rdValue = Math.floor(Math.random() * (requestLocationFilter.length));
     return requestLocationFilter[rdValue];
 }
 
 function randomPagingFilterResponse() {
-    var rdValue = Math.floor(Math.random() * (pagingFilter.length + 1));
+    var rdValue = Math.floor(Math.random() * (pagingFilter.length));
     return pagingFilter[rdValue];
 }
 
