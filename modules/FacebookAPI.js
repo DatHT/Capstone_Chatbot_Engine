@@ -68,6 +68,10 @@ function sendFBMessageTypeText(sender, messageData) {
         } else if (response.body.error) {
             console.log('Error Text: ', response.body.error);
         }
+        if (response) {
+            console.log('response ok successfully');
+        }
+
     });
 }
 
@@ -83,6 +87,10 @@ function doSubscribeRequest() {
             } else {
                 console.log('Subscription result: ', response.body);
             }
+            if (response) {
+                console.log('response ok successfully');
+            }
+
         })
 }
 
@@ -111,6 +119,10 @@ function sendFBMessageTypeImage(sender, urlString) {
         } else if (response.body.error) {
             console.log('Error: Image ', response.body.error);
         }
+        if (response) {
+            console.log('response ok successfully');
+        }
+
     })
 }
 
@@ -138,6 +150,10 @@ function sendFBMessageTypeImageFile(sender, urlImageFile) {
         } else if (response.body.error) {
             console.log('Error Image File: ', response.body.error);
         }
+        if (response) {
+            console.log('response ok successfully');
+        }
+
     })
 }
 
@@ -181,6 +197,10 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText) {
         } else if (response.body.error) {
             console.log('Error Button Template: ', response.body.error);
         }
+        if (response) {
+            console.log('response ok successfully');
+        }
+
     });
 }
 
@@ -234,8 +254,9 @@ function sendFBMessageTypeStructureMessage(sender,elementArray) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
             console.log('Error Structure Message: ', response.body.error);
-        } else if (response) {
-            console.log('response ok:', response);
+        }
+        if (response) {
+            console.log('response ok successfully');
         }
     });
 }
@@ -257,6 +278,9 @@ function sendWelcomeMessage(sender) {
         } else if (response.body.error) {
             console.log('Error: ', response.body.error);
         }
+        if (response) {
+            console.log('response ok successfully');
+        }
     });
 }
 
@@ -277,6 +301,9 @@ function getSenderInformation(sender, callback) {
             console.log('Error Sender Information: ', response.body.error);
         } else {
             return callback(body);
+        }
+        if (response) {
+            console.log('response ok successfully');
         }
 
     });
