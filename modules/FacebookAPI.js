@@ -234,6 +234,8 @@ function sendFBMessageTypeStructureMessage(sender,elementArray) {
             console.log('Error sending message: ', error);
         } else if (response.body.error) {
             console.log('Error Structure Message: ', response.body.error);
+        } else if (response) {
+            console.log('response ok:', response);
         }
     });
 }
