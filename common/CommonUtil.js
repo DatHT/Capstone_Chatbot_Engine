@@ -418,7 +418,7 @@ function createItemOfStructureResponseForProduct(item) {
     var structureObj = {};
     structureObj.title = item.productName;
     structureObj.image_url = item.thumbpath;
-    structureObj.subtitle = "Soft white cotton t-shirt is back in style";
+    structureObj.subtitle = item.addressName;
 
     var buttons = [];
     var button1 = createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
@@ -428,12 +428,11 @@ function createItemOfStructureResponseForProduct(item) {
     var button2 = createButton("Xem Google Map", config.BUTTON_TYPE.web_url, url);
     buttons.push(button2);
 
-    var locationObjPostback = {
-        productId: item.productId,
-        addressId: item.addressId,
-        type: "location"
+    var reportObjPostback = {
+        itemId: item.productId,
+        type: "report"
     };
-    var button3 = createButton("Xem địa chỉ", config.BUTTON_TYPE.postback, JSON.stringify(locationObjPostback));
+    var button3 = createButton("Report Sai Món", config.BUTTON_TYPE.postback, JSON.stringify(reportObjPostback));
     buttons.push(button3);
     structureObj.buttons = buttons;
 

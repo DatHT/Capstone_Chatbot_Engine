@@ -24,8 +24,10 @@ var requestLocationFilter = ["Bạn có thể cho tôi biết rõ bạn muốn �
 
 var pagingFilter = ["Bạn có muốn tiếp tục xem những món mới không :D", "Vẫn còn nhiều món lắm! Bạn có muốn xem nữa không"];
 
+var reportResponseFilter = ["Cảm ơn bạn đã report món lỗi của bot :D", "Cảm ơn bạn đã góp phần làm cho bot thông minh hơn", "Cảm ơn sự giúp đỡ của bạn!"];
 
 module.exports = {
+    randomReportResponseFilterResponse : randomReportResponseFilterResponse(),
     randomObligingFilterResponse : randomObligingFilterResponse(),
     randomRegretProductNotFoundFilterResponse : randomRegretProductNotFoundFilterResponse(),
     randomRegretRestaurantNotFoundFilterResponse : randomRegretRestaurantNotFoundFilterResponse(),
@@ -68,5 +70,10 @@ function randomRequestLocationFilterResponse() {
 function randomPagingFilterResponse() {
     var rdValue = Math.floor(Math.random() * (pagingFilter.length));
     return pagingFilter[rdValue];
+}
+
+function randomReportResponseFilterResponse() {
+    var rdValue = Math.floor(Math.random() * (reportResponseFilter.length));
+    return reportResponseFilter[rdValue];
 }
 

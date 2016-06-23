@@ -75,6 +75,7 @@ router.post('/', function (req, res) {
                 var messageHandlerObject = messageHandler(existUser, userMappingObject);
                 handleFacebookMessage(event.message.text, opt, function (response) {
                     // handleAPIResponse(response, existUser);
+                    
                     messageHandlerObject.doDispatchingMessage(response);
                 });
 
@@ -154,7 +155,7 @@ function handleFacebookMessage(statements, option, callback) {
 // handle
 function handleAPIResponse(response, user) {
     console.log(response);
-    user.setResponseAPI(response);
+
     var intentName = response.result.metadata.intentName;
     if (response.status.code === 200) {
         // greeting

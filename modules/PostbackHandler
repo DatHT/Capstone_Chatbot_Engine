@@ -1,9 +1,12 @@
 var config = require('../common/app-config').config;
 var util = require('../common/CommonUtil');
 var apiai = require('apiai');
+var logHandle = require('./Logger');
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
+var responseFilter = require('./MessageFilter/FilterResponse');
 
 const PAYLOAD_LOCATION = "location";
+const PAYLOAD_REPORT = "report";
 const PAYLOAD_FOOD = "food";
 const PAYLOAD_REQUEST = "request";
 const PAYLOAD_CANCEL = "cancel";
@@ -55,9 +58,19 @@ function handlePostback(jsonObject, user, userMappingObject) {
             return handleYesNoPostback(jsonObject, user);
         case PAYLOAD_SENSATION:
             return handleSensationPostback(jsonObject, user);
+        case PAYLOAD_REPORT:
+            return handleReportFromUuser(jsonObject, user);
         default:
             break;
     }
+}
+
+//handle report payload
+function handleReportFromUuser(jsonObject, user) {
+    console.log("report: ", jsonObject);
+    logHandle(user.getSenderID(), 400 , jsonObject);
+    var responseText = responseFilter.randomReportResponseFilterResponse();
+    user.sendFBMessageTypeText(responseText);
 }
 
 // handle postback cancel
