@@ -77,7 +77,6 @@ function handleReportFromUuser(jsonObject, user) {
 function handleCancelPostback(user, userMappingObject) {
     var senderID = user.getSenderID();
     userMappingObject.delete(user.getSenderID());
-    console.log(userMappingObject.contains(senderID));
     var responseText = "Cảm ơn bạn đã quan tâm :D";
     user.sendFBMessageTypeText(responseText);
 }

@@ -1,0 +1,108 @@
+var config = require('../../common/app-config').config;
+var util = require('../../common/CommonUtil');
+
+module.exports = createFulfillMessage;
+
+function FulfillMessage(user) {
+    this.user = user;
+}
+
+function createFulfillMessage(user) {
+    if (!util.isDefined(user)) {
+        return new Error('lack of current user');
+    }
+    return new FulfillMessage(user);
+}
+
+FulfillMessage.prototype.handleWordProcessingFulfillMessage = function (response) {
+    return handleWordProcessingFulfillMessage(response, this.user);
+}
+
+function handleWordProcessingFulfillMessage(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+    if (action === config.ACTION_FULL_TYPE_REQUEST) {
+        if (splittedText.toString().trim() === config.successMessage) {
+            user.setFood(params.Food);
+            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+                user.setLocation(config.LOCATION_AMBIGUITY1);
+                var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+                user.sendFBMessageTypeText(responseText);
+            } else {
+                user.setLocation(params.Location);
+                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                    user.setLocation(config.LOCATION_AMBIGUITY2)
+                    var sql = 'select * from product_address order by rate desc';
+                } else if (params.Location) {
+                    user.setLocation(params.Location);
+                    var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                }
+                util.checkQueryOrCache(user, sql);
+            }
+        }
+    }
+
+    if (action === config.ACTION_CHANGE_LOCATION) {
+        // have all 
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+                user.setLocation(config.LOCATION_AMBIGUITY1);
+                var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+                user.sendFBMessageTypeText(responseText);
+            } else {
+                user.setLocation(params.Location);
+                var sql;
+                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                    user.setLocation(config.LOCATION_AMBIGUITY2);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "'+ user.getFood().trim() +'"  order by rate desc';
+                    }
+                } else if (params.Location) {
+                    user.setLocation(params.Location);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    }
+                }
+                util.checkQueryOrCache(user, sql);
+            }
+        }
+    }
+
+    if (action == config.ACTION_CHANGE_FOOD) {
+        // have all 
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            var sql;
+            // clear food
+            if (params.Food) {
+                user.setFood(params.Food);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+                } else {
+                    user.sendFBMessageTypeText(responseText);
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                        sql = 'select * from product_address order by rate desc';
+                    }
+                }
+            }
+
+            // an gi cung dc
+            if (params.Food_Ambiguity) {
+                user.setFood(config.FOOD_AMBIGUITY1);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = "select * from product_address order by rate desc";
+                } else {
+                    sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                }
+            }
+
+            util.checkQueryOrCache(user, sql);
+        }
+    }
+}

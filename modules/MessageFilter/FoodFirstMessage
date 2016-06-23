@@ -84,9 +84,28 @@ function handleWordProcessingFoodFirst(response, user) {
 
     if (action == config.ACTION_CHANGE_LOCATION) {
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
-            if (params.Location) {
+            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+                user.setLocation(config.LOCATION_AMBIGUITY1);
+                var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+                user.sendFBMessageTypeText(responseText);
+            } else {
                 user.setLocation(params.Location);
-                var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                var sql;
+                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                    user.setLocation(config.LOCATION_AMBIGUITY2);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "'+ user.getFood().trim() +'"  order by rate desc';
+                    }
+                } else if (params.Location) {
+                    user.setLocation(params.Location);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    }
+                }
                 util.checkQueryOrCache(user, sql);
             }
         }

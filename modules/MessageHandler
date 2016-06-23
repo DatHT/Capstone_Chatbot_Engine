@@ -4,6 +4,7 @@ var greetingMessageFilter = require('./MessageFilter/GreetingMessage');
 var foodFirstMessageFilter = require('./MessageFilter/FoodFirstMessage');
 var unknownMessageFilter = require('./MessageFilter/UnknownMessage');
 var locationFirstMessageFilter = require('./MessageFilter/LocationFirstMessage');
+var fulfillMessageFilter = require('./MessageFilter/FulfillMessage');
 
 module.exports = createMessageHandler;
 
@@ -29,8 +30,18 @@ MessagekHandler.prototype.doDispatchingMessage = function (response) {
 }
 
 function doDispathchingMesssage(response, user) {
-    console.log(response);
-    user.setResponseAPI(response);
+    var consoleObject = {
+        timestamp : response.timestamp,
+        resolvedQuery : response.result.resolvedQuery,
+        parameters : response.result.parameters,
+        intentName : response.result.metadata.intentName,
+        action : response.result.action
+    }
+    console.log(consoleObject);
+    user.setResponseAPI({
+        isLog : false,
+        response: response
+    });
     var intentName = response.result.metadata.intentName;
     if (response.status.code === 200) {
         if (intentName.indexOf(config.INPUT_INTENT_GREETING) > -1) {
@@ -54,6 +65,12 @@ function doDispathchingMesssage(response, user) {
             user.setStatusCode(200);
             var unknownMessageFilterObject = locationFirstMessageFilter(user);
             return unknownMessageFilterObject.handleWordProcessingLocationFirst(response);
+        }
+
+        if (intentName.indexOf(config.INPUT_INTENT_FULL_TYPE_REQUEST) > -1) {
+            user.setStatusCode(200);
+            var fulfillMessageFilterObject = fulfillMessageFilter(user);
+            return fulfillMessageFilterObject.handleWordProcessingFulfillMessage(response);
         }
     }
 

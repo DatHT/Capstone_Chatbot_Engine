@@ -1,0 +1,23 @@
+var config = require('../../common/app-config').config;
+var util = require('../../common/CommonUtil');
+
+module.exports = createFulfillMessage;
+
+function SensationMessage(user) {
+    this.user = user;
+}
+
+function createSensationMessage(user) {
+    if (!util.isDefined(user)) {
+        return new Error('lack of current user');
+    }
+    return new SensationMessage(user);
+}
+
+FulfillMessage.prototype.handleWordProcessingSensationMessage = function (response) {
+    return handleWordProcessingSensationMessage(response, this.user);
+}
+
+function handleWordProcessingSensationMessage(response, user) {
+
+}

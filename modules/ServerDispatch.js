@@ -15,20 +15,14 @@ var geocoding = require('../lib/GoogleAPI/GMGeocodingAPI');
 var logHandle = require('./Logger');
 var postbackHandler = require('./PostbackHandler');
 var messageHandler = require('./MessageHandler');
-
-
 // api client
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
-
 // FB Client
 var fbClient = new fbAPIRequest(config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN);
 
 // Map to cache user
 var userMappingObject = new Map();
 const FB_VERIFY_TOKEN = config.FACEBOOK_TOKEN.VERIFY_TOKEN;
-// product address
-var productAddress = require('../model/ProductAddress');
-
 //express
 var express = require('express');
 var router = express.Router();
@@ -62,7 +56,6 @@ router.post('/', function (req, res) {
             if (!userMappingObject.has(sender)) {
                 existUser = clientUser(uuid.v1(), sender);
                 userMappingObject.set(sender, existUser);
-
             } else {
                 existUser = userMappingObject.get(sender);
             }
@@ -75,7 +68,7 @@ router.post('/', function (req, res) {
                 var messageHandlerObject = messageHandler(existUser, userMappingObject);
                 handleFacebookMessage(event.message.text, opt, function (response) {
                     // handleAPIResponse(response, existUser);
-                    
+
                     messageHandlerObject.doDispatchingMessage(response);
                 });
 
@@ -91,7 +84,12 @@ router.post('/', function (req, res) {
 
             // handle log
             if (event.delivery) {
-                logHandle(existUser.getSenderID(), existUser.getStatusCode(), existUser.getResponseAPI());
+                if (existUser.getResponseAPI().isLog === false) {
+                    logHandle(existUser.getSenderID(), existUser.getStatusCode(), existUser.getResponseAPI().response);
+                    var tempObj = existUser.getResponseAPI();
+                    tempObj.isLog = true;
+                    existUser.setResponseAPI(tempObj);
+                }
             }
 
             /**
@@ -469,6 +467,7 @@ function handleWordProcessingFullTypeRequest(response, user) {
     }
 
 }
+
 //handle response processing rating request food no location
 function handleWordProcessingRatingFoodNoLocationRequest(response, user) {
     var action = response.result.action;
@@ -718,7 +717,6 @@ function handleWordProcessingFoodFirst(response, user) {
         }
     }
 }
-
 
 
 // get url param location
