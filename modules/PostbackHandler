@@ -249,6 +249,7 @@ function handleYesNoPostback(jsonObject, user) {
     });
 
     if (jsonObject.isYes === 'no') {
+        user.setLocation(config.LOCATION_AMBIGUITY2);
         var sql = 'select * from product_address order by rate desc';
         util.createStructureResponseQueryFromDatabase(sql, user);
     }

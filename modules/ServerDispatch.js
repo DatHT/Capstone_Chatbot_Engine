@@ -84,11 +84,13 @@ router.post('/', function (req, res) {
 
             // handle log
             if (event.delivery) {
-                if (existUser.getResponseAPI().isLog === false) {
-                    logHandle(existUser.getSenderID(), existUser.getStatusCode(), existUser.getResponseAPI().response);
-                    var tempObj = existUser.getResponseAPI();
-                    tempObj.isLog = true;
-                    existUser.setResponseAPI(tempObj);
+                if (util.isDefined(existUser.getResponseAPI())) {
+                    if (existUser.getResponseAPI().isLog === false) {
+                        logHandle(existUser.getSenderID(), existUser.getStatusCode(), existUser.getResponseAPI().response);
+                        var tempObj = existUser.getResponseAPI();
+                        tempObj.isLog = true;
+                        existUser.setResponseAPI(tempObj);
+                    }
                 }
             }
 

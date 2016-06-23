@@ -27,13 +27,13 @@ var pagingFilter = ["Bạn có muốn tiếp tục xem những món mới không
 var reportResponseFilter = ["Cảm ơn bạn đã report món lỗi của bot :D", "Cảm ơn bạn đã góp phần làm cho bot thông minh hơn", "Cảm ơn sự giúp đỡ của bạn!"];
 
 module.exports = {
-    randomReportResponseFilterResponse : randomReportResponseFilterResponse(),
-    randomObligingFilterResponse : randomObligingFilterResponse(),
-    randomRegretProductNotFoundFilterResponse : randomRegretProductNotFoundFilterResponse(),
-    randomRegretRestaurantNotFoundFilterResponse : randomRegretRestaurantNotFoundFilterResponse(),
-    randomRequestPersonalLocationFilterFilterResponse : randomRequestPersonalLocationFilterResponse(),
-    randomRequestLocationFilterResponse : randomRequestLocationFilterResponse(),
-    randomPagingFilterResponse : randomPagingFilterResponse(),
+    randomReportResponseFilterResponse : randomReportResponseFilterResponse,
+    randomObligingFilterResponse : randomObligingFilterResponse,
+    randomRegretProductNotFoundFilterResponse : randomRegretProductNotFoundFilterResponse,
+    randomRegretRestaurantNotFoundFilterResponse : randomRegretRestaurantNotFoundFilterResponse,
+    randomRequestPersonalLocationFilterFilterResponse : randomRequestPersonalLocationFilterResponse,
+    randomRequestLocationFilterResponse : randomRequestLocationFilterResponse,
+    randomPagingFilterResponse : randomPagingFilterResponse,
     randomGreetingMessageFilterResponse: (profile => {
         var greetingMessageFilter = [`Chào ${profile.last_name} ${profile.first_name}! Tôi có thể giúp gì cho bạn :D`,
             `Xin chào ${profile.last_name} ${profile.first_name}! Tôi rất vui khi có thể giúp bạn tìm món ăn ngon :D`];

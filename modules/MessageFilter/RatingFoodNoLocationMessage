@@ -1,0 +1,107 @@
+var config = require('../../common/app-config').config;
+var util = require('../../common/CommonUtil');
+
+module.exports = createRatingFoodNoLocationMessageUser;
+
+function RatingFoodNoLocationMessage(user) {
+    this.user = user;
+}
+
+function createRatingFoodNoLocationMessageUser(user) {
+    if (!util.isDefined(user)) {
+        return new Error('lack of current user');
+    }
+    return new RatingFoodNoLocationMessage(user);
+}
+
+RatingFoodNoLocationMessage.prototype.handleWordProcessingRatingFoodNoLocation = function (response) {
+    return handleWordProcessingRatingFoodNoLocation(response, this.user);
+}
+
+function handleWordProcessingRatingFoodNoLocation(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+
+    if (action === config.ACTION_RATING_REQUEST_FOOD_NO_LOCATION) {
+        user.setFood(config.FOOD_AMBIGUITY1);
+        for (var i = 0; i < splittedText.length; i++) {
+            var elementArray = [{
+                type: "postback",
+                title: "Có",
+                payload: JSON.stringify({
+                    type: "yes_no",
+                    isYes: "yes"
+                })
+            }, {
+                type: "postback",
+                title: "Không",
+                payload: JSON.stringify({
+                    type: "yes_no",
+                    isYes: "no"
+                })
+            }];
+            user.sendFBMessageTypeButtonTemplate(elementArray, splittedText[i]);
+        }
+    }
+
+    if (action === config.ACTION_CHANGE_FOOD) {
+        // have all
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            var sql;
+            // clear food
+            if (params.Food) {
+                user.setFood(params.Food);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+                } else {
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                        sql = 'select * from product_address order by rate desc';
+                    }
+                }
+            }
+
+            // an gi cung dc
+            if (params.Food_Ambiguity) {
+                user.setFood(config.FOOD_AMBIGUITY1);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = "select * from product_address order by rate desc";
+                } else {
+                    sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                }
+            }
+
+            util.checkQueryOrCache(user, sql);
+        }
+    }
+
+    if (action == config.ACTION_CHANGE_LOCATION) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+                user.setLocation(config.LOCATION_AMBIGUITY1);
+                var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+                user.sendFBMessageTypeText(responseText);
+            } else {
+                var sql;
+                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                    user.setLocation(config.LOCATION_AMBIGUITY2);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '"  order by rate desc';
+                    }
+                } else if (params.Location) {
+                    user.setLocation(params.Location);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    }
+                }
+                util.checkQueryOrCache(user, sql);
+            }
+        }
+    }
+}
