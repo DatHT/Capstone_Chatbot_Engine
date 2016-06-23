@@ -1,7 +1,7 @@
 var config = require('../../common/app-config').config;
 var util = require('../../common/CommonUtil');
 
-module.exports = createFulfillMessage;
+module.exports = createSensationMessage;
 
 function SensationMessage(user) {
     this.user = user;
@@ -14,10 +14,122 @@ function createSensationMessage(user) {
     return new SensationMessage(user);
 }
 
-FulfillMessage.prototype.handleWordProcessingSensationMessage = function (response) {
+SensationMessage.prototype.handleWordProcessingSensationMessage = function (response) {
     return handleWordProcessingSensationMessage(response, this.user);
 }
 
 function handleWordProcessingSensationMessage(response, user) {
+    var action = response.result.action;
+    var responseText = response.result.fulfillment.speech;
+    var splittedText = util.splitResponse(responseText);
+    var params = response.result.parameters;
+    if (action === config.ACTION_SENSATION_STATEMENT) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== config.successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                var elementArray = [{
+                    type: "postback",
+                    title: "Ừ thì ăn!",
+                    payload: JSON.stringify({type: "sensation", isYes: "yes"})
+                }, {
+                    type: "postback",
+                    title: "Thôi không ăn đâu!",
+                    payload: JSON.stringify({
+                        type: "cancel"
+                    })
+                }];
+                user.sendFBMessageTypeButtonTemplate(elementArray, splittedText[i]);
+            }
+        }
+    }
 
+    if (action === config.ACTION_CHANGE_LOCATION) {
+        // have all 
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+                user.setLocation(config.LOCATION_AMBIGUITY1);
+                var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
+                user.sendFBMessageTypeText(responseText);
+            } else {
+                var sql;
+                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                    user.setLocation(config.LOCATION_AMBIGUITY2);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '"  order by rate desc';
+                    }
+                } else if (params.Location) {
+                    user.setLocation(params.Location);
+                    if (user.getFood() === config.FOOD_AMBIGUITY1) {
+                        sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    } else {
+                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    }
+                }
+                util.checkQueryOrCache(user, sql);
+            }
+        }
+
+        if (!util.isDefined(user.getLocation())) {
+            user.setLocation(params.Location);
+            var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+            util.checkQueryOrCache(user, sql);
+        }
+    }
+
+    if (action === config.ACTION_SENSATION_STATEMENT_REQUEST_CHOOSE_BUTTON) {
+        if (splittedText.length > 0 && splittedText.toString().trim() !== config.successMessage) {
+            for (var i = 0; i < splittedText.length; i++) {
+                user.sendFBMessageTypeText(splittedText[i]);
+            }
+        }
+    }
+
+    if (action === config.ACTION_CHANGE_FOOD) {
+        if (!util.isDefined(user.getLocation())) {
+            user.setFood(params.Food);
+            var elementArray = [{
+                type: "postback",
+                title: "Chỗ nào gần đây thôi!",
+                payload: JSON.stringify({type: "sensation", locationType: config.LOCATION_AMBIGUITY1})
+            }, {
+                type: "postback",
+                title: "Chỗ nào ngon là đi!",
+                payload: JSON.stringify({type: "sensation", locationType: config.LOCATION_AMBIGUITY2})
+            }, {
+                type: "postback",
+                title: "Đê tôi chọn chỗ!",
+                payload: JSON.stringify({type: "sensation", locationType: 'my_location'})
+            }];
+            var responseText = 'Vậy bạn muốn ăn ở gần đây hay ăn đâu cũng được nhỉ :D';
+            user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+        } else if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+            var sql;
+            // clear food
+            if (params.Food) {
+                user.setFood(params.Food);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+                } else {
+                    user.sendFBMessageTypeText(responseText);
+                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                        sql = 'select * from product_address order by rate desc';
+                    }
+                }
+            }
+
+            // an gi cung dc
+            if (params.Food_Ambiguity) {
+                user.setFood(config.FOOD_AMBIGUITY1);
+                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    sql = "select * from product_address order by rate desc";
+                } else {
+                    sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                }
+            }
+
+            util.checkQueryOrCache(user, sql);
+        }
+    }
 }

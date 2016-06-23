@@ -45,6 +45,7 @@
   "ACTION_SENSATION_STATEMENT_NOTACCEPT" : "sensation.statements.notaccept",
   "ACTION_REFUSE" : "refuse",
   "ACTION_RATING_REQUEST_LOCATION" : "rating.request.location",
+  "ACTION_SENSATION_STATEMENT_REQUEST_CHOOSE_BUTTON" : "sensation.statements.request.choose.button",
 
   "INPUT_INTENT_GREETING" : "Greeting",
   "INPUT_INTENT_FOOD_FIRST" : "FoodFirst",

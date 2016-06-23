@@ -89,7 +89,6 @@ function handleWordProcessingFoodFirst(response, user) {
                 var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
                 user.sendFBMessageTypeText(responseText);
             } else {
-                user.setLocation(params.Location);
                 var sql;
                 if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
                     user.setLocation(config.LOCATION_AMBIGUITY2);

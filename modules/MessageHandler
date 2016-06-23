@@ -5,6 +5,7 @@ var foodFirstMessageFilter = require('./MessageFilter/FoodFirstMessage');
 var unknownMessageFilter = require('./MessageFilter/UnknownMessage');
 var locationFirstMessageFilter = require('./MessageFilter/LocationFirstMessage');
 var fulfillMessageFilter = require('./MessageFilter/FulfillMessage');
+var sensationMessageFilter = require('./MessageFilter/SensationMessage');
 
 module.exports = createMessageHandler;
 
@@ -71,6 +72,12 @@ function doDispathchingMesssage(response, user) {
             user.setStatusCode(200);
             var fulfillMessageFilterObject = fulfillMessageFilter(user);
             return fulfillMessageFilterObject.handleWordProcessingFulfillMessage(response);
+        }
+
+        if (intentName.indexOf(config.INPUT_INTENT_SENSATION_STATEMENT)>-1) {
+            user.setStatusCode(200);
+            var sensationMessageFilterObject = sensationMessageFilter(user);
+            return sensationMessageFilterObject.handleWordProcessingSensationMessage(response);
         }
     }
 
