@@ -51,7 +51,6 @@ function handleWordProcessingLocationFirst(response, user) {
                 if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
                     sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
                 } else {
-                    user.sendFBMessageTypeText(responseText);
                     sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
                     if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
                         sql = 'select * from product_address order by rate desc';

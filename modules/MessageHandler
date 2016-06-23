@@ -6,6 +6,7 @@ var unknownMessageFilter = require('./MessageFilter/UnknownMessage');
 var locationFirstMessageFilter = require('./MessageFilter/LocationFirstMessage');
 var fulfillMessageFilter = require('./MessageFilter/FulfillMessage');
 var sensationMessageFilter = require('./MessageFilter/SensationMessage');
+var ratingFoodInLocationMessageFilter = require('./MessageFilter/RatingFoodInLocationMessage');
 
 module.exports = createMessageHandler;
 
@@ -79,6 +80,11 @@ function doDispathchingMesssage(response, user) {
             var sensationMessageFilterObject = sensationMessageFilter(user);
             return sensationMessageFilterObject.handleWordProcessingSensationMessage(response);
         }
-    }
 
+        if (intentName.indexOf(config.INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION)>-1) {
+            user.setStatusCode(200);
+            var ratingFoodInLocationFilterObject = ratingFoodInLocationMessageFilter(user);
+            return ratingFoodInLocationFilterObject.handleWordProcessingRatingFoodInLocation(response);
+        }
+    }
 }
