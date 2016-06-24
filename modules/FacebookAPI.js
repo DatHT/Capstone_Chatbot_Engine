@@ -295,7 +295,7 @@ function sendWelcomeMessage(sender) {
 function getSenderInformation(sender, callback) {
     console.log("send welcome message");
     request({
-        timeout: 5000,
+        timeout: 20000,
         url: 'https://graph.facebook.com/v2.6/' + sender +'/',
         qs: {
             access_token: pageAccessToken,

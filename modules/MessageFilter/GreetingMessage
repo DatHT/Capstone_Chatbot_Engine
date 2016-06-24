@@ -12,13 +12,17 @@ module.exports = {
             console.log(responseText);
             var elementArray = [{
                 type: "postback",
-                title: "Tìm món ăn ngon ",
+                title: "Món ăn xu hướng mới",
+                payload: JSON.stringify({type: "rating_food", isNext: 1})
+            },{
+                type: "postback",
+                title: "Quán được tìm nhiều nhất",
                 payload: JSON.stringify({type: "rating_food", isNext: 1})
             }, {
                 type: "postback",
-                title: "Chọc bot cho vui ",
+                title: "Món ăn bạn yêu thích",
                 payload: JSON.stringify({
-                    type: "cancel"
+                    type: "favourite"
                 })
             }];
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);

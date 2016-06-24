@@ -3,7 +3,6 @@
  */
 'use strict'
 var config = require('../common/app-config').config;
-var util = require('./CommonUtil');
 var productAddress = require('../model/ProductAddress');
 var careTakerModule = require('../modules/CareTaker');
 var databaseConnection = require('../modules/Database');
@@ -163,12 +162,20 @@ function createItemOfStructureResponseForRestaurant(item) {
     structureObj.subtitle = item.addressName;
 
     var buttons = [];
-    var button1 = util.createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
+    var button1 = createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
     buttons.push(button1);
 
     var url = 'http://maps.google.com/maps?q=' + item.latitude + ',' + item.longitude;
-    var button2 = util.createButton("Xem Google Map", config.BUTTON_TYPE.web_url, url);
+    var button2 = createButton("Xem Google Map", config.BUTTON_TYPE.web_url, url);
     buttons.push(button2);
+
+    var reportObjPostback = {
+        itemId: item.productId,
+        addressId: item.addressId,
+        type: "report"
+    };
+    var button3 = createButton("Report Sai Cửa Hàng", config.BUTTON_TYPE.postback, JSON.stringify(reportObjPostback));
+    buttons.push(button3);
 
     structureObj.buttons = buttons;
 
@@ -430,9 +437,10 @@ function createItemOfStructureResponseForProduct(item) {
 
     var reportObjPostback = {
         itemId: item.productId,
-        type: "report"
+        addressId: item.addressId,
+        type: "favourite"
     };
-    var button3 = createButton("Report Sai Món", config.BUTTON_TYPE.postback, JSON.stringify(reportObjPostback));
+    var button3 = createButton("Yêu thích", config.BUTTON_TYPE.postback, JSON.stringify(reportObjPostback));
     buttons.push(button3);
     structureObj.buttons = buttons;
 
