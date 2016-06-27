@@ -1,4 +1,0 @@
-var fs = require('fs');
-var imagePath2 = __dirname + "/image/image2.jpeg";
-
-// exports.imagePath = JSON.parse(fs.readFileSync(imagePath2));

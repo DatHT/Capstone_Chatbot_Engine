@@ -13,11 +13,15 @@ module.exports = {
             var elementArray = [{
                 type: "postback",
                 title: "Món ăn xu hướng mới",
-                payload: JSON.stringify({type: "rating_food", isNext: 1})
+                payload: JSON.stringify({
+                    type: "trend",
+                    typeTrend: "food"})
             },{
                 type: "postback",
-                title: "Quán được tìm nhiều nhất",
-                payload: JSON.stringify({type: "rating_food", isNext: 1})
+                title: "Quán được nổi nhất",
+                payload: JSON.stringify({
+                    type: "trend",
+                    typeTrend: "location"})
             }, {
                 type: "postback",
                 title: "Chọc Bot cho vui",

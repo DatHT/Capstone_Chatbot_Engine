@@ -4,6 +4,7 @@ var apiai = require('apiai');
 var logHandle = require('./Logger');
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 var responseFilter = require('./MessageFilter/FilterResponse');
+var databaseConnection = require('./Database');
 
 const PAYLOAD_LOCATION = "location";
 const PAYLOAD_REPORT = "report";
@@ -17,6 +18,7 @@ const PAYLOAD_ASK_LOCATION = "ask_location";
 const PAYLOAD_ASK_FOOD = "ask_food";
 const PAYLOAD_YES_NO = 'yes_no';
 const PAYLOAD_SENSATION = 'sensation';
+const PAYLOAD_TREND = 'trend';
 
 module.exports = createPostbackHandler;
 
@@ -63,8 +65,75 @@ function handlePostback(jsonObject, user, userMappingObject) {
             return handleReportFromUuser(jsonObject, user);
         case PAYLOAD_FEEDBACK:
             return handleFeedbackFromUser(jsonObject, user);
+        case PAYLOAD_TREND:
+            return handleRatingPostbackFromUser(jsonObject, user);
         default:
             break;
+    }
+}
+
+//handle rating_food postback
+function handleRatingPostbackFromUser(jsonObject, user) {
+    if (jsonObject.typeTrend === 'food') {
+        var setSql = "SET sql_mode = '';";
+        var querySql = 'SELECT * FROM product_address order by rate desc limit 10';
+        var sql = setSql + querySql;
+        databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
+            if (err) {
+                console.log("ERROR DB: " + err.message);
+            } else {
+                console.log("query success");
+                user.setData(rows);
+                if (rows.length > 0) {
+                    var elementArray = [];
+                    var lengthArray = rows.length >= 10 ? 10 : rows.length;
+                    user.setCurrentPositionItem(lengthArray);
+                    for (var i = 0; i < lengthArray; i++) {
+                        var structureObj = util.createItemOfStructureResponseForProduct(rows[i]);
+                        elementArray.push(structureObj);
+                    }
+                    user.sendFBMessageTypeStructureMessage(elementArray);
+                    // nếu lớn hơn 10  thì mới paging
+                    if (rows.length > 10) {
+                        setTimeout(function () {
+                            var pagingButton = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                            user.sendFBMessageTypeButtonTemplate(pagingButton, "Bạn có muốn tiếp tục xem những món mới không :D");
+                        }, 5000);
+                    }
+                }
+            }
+        });
+    }
+
+    if (jsonObject.typeTrend === 'location') {
+        var setSql = "SET sql_mode = '';";
+        var querySql = 'SELECT * FROM product_address group by restaurantName order by rate desc limit 10';
+        var sql = setSql + querySql;
+        databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
+            if (err) {
+                console.log("ERROR DB: " + err.message);
+            } else {
+                console.log("query success");
+                user.setData(rows);
+                if (rows.length > 0) {
+                    var elementArray = [];
+                    var lengthArray = rows.length >= 10 ? 10 : rows.length;
+                    user.setCurrentPositionItem(lengthArray);
+                    for (var i = 0; i < lengthArray; i++) {
+                        var structureObj = util.createItemOfStructureResponseForRestaurant(rows[i]);
+                        elementArray.push(structureObj);
+                    }
+                    user.sendFBMessageTypeStructureMessage(elementArray);
+                    // nếu lớn hơn 10  thì mới paging
+                    if (rows.length > 10) {
+                        setTimeout(function () {
+                            var pagingButton = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                            user.sendFBMessageTypeButtonTemplate(pagingButton, "Bạn có muốn tiếp tục xem những món mới không :D");
+                        }, 5000);
+                    }
+                }
+            }
+        });
     }
 }
 
@@ -94,7 +163,7 @@ function handleFeedbackFromUser(jsonObject, user) {
             })
         }];
         var responseText = "Bạn hãy chọn 1 trong 3 để gửi feedback";
-        user.sendFBMessageTypeStructureMessage(feedbackPostback, responseText);
+        user.sendFBMessageTypeButtonTemplate(feedbackPostback, responseText);
     }
 
     if (jsonObject.feedBack) {
@@ -107,9 +176,8 @@ function handleFeedbackFromUser(jsonObject, user) {
 
     if (jsonObject.isAccept === 'no') {
         var responseText = 'Lần sau bạn lại ghé thăm nữa nhé :D';
+        user.sendFBMessageTypeText(responseText);
     }
-
-    user.sendFBMessageTypeText(responseText);
 }
 
 //handle report payload

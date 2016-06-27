@@ -114,13 +114,13 @@ router.post('/', function (req, res) {
                     geocoding.reverseGeocodingIntoAddres(Number(location[0]), Number(location[1]), function (response) {
                         var tmp = handleGoogleAPIRespnose(response);
                         existUser.setLocation(tmp);
-                        var sql;
+                        var typeQuery;
                         if (existUser.getFood() === config.FOOD_AMBIGUITY1) {
-                            sql = 'select * from product_address where addressName regexp "' + existUser.getLocation().toString().trim() + '"';
+                            typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                         } else {
-                            sql = 'select * from product_address where productName regexp "' + existUser.getFood().toString().trim() + '" and addressName regexp "%' + existUser.getLocation().toString().trim() + '" order by rate desc';
+                            typeQuery = config.QUERY_TYPE.FOOD_LOCATION;
                         }
-                        util.checkQueryOrCache(existUser, sql);
+                        util.checkQueryOrCache(existUser, typeQuery);
                     });
                 }
             }

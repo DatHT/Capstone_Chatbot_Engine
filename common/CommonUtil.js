@@ -222,7 +222,7 @@ function checkQueryOrCache(user, queryType) {
         } else {
             var queryType = config.FOOD_LOCATION;
             if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                queryType = config.ONLY_FOOD;
+                queryType = config.QUERY_TYPE.ONLY_FOOD;
             }
             createQueryData(user, queryType, option);
         }

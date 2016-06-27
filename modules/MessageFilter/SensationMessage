@@ -55,16 +55,16 @@ function handleWordProcessingSensationMessage(response, user) {
                     user.setLocation(config.LOCATION_AMBIGUITY2);
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
                         sql = 'select * from product_address order by rate desc';
-                        typeQuery = config.NO_FOOD_LOCATION;
+                        typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     } else {
-                        typeQuery = config.ONLY_FOOD;
+                        typeQuery = config.QUERY_TYPE.ONLY_FOOD;
                     }
                 } else if (params.Location) {
                     user.setLocation(params.Location);
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
-                        typeQuery = config.ONLY_LOCATION;
+                        typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                     } else {
-                        typeQuery = config.FOOD_LOCATION;
+                        typeQuery = config.QUERY_TYPE.FOOD_LOCATION;
                     }
                 }
                 util.checkQueryOrCache(user, typeQuery);
@@ -73,7 +73,7 @@ function handleWordProcessingSensationMessage(response, user) {
 
         if (!util.isDefined(user.getLocation())) {
             user.setLocation(params.Location);
-            util.checkQueryOrCache(user, config.FOOD_LOCATION);
+            util.checkQueryOrCache(user, config.QUERY_TYPE.FOOD_LOCATION);
         }
     }
 
@@ -109,11 +109,11 @@ function handleWordProcessingSensationMessage(response, user) {
             if (params.Food) {
                 user.setFood(params.Food);
                 if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                    typeQuery = config.ONLY_FOOD;
+                    typeQuery = config.QUERY_TYPE.ONLY_FOOD;
                 } else {
-                    typeQuery = config.FOOD_LOCATION;
+                    typeQuery = config.QUERY_TYPE.FOOD_LOCATION;
                     if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                        typeQuery = config.NO_FOOD_LOCATION;
+                        typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     }
                 }
             }
@@ -122,9 +122,9 @@ function handleWordProcessingSensationMessage(response, user) {
             if (params.Food_Ambiguity) {
                 user.setFood(config.FOOD_AMBIGUITY1);
                 if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                    typeQuery = config.NO_FOOD_LOCATION;
+                    typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                 } else {
-                    typeQuery = config.ONLY_LOCATION;
+                    typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                 }
             }
 
