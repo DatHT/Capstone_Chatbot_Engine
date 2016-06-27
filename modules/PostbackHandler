@@ -1,4 +1,5 @@
 var config = require('../common/app-config').config;
+var imagePath = require('../common/image-config').imagePath;
 var util = require('../common/CommonUtil');
 var apiai = require('apiai');
 var logHandle = require('./Logger');
@@ -10,7 +11,8 @@ const PAYLOAD_REPORT = "report";
 const PAYLOAD_FOOD = "food";
 const PAYLOAD_REQUEST = "request";
 const PAYLOAD_CANCEL = "cancel";
-const PAYLOAD_CONTINUE = "continue";2
+const PAYLOAD_CONTINUE = "continue";
+const PAYLOAD_FEEDBACK = "feedback"
 const PAYLOAD_CHANGE = "change";
 const PAYLOAD_ASK_LOCATION = "ask_location";
 const PAYLOAD_ASK_FOOD = "ask_food";
@@ -65,20 +67,92 @@ function handlePostback(jsonObject, user, userMappingObject) {
     }
 }
 
+//handle feedback 
+function handleFeedbackFromUser(jsonObject, user) {
+    if (jsonObject.isAccept === 'yes') {
+        // var feedbackPostback = [{
+        //     type: "postback",
+        //     title: "Wao! Bot quá thông minh",
+        //     payload: JSON.stringify({
+        //         type: "feedback",
+        //         feedBack: "nice"
+        //     })
+        // }, {
+        //     type: "postback",
+        //     title: "Bot cũng được!",
+        //     payload: JSON.stringify({
+        //         type: "feedback",
+        //         feedBack: "normal"
+        //     })
+        // }, {
+        //     type: "postback",
+        //     title: "Bot tệ quá!",
+        //     payload: JSON.stringify({
+        //         type: "feedback",
+        //         feedBack: "bad"
+        //     })
+        // }];
+        var elementArray = [{
+            title: 'Bot cũng thông minh đáy chứ',
+            image_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSWlQFKhs1THuEIxmcrl-HB4eNDC0j3ewTuXH8yAM7kLwscPZaELeSnig',
+            subtitle: 'anh Thành làm dc em bot dễ thương mà lại thông mnh ahihi!',
+            buttons: [
+                util.createButton('Chọn cái này này', config.BUTTON_TYPE.postback, JSON.stringify({
+                    type: "feedback",
+                    feedBack: "good"
+                }))]
+        }, {
+            title: 'Bot cũng tạm tạm',
+            image_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSWlQFKhs1THuEIxmcrl-HB4eNDC0j3ewTuXH8yAM7kLwscPZaELeSnig',
+            subtitle: 'anh Thành code như nồi nhưng cũng xài được!',
+            buttons: [
+                util.createButton('Chọn cái này này', config.BUTTON_TYPE.postback, JSON.stringify({
+                    type: "feedback",
+                    feedBack: "good"
+                }))]
+        }, {
+            title: 'Bot dốt như bò!',
+            image_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSWlQFKhs1THuEIxmcrl-HB4eNDC0j3ewTuXH8yAM7kLwscPZaELeSnig',
+            subtitle: 'anh Thành code như cái nồi! Bug ngập mồm ra!',
+            buttons: [
+                util.createButton('Chọn cái này này', config.BUTTON_TYPE.postback, JSON.stringify({
+                    type: "feedback",
+                    feedBack: "good"
+                }))]
+        }];
+        // var responseText = "Bạn hãy chọn 1 trong 3 để gửi feedback";
+        user.sendFBMessageTypeStructureMessage(elementArray);
+    }
+
+    if (jsonObject.feedBack) {
+        console.log("report: ", jsonObject);
+        logHandle(user.getSenderID(), 400, jsonObject);
+        var responseText = 'Cảm ơn bạn đã gửi nhận xét :D';
+        user.sendFBMessageTypeText(responseText);
+    }
+
+
+    if (jsonObject.isAccept === 'no') {
+        var responseText = 'Lần sau bạn lại ghé thăm nữa nhé :D';
+    }
+
+    user.sendFBMessageTypeText(responseText);
+}
+
 //handle report payload
 function handleReportFromUuser(jsonObject, user) {
     console.log("report: ", jsonObject);
-    logHandle(user.getSenderID(), 400 , jsonObject);
+    logHandle(user.getSenderID(), 400, jsonObject);
     var responseText = responseFilter.randomReportResponseFilterResponse();
     user.sendFBMessageTypeText(responseText);
 }
 
 // handle postback cancel
 function handleCancelPostback(user, userMappingObject) {
-    var senderID = user.getSenderID();
     userMappingObject.delete(user.getSenderID());
-    var responseText = "Cảm ơn bạn đã quan tâm :D";
-    user.sendFBMessageTypeText(responseText);
+    var responseText = "Cảm ơn bạn đã quan tâm :D Bạn có thể giúp tôi làm 1 ít feedback được không :D";
+    var elementArray = util.createItemOfStructureButton(config.YES_NO_BUTTON, user);
+    user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
 }
 
 // handle postback paging
@@ -87,7 +161,6 @@ function handelPagingItemPostback(jSonObject, user) {
     var data = user.getData();
     if (jSonObject.isNext === 1) {
         var temp;
-
         if (user.getCurrentPosition() + 10 >= data.length) {
             temp = data.length - user.getCurrentPosition();
 
@@ -97,7 +170,7 @@ function handelPagingItemPostback(jSonObject, user) {
             }
             user.sendFBMessageTypeStructureMessage(elementArray);
             setTimeout(function () {
-                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON,user);
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
             }, 5000);
 
@@ -109,7 +182,7 @@ function handelPagingItemPostback(jSonObject, user) {
             }
             user.sendFBMessageTypeStructureMessage(elementArray);
             setTimeout(function () {
-                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON,user);
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
             }, 5000);
             user.setCurrentPositionItem(user.getCurrentPosition() + 10);
@@ -148,7 +221,7 @@ function handelPagingItemPostback(jSonObject, user) {
 
             user.sendFBMessageTypeStructureMessage(elementArray);
             setTimeout(function () {
-                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON,user);
+                elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
             }, 5000);
         }
@@ -201,8 +274,8 @@ function handleAskLocationPostback(jsonObject, user) {
             user.setResponseAPI(response);
             console.log("send dummy request successfully");
         });
-        var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
-        util.checkQueryOrCache(user, sql)
+        // var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+        util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_FOOD);
     }
 
     if (jsonObject.locationType === 'my_location') {
@@ -224,8 +297,8 @@ function handleAskFoodPostback(jsonObject, user) {
             user.setResponseAPI(response);
             console.log("send dummy request successfully");
         })
-        var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
-        util.checkQueryOrCache(user, sql);
+        // var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+        util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_LOCATION);
     }
 
     if (jsonObject.foodType === 'my_food') {
@@ -251,7 +324,7 @@ function handleYesNoPostback(jsonObject, user) {
     if (jsonObject.isYes === 'no') {
         user.setLocation(config.LOCATION_AMBIGUITY2);
         var sql = 'select * from product_address order by rate desc';
-        util.createStructureResponseQueryFromDatabase(sql, user);
+        util.checkQueryOrCache(user, config.QUERY_TYPE.NO_FOOD_LOCATION)
     }
 
     if (jsonObject.isYes === 'yes') {
@@ -320,13 +393,15 @@ function handleSensationPostback(jsonObject, user) {
             user.setResponseAPI(response);
             console.log("send dummy request successfully");
         });
-        var sql;
+        var typeQuery;
         if (user.getFood() === config.FOOD_AMBIGUITY1) {
-            sql = 'select * from product_address order by rate desc';
+            // sql = 'select * from product_address order by rate desc';
+            typeQuery = config.TYPE_QUERY.NO_FOOD_LOCATION;
         } else {
-            sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+            // sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
+            typeQuery = config.TYPE_QUERY.ONLY_FOOD;
         }
-        util.checkQueryOrCache(user, sql);
+        util.checkQueryOrCache(user, typeQuery);
     }
 
     // my location

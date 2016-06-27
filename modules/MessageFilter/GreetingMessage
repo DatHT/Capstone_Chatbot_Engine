@@ -20,9 +20,9 @@ module.exports = {
                 payload: JSON.stringify({type: "rating_food", isNext: 1})
             }, {
                 type: "postback",
-                title: "Món ăn bạn yêu thích",
+                title: "Chọc Bot cho vui",
                 payload: JSON.stringify({
-                    type: "favourite"
+                    type: "cancel"
                 })
             }];
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);

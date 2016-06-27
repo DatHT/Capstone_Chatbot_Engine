@@ -37,24 +37,23 @@ function handleWordProcessingFoodFirst(response, user) {
     if (action === config.ACTION_FIND_LOCATION) {
         if (splittedText.toString().trim() === config.successMessage) {
             user.setLocation(params.Location);
-            var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
-            util.checkQueryOrCache(user, sql);
+            util.checkQueryOrCache(user, config.QUERY_TYPE.FOOD_LOCATION);
         }
     }
 
     if (action === config.ACTION_CHANGE_FOOD) {
         // have all
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
-            var sql;
+            var typeQuery;
             // clear food
             if (params.Food) {
                 user.setFood(params.Food);
                 if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
+                    util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_FOOD);
                 } else {
-                    sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    typeQuery = config.QUERY_TYPE.FOOD_LOCATION
                     if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                        sql = 'select * from product_address order by rate desc';
+                        typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     }
                 }
             }
@@ -63,13 +62,13 @@ function handleWordProcessingFoodFirst(response, user) {
             if (params.Food_Ambiguity) {
                 user.setFood(config.FOOD_AMBIGUITY1);
                 if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                    sql = "select * from product_address order by rate desc";
+                    typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                 } else {
-                    sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                    typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                 }
             }
 
-            util.checkQueryOrCache(user, sql);
+            util.checkQueryOrCache(user, typeQuery);
         }
 
         // have food - do not have location
@@ -88,23 +87,23 @@ function handleWordProcessingFoodFirst(response, user) {
                 var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
                 user.sendFBMessageTypeText(responseText);
             } else {
-                var sql;
+                var typeQuery;
                 if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
                     user.setLocation(config.LOCATION_AMBIGUITY2);
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
-                        sql = 'select * from product_address order by rate desc';
+                        typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     } else {
-                        sql = 'select * from product_address where productName regexp "'+ user.getFood().trim() +'"  order by rate desc';
+                        typeQuery = config.QUERY_TYPE.ONLY_FOOD;
                     }
                 } else if (params.Location) {
                     user.setLocation(params.Location);
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
-                        sql = 'select * from product_address where addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                        typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                     } else {
-                        sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" and addressName regexp "' + user.getLocation().trim() + '" order by rate desc';
+                        typeQuery = config.QUERY_TYPE.FOOD_LOCATION;
                     }
                 }
-                util.checkQueryOrCache(user, sql);
+                util.checkQueryOrCache(user, typeQuery);
             }
         }
     }

@@ -182,14 +182,18 @@ function createItemOfStructureResponseForRestaurant(item) {
     return structureObj;
 }
 
-function checkQueryOrCache(user, sql) {
+function checkQueryOrCache(user, queryType) {
     var dataQuery = caretaker.get(JSON.stringify({
         food: user.getFood(),
         location: user.getLocation()
     }));
+    var option = {
+        productName: user.getFood().trim(),
+        addressName: user.getLocation().trim()
+    }
     if (!checkIsDefined(dataQuery)) {
         console.log('QUERYYYYYYYYYYYYYYYYY');
-        createStructureResponseQueryFromDatabase(sql, user);
+        createQueryData(user, queryType, option);
     } else {
         console.log('CACHEEEEEEEEEEEEEEEEE');
         var temp = new productAddress();
@@ -216,11 +220,11 @@ function checkQueryOrCache(user, sql) {
                 }, 5000);
             }
         } else {
-            sql = 'select * from product_address where productName like "%' + user.getFood().trim() + '%" and addressName like "%' + user.getLocation().trim() + '%" order by rate desc';
+            var queryType = config.FOOD_LOCATION;
             if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
-                sql = 'select * from product_address where productName like "%' + user.getFood().trim() + '%" order by rate desc';
+                queryType = config.ONLY_FOOD;
             }
-            createStructureResponseQueryFromDatabase(sql, user);
+            createQueryData(user, queryType, option);
         }
     }
 }
@@ -328,7 +332,7 @@ function createItemOfStructureButton(type, user) {
             }, {
                 type: "postback",
                 title: "Cancel",
-          payload: JSON.stringify({
+                payload: JSON.stringify({
                     type: "cancel"
                 })
             }];
@@ -411,6 +415,25 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
+        case (config.YES_NO_BUTTON) :
+        {
+            elementArray = [{
+                type: "postback",
+                title: "OK! Được thôi",
+                payload: JSON.stringify({
+                    type: "feedback",
+                    isAccept: "yes"
+                })
+            }, {
+                type: "postback",
+                title: "Thôi!",
+                payload: JSON.stringify({
+                    type: "feedback",
+                    isAccept: 'no'
+                })
+            }];
+            break;
+        }
 
         default:
         {
@@ -438,9 +461,9 @@ function createItemOfStructureResponseForProduct(item) {
     var reportObjPostback = {
         itemId: item.productId,
         addressId: item.addressId,
-        type: "favourite"
+        type: "report"
     };
-    var button3 = createButton("Yêu thích", config.BUTTON_TYPE.postback, JSON.stringify(reportObjPostback));
+    var button3 = createButton("Món này bị sai rồi!", config.BUTTON_TYPE.postback, JSON.stringify(reportObjPostback));
     buttons.push(button3);
     structureObj.buttons = buttons;
 
@@ -462,5 +485,95 @@ function createButton(title, type, optionalString) {
             return button;
         default:
             return;
+    }
+}
+
+function createQueryData(user, queryType, option) {
+    var productName = (checkIsDefined(option.productName)) ? option.productName : {};
+    var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
+    switch (queryType) {
+        case config.QUERY_TYPE.ONLY_FOOD:
+        {
+            databaseConnection.getProductWithOnlyProductName(productName, (rows, err) => {
+                return createStructureResponseQueryFromDatabase(user, rows, err);
+            });
+            break;
+        }
+        case config.QUERY_TYPE.ONLY_LOCATION:
+        {
+            databaseConnection.getProductWithOnlyAddressName(addressName, (rows, err) => {
+                return createStructureResponseQueryFromDatabase(user, rows, err);
+            });
+            break;
+        }
+        case config.QUERY_TYPE.FOOD_LOCATION:
+        {
+            databaseConnection.getProductWithProductNameAndAddressName(productName, addressName, (rows, err) => {
+                return createStructureResponseQueryFromDatabase(user, rows, err);
+            });
+            break;
+        }
+        case config.QUERY_TYPE.NO_FOOD_LOCATION:
+        {
+            databaseConnection.getProductWithoutAnything((rows, err) => {
+                return createStructureResponseQueryFromDatabase(user, rows, err);
+            });
+            break;
+        }
+        default:
+        {
+            console.log('ERROR: bug create query not match');
+        }
+    }
+
+    function createStructureResponseQueryFromDatabase(user, rows, err) {
+        if (checkIsDefined(err)) {
+            return new Error(err);
+        } else {
+            user.setData(rows);
+            var data = user.getData();
+
+            //create cache + add cache
+            var key = JSON.stringify({
+                food: user.getFood(),
+                location: user.getLocation()
+            })
+            var objProductAddress = productAddress(rows);
+            caretaker.add(key, objProductAddress.hydrate());
+
+            // create message
+            if (rows.length > 0) {
+                var elementArray = [];
+                var lengthArray = rows.length >= 10 ? 10 : rows.length;
+                user.setCurrentPositionItem(lengthArray);
+                for (var i = 0; i < lengthArray; i++) {
+                    var structureObj = createItemOfStructureResponseForProduct(rows[i]);
+                    elementArray.push(structureObj);
+                }
+                user.sendFBMessageTypeStructureMessage(elementArray);
+
+                // nếu lớn hơn 10  thì mới paging
+                if (data.length > 10) {
+                    setTimeout(function () {
+                        elementArray = createItemOfStructureButton(config.PAGING_BUTTON, user);
+                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                    }, 5000);
+                } else {
+                    setTimeout(function () {
+                        elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                    }, 5000);
+                }
+            } else {
+                user.setStatusCode(404);
+                var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
+                user.sendFBMessageTypeText(responseText);
+
+                setTimeout(function () {
+                    elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                }, 5000);
+            }
+        }
     }
 }

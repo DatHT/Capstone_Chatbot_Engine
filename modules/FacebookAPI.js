@@ -52,6 +52,10 @@ FacebookAPI.prototype.getSenderInformation = function (sender, callback) {
     return getSenderInformation(sender, callback);
 };
 
+FacebookAPI.prototype.sendFBMessageTypeStructureMessageIncludeMessage= function (sender, elementArray ,responseText) {
+    return sendFBMessageTypeStructureMessageIncludeMessage(sender, elementArray ,responseText);
+}
+
 function sendFBMessageTypeText(sender, messageData) {
     console.log("do send text message");
     request({
@@ -62,7 +66,7 @@ function sendFBMessageTypeText(sender, messageData) {
             recipient: {id: sender},
             message: {text: messageData}
         },
-        timeout: 5000
+        timeout: 20000
     }, function (error, response, body) {
         if (error) {
             console.log('Error sending message: ', error);
@@ -80,7 +84,7 @@ function doSubscribeRequest() {
     console.log("do subcribes");
     request({
             method: 'POST',
-            timeout: 5000,
+            timeout: 20000,
             uri: "https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=" + pageAccessToken
         },
         function (error, response, body) {
@@ -99,7 +103,7 @@ function doSubscribeRequest() {
 function sendFBMessageTypeImage(sender, urlString) {
     console.log("do send  message");
     request({
-        timeout: 5000,
+        timeout: 20000,
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
         method: 'POST',
@@ -136,7 +140,7 @@ function sendFBMessageTypeImageFile(sender, urlImageFile) {
         qs: {access_token: pageAccessToken},
         method: 'POST',
         json: {
-            timeout: 5000,
+            timeout: 20000,
             recipient: {
                 id: sender
             },
@@ -177,7 +181,7 @@ function sendFBMessageTypeImageFile(sender, urlImageFile) {
 function sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText) {
     console.log("do send button template message");
     request({
-        timeout: 5000,
+        timeout: 20000,
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
         method: 'POST',
@@ -237,7 +241,7 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText) {
 function sendFBMessageTypeStructureMessage(sender,elementArray) {
     console.log("do send structure message");
     request({
-        timeout: 5000,
+        timeout: 20000,
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
         method: 'POST',
@@ -267,11 +271,45 @@ function sendFBMessageTypeStructureMessage(sender,elementArray) {
     });
 }
 
+function sendFBMessageTypeStructureMessageIncludeMessage(sender,elementArray, responseText) {
+    console.log("do send structure message");
+    request({
+        timeout: 20000,
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: pageAccessToken},
+        method: 'POST',
+        json: {
+            recipient: {
+                id: sender
+            },
+            message: {
+                attachment: {
+                    type: "template",
+                    payload: {
+                        template_type: "generic",
+                        elements: elementArray
+
+                    }
+                }
+            }
+        }
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error Structure Message: ', response.body.error);
+        }
+        if (response) {
+            console.log('response ok successfully');
+        }
+    });
+}
+
 //send welcome message
 function sendWelcomeMessage(sender) {
     console.log("send welcome message");
     request({
-        timeout: 5000,
+        timeout: 20000,
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token: pageAccessToken},
         method: 'POST',

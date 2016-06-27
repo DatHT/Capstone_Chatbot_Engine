@@ -109,8 +109,14 @@ ClientUser.prototype.sendFBMessageTypeStructureMessage = function (elementArray)
     return fbClient.sendFBMessageTypeStructureMessage(this.senderID, elementArray);
 };
 
+ClientUser.prototype.sendFBMessageTypeStructureMessageIncludeMessage = function (elementArray, responseText) {
+    return fbClient.sendFBMessageTypeStructureMessageIncludeMessage(this.senderID, elementArray, responseText);
+};
+
 ClientUser.prototype.getSenderInformation = function (callback) {
     fbClient.getSenderInformation(this.senderID, function (response) {
         return callback(response);
     });
 }
+
+

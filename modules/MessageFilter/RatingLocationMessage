@@ -31,7 +31,7 @@ function handleWordPrcccessingRatingRequestLocationStatement(response, user) {
             user.setFood(params.Food);
             user.setLocation(config.LOCATION_AMBIGUITY2);
             var setSql = "SET `sql_mode` = '';";
-            var querySql = 'SELECT * FROM `product_address` where `productName` like "%' + user.getFood().trim() + '%" group by `restaurantName` order by `rate` desc ';
+            var querySql = 'SELECT * FROM `product_address` where `productName` regexp "' + user.getFood().trim() + '" group by `restaurantName` order by `rate` desc ';
             var sql = setSql + querySql;
             databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
                 if (err) {
