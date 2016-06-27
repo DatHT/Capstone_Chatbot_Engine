@@ -1,5 +1,4 @@
 var config = require('../common/app-config').config;
-var imagePath = require('../common/image-config').imagePath;
 var util = require('../common/CommonUtil');
 var apiai = require('apiai');
 var logHandle = require('./Logger');
@@ -62,6 +61,8 @@ function handlePostback(jsonObject, user, userMappingObject) {
             return handleSensationPostback(jsonObject, user);
         case PAYLOAD_REPORT:
             return handleReportFromUuser(jsonObject, user);
+        case PAYLOAD_FEEDBACK:
+            return handleFeedbackFromUser(jsonObject, user);
         default:
             break;
     }
@@ -70,58 +71,30 @@ function handlePostback(jsonObject, user, userMappingObject) {
 //handle feedback 
 function handleFeedbackFromUser(jsonObject, user) {
     if (jsonObject.isAccept === 'yes') {
-        // var feedbackPostback = [{
-        //     type: "postback",
-        //     title: "Wao! Bot quá thông minh",
-        //     payload: JSON.stringify({
-        //         type: "feedback",
-        //         feedBack: "nice"
-        //     })
-        // }, {
-        //     type: "postback",
-        //     title: "Bot cũng được!",
-        //     payload: JSON.stringify({
-        //         type: "feedback",
-        //         feedBack: "normal"
-        //     })
-        // }, {
-        //     type: "postback",
-        //     title: "Bot tệ quá!",
-        //     payload: JSON.stringify({
-        //         type: "feedback",
-        //         feedBack: "bad"
-        //     })
-        // }];
-        var elementArray = [{
-            title: 'Bot cũng thông minh đáy chứ',
-            image_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSWlQFKhs1THuEIxmcrl-HB4eNDC0j3ewTuXH8yAM7kLwscPZaELeSnig',
-            subtitle: 'anh Thành làm dc em bot dễ thương mà lại thông mnh ahihi!',
-            buttons: [
-                util.createButton('Chọn cái này này', config.BUTTON_TYPE.postback, JSON.stringify({
-                    type: "feedback",
-                    feedBack: "good"
-                }))]
+        var feedbackPostback = [{
+            type: "postback",
+            title: "Bot quá thông minh",
+            payload: JSON.stringify({
+                type: "feedback",
+                feedBack: "nice"
+            })
         }, {
-            title: 'Bot cũng tạm tạm',
-            image_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSWlQFKhs1THuEIxmcrl-HB4eNDC0j3ewTuXH8yAM7kLwscPZaELeSnig',
-            subtitle: 'anh Thành code như nồi nhưng cũng xài được!',
-            buttons: [
-                util.createButton('Chọn cái này này', config.BUTTON_TYPE.postback, JSON.stringify({
-                    type: "feedback",
-                    feedBack: "good"
-                }))]
+            type: "postback",
+            title: "Bot cũng được!",
+            payload: JSON.stringify({
+                type: "feedback",
+                feedBack: "normal"
+            })
         }, {
-            title: 'Bot dốt như bò!',
-            image_url: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSWlQFKhs1THuEIxmcrl-HB4eNDC0j3ewTuXH8yAM7kLwscPZaELeSnig',
-            subtitle: 'anh Thành code như cái nồi! Bug ngập mồm ra!',
-            buttons: [
-                util.createButton('Chọn cái này này', config.BUTTON_TYPE.postback, JSON.stringify({
-                    type: "feedback",
-                    feedBack: "good"
-                }))]
+            type: "postback",
+            title: "Bot tệ quá!",
+            payload: JSON.stringify({
+                type: "feedback",
+                feedBack: "bad"
+            })
         }];
-        // var responseText = "Bạn hãy chọn 1 trong 3 để gửi feedback";
-        user.sendFBMessageTypeStructureMessage(elementArray);
+        var responseText = "Bạn hãy chọn 1 trong 3 để gửi feedback";
+        user.sendFBMessageTypeStructureMessage(feedbackPostback, responseText);
     }
 
     if (jsonObject.feedBack) {
