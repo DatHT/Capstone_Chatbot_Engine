@@ -19,6 +19,8 @@ const PAYLOAD_ASK_FOOD = "ask_food";
 const PAYLOAD_YES_NO = 'yes_no';
 const PAYLOAD_SENSATION = 'sensation';
 const PAYLOAD_TREND = 'trend';
+const PAYLOAD_GUIDELINE = 'guideline';
+const PAYLOAD_MORE = 'more'
 
 module.exports = createPostbackHandler;
 
@@ -67,8 +69,47 @@ function handlePostback(jsonObject, user, userMappingObject) {
             return handleFeedbackFromUser(jsonObject, user);
         case PAYLOAD_TREND:
             return handleRatingPostbackFromUser(jsonObject, user);
+        case PAYLOAD_MORE:
+            return handleMoreFunctionPostback(jsonObject, user);
+        case PAYLOAD_GUIDELINE:
+            return handleGuidelineFunctionPostback(jsonObject, user);
         default:
             break;
+    }
+}
+
+//handle more function postback
+function handleMoreFunctionPostback(jsonObject, user) {
+    if (jsonObject.typeMore === 'more_function') {
+        var elementArray = util.createItemOfStructureButton(config.MORE_FUNCTION_BUTTON, user);
+        var responseText = 'Bạn có thể chọn 1 trong 3 chức năng dưới đây :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    if (jsonObject.typeMore === 'training') {
+        var responseText ='Xin hãy nhập câu bạn muốn train cho Bot :D';
+        user.sendFBMessageTypeText(responseText);
+    }
+
+    if (jsonObject.typeMore === 'bookmark') {
+        
+    }
+}
+
+//handle guideline postback
+function handleGuidelineFunctionPostback(jsonObject, user) {
+    if (jsonObject.typeMore === 'guideline_function') {
+        var elementArray = util.createItemOfStructureButton(config.GUIDELINE_BUTTON, user);
+        var responseText = 'Bạn có thể xem hướng dẫn dưới đây để có thể sử dụng tốt nhất :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    if (jsonObject.typeGuideline === 'training') {
+
+    }
+
+    if (jsonObject.typeGuideline === 'bookmark') {
+
     }
 }
 

@@ -9,6 +9,7 @@ var sensationMessageFilter = require('./MessageFilter/SensationMessage');
 var ratingFoodInLocationMessageFilter = require('./MessageFilter/RatingFoodInLocationMessage');
 var ratingFoodNoLocationMessageFilter = require('./MessageFilter/RatingFoodNoLocationMessage');
 var ratingLocationMessageFilter = require('./MessageFilter/RatingLocationMessage');
+var trainingMessageFilter = require('./MessageFilter/TrainingMessage');
 
 module.exports = createMessageHandler;
 
@@ -30,10 +31,10 @@ function createMessageHandler(user, userMappingObject) {
 }
 
 MessagekHandler.prototype.doDispatchingMessage = function (response) {
-    return doDispathchingMesssage(response, this.user);
+    return doDispathchingMesssage(response, this.user, this.userMappingObj);
 }
 
-function doDispathchingMesssage(response, user) {
+function doDispathchingMesssage(response, user, userMappingObject) {
     var consoleObject = {
         timestamp : response.timestamp,
         resolvedQuery : response.result.resolvedQuery,
@@ -99,6 +100,12 @@ function doDispathchingMesssage(response, user) {
             user.setStatusCode(200);
             var ratingLocationMessageFilterObject = ratingLocationMessageFilter(user);
             return ratingLocationMessageFilterObject.handleWordPrcccessingRatingRequestLocationStatement(response);
+        }
+
+        if (intentName.indexOf(config.INPUT_INTENT_TRAINING)>-1) {
+            user.setStatusCode(202);
+            var trainingMessageFilterObject = trainingMessageFilter(user, userMappingObject);
+            return trainingMessageFilterObject.handleWordProcessingTrainingMessage(response);
         }
     }
 }

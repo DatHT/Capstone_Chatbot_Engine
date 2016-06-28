@@ -24,9 +24,10 @@ module.exports = {
                     typeTrend: "location"})
             }, {
                 type: "postback",
-                title: "Chọc Bot cho vui",
+                title: "Thêm...",
                 payload: JSON.stringify({
-                    type: "cancel"
+                    type: "more",
+                    typeMore : "more_function"
                 })
             }];
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);

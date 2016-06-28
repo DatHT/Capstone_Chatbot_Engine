@@ -434,7 +434,59 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-
+        case (config.MORE_FUNCTION_BUTTON) :
+        {
+            elementArray = [{
+                type: "postback",
+                title: "Training cho Bot",
+                payload: JSON.stringify({
+                    type: "more",
+                    typeMore: "training"
+                })
+            }
+            //     , {
+            //     type: "postback",
+            //     title: "Đặt Bookmark",
+            //     payload: JSON.stringify({
+            //         type: "more",
+            //         typeMore: 'bookmark'
+            //     })
+            // }
+                , {
+                type: "postback",
+                title: "Hướng dẫn sử dụng",
+                payload: JSON.stringify({
+                    type: "guideline",
+                    typeGuideline: 'guideline_function'
+                })
+            }];
+            break;
+        }
+        case (config.GUIDELINE_BUTTON) :
+        {
+            elementArray = [{
+                type: "postback",
+                title: "Hướng dẫn Training",
+                payload: JSON.stringify({
+                    type: "guideline",
+                    typeMore: "training"
+                })
+            }, {
+                type: "postback",
+                title: "Hướng dẫn Bookmark",
+                payload: JSON.stringify({
+                    type: "guideline",
+                    typeMore: 'bookmark'
+                })
+            }, {
+                type: "postback",
+                title: "Cancel",
+                payload: JSON.stringify({
+                    type: "cancel"
+                })
+            }];
+            break;
+        }
         default:
         {
             console.log('wrong type button');
