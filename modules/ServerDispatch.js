@@ -15,6 +15,8 @@ var geocoding = require('../lib/GoogleAPI/GMGeocodingAPI');
 var logHandle = require('./Logger');
 var postbackHandler = require('./PostbackHandler');
 var messageHandler = require('./MessageHandler');
+var url = require('url');
+
 // api client
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 // FB Client
@@ -40,7 +42,25 @@ router.get('/', function (req, res) {
 
 router.get('/test', function (req, res) {
     console.log('test');
+    var urlObj = {
+        protocol: 'http:',
+        slashes: true,
+        auth: null,
+        host: 'localhost:5000',
+        port: '5000',
+        hostname: 'localhost',
+        hash: null,
+        query: {
+            item1: 'a',
+            item2: '2'
+        },
+        pathname: '/webhook/redirect'
+    }
+    var urlString = url.format(urlObj);
+    console.dir(urlString);
 });
+
+
 
 router.post('/', function (req, res) {
     try {

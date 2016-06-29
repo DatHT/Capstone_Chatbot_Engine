@@ -7,6 +7,7 @@ var productAddress = require('../model/ProductAddress');
 var careTakerModule = require('../modules/CareTaker');
 var databaseConnection = require('../modules/Database');
 var caretaker = careTakerModule();
+var url = require('url');
 
 module.exports = {
     isDefined: function (obj) {
@@ -454,10 +455,10 @@ function createItemOfStructureButton(type, user) {
             // }
                 , {
                 type: "postback",
-                title: "Hướng dẫn sử dụng",
+                title: "Hướng dẫn Training Bot",
                 payload: JSON.stringify({
-                    type: "guideline",
-                    typeGuideline: 'guideline_function'
+                    type: "more",
+                    typeMore: 'guideline_function'
                 })
             }];
             break;
@@ -496,6 +497,22 @@ function createItemOfStructureButton(type, user) {
     return elementArray;
 }
 
+function createUrl(item) {
+    var urlObj = {
+        protocol: 'http:',
+        slashes: true,
+        auth: null,
+        host: 'localhost:5000',
+        port: '5000',
+        hostname: 'localhost',
+        hash: null,
+        query: item,
+        pathname: '/redirect'
+    }
+    var urlString = url.format(urlObj);
+    return urlString
+}
+
 function createItemOfStructureResponseForProduct(item) {
     var structureObj = {};
     structureObj.title = item.productName;
@@ -503,11 +520,26 @@ function createItemOfStructureResponseForProduct(item) {
     structureObj.subtitle = item.addressName;
 
     var buttons = [];
-    var button1 = createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, item.urlrelate);
+    var urlrelate = createUrl({
+        productId: item.productId,
+        addressId: item.addressId,
+        numOfSearch: item.numOfSearch,
+        type: 'link',
+        link: item.urlrelate
+    });
+    console.log(urlrelate);
+    var button1 = createButton("Xem chi tiết", config.BUTTON_TYPE.web_url, urlrelate);
     buttons.push(button1);
 
     var url = 'http://maps.google.com/maps?q=' + item.latitude + ',' + item.longitude;
-    var button2 = createButton("Xem Google Map", config.BUTTON_TYPE.web_url, url);
+    var urlMap = createUrl({
+        productId: item.productId,
+        addressId: item.addressId,
+        numOfSearch: item.numOfSearch,
+        type: 'link',
+        link: url
+    });
+    var button2 = createButton("Xem Google Map", config.BUTTON_TYPE.web_url, urlMap);
     buttons.push(button2);
 
     var reportObjPostback = {

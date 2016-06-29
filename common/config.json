@@ -47,6 +47,8 @@
   "ACTION_RATING_REQUEST_LOCATION" : "rating.request.location",
   "ACTION_SENSATION_STATEMENT_REQUEST_CHOOSE_BUTTON" : "sensation.statements.request.choose.button",
   "ACTION_TRAINING" : "training",
+  "ACTION_FEEDBACK" : "feedback",
+
 
   "INPUT_INTENT_GREETING" : "Greeting",
   "INPUT_INTENT_FOOD_FIRST" : "FoodFirst",
@@ -59,6 +61,7 @@
   "INPUT_INTENT_REFUSE" : "Refuse",
   "INPUT_INTENT_RATING_REQUEST_LOCATION" : "RatingRequestLocation",
   "INPUT_INTENT_TRAINING" : "TrainingRequest",
+  "INPUT_INTENT_FEEDBACK" : "FeedbackMessage",
   "successMessage" : "success",
 
   "PAGING_BUTTON" : "PAGING_BUTTON",

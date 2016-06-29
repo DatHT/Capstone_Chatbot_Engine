@@ -91,8 +91,9 @@ function handleMoreFunctionPostback(jsonObject, user) {
         user.sendFBMessageTypeText(responseText);
     }
 
-    if (jsonObject.typeMore === 'bookmark') {
-        
+    if (jsonObject.typeMore === 'guideline_function') {
+        var responseText = 'Bạn có thể training cho bot bằng cách nhập theo cú pháp sau: \n[train: "câu bạn muốn train"]\nVD: train: ăn bánh mì!';
+        user.sendFBMessageTypeText(responseText);
     }
 }
 
@@ -105,7 +106,7 @@ function handleGuidelineFunctionPostback(jsonObject, user) {
     }
 
     if (jsonObject.typeGuideline === 'training') {
-
+q       
     }
 
     if (jsonObject.typeGuideline === 'bookmark') {
@@ -181,39 +182,9 @@ function handleRatingPostbackFromUser(jsonObject, user) {
 //handle feedback 
 function handleFeedbackFromUser(jsonObject, user) {
     if (jsonObject.isAccept === 'yes') {
-        var feedbackPostback = [{
-            type: "postback",
-            title: "Bot quá thông minh",
-            payload: JSON.stringify({
-                type: "feedback",
-                feedBack: "nice"
-            })
-        }, {
-            type: "postback",
-            title: "Bot cũng được!",
-            payload: JSON.stringify({
-                type: "feedback",
-                feedBack: "normal"
-            })
-        }, {
-            type: "postback",
-            title: "Bot tệ quá!",
-            payload: JSON.stringify({
-                type: "feedback",
-                feedBack: "bad"
-            })
-        }];
-        var responseText = "Bạn hãy chọn 1 trong 3 để gửi feedback";
-        user.sendFBMessageTypeButtonTemplate(feedbackPostback, responseText);
-    }
-
-    if (jsonObject.feedBack) {
-        console.log("report: ", jsonObject);
-        logHandle(user.getSenderID(), 400, jsonObject);
-        var responseText = 'Cảm ơn bạn đã gửi nhận xét :D';
+        var responseText = "Bạn hãy làm theo cú pháp sau: \n[feedback: nhập feedback]\nVD: feedback: anh thành làm bot kinh vl";
         user.sendFBMessageTypeText(responseText);
     }
-
 
     if (jsonObject.isAccept === 'no') {
         var responseText = 'Lần sau bạn lại ghé thăm nữa nhé :D';

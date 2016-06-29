@@ -56,7 +56,7 @@ function queryMultipleSQLStatements(sql, callback) {
 function updateNumberOfSearchProductAddress(item, callback) {
     var sql = 'update product_address ' +
         'set numOfSearch =' + item.numOfSearch +
-        'where productId = "' + item.productId + '" and addressId = "' + item.addressId + '"';
+        ' where productId = "' + item.productId + '" and addressId = "' + item.addressId + '"';
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err)
     });
