@@ -300,7 +300,7 @@ function createItemOfStructureButton(type, user) {
         {
             elementArray = [{
                 type: "postback",
-                title: "Thay đôi món ăn",
+                title: "Thay đi món ăn",
                 payload: JSON.stringify({
                     type: "change",
                     changeType: 'food'
@@ -499,15 +499,15 @@ function createItemOfStructureButton(type, user) {
 
 function createUrl(item) {
     var urlObj = {
-        protocol: 'http:',
-        slashes: true,
-        auth: null,
-        host: 'localhost:5000',
-        port: '5000',
-        hostname: 'localhost',
-        hash: null,
+        protocol: config.HOST.protocol,
+        slashes: config.HOST.slashes,
+        auth: config.HOST.auth,
+        host: config.HOST.host,
+        // port: '5000',
+        hostname: config.HOST.hostname,
+        hash: config.HOST.hash,
         query: item,
-        pathname: '/redirect'
+        pathname: config.HOST.pathname
     }
     var urlString = url.format(urlObj);
     return urlString

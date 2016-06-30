@@ -78,5 +78,16 @@
     "ONLY_LOCATION" : "ONLY_LOCATION",
     "FOOD_LOCATION" : "FOOD_LOCATION",
     "NO_FOOD_LOCATION" : "NO_FOOD_LOCATION"
+  },
+
+  "HOST" : {
+    "protocol": "http:",
+    "slashes": true,
+    "auth": null,
+    "host": "88485a38.ngrok.io",
+    "port" : "5000",
+    "hostname" : "88485a38.ngrok.io",
+    "hash" : null,
+    "pathname" : "/redirect"
   }
 }
