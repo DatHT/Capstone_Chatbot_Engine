@@ -54,7 +54,7 @@ function queryMultipleSQLStatements(sql, callback) {
 
 // public API
 function updateNumberOfSearchProductAddress(item, callback) {
-    var sql = 'update product_address ' +
+    var sql = 'update productdetail ' +
         'set numOfSearch =' + item.numOfSearch +
         ' where productId = "' + item.productId + '" and addressId = "' + item.addressId + '"';
     connectToDatabase(sql, (rows, err) => {
@@ -63,28 +63,28 @@ function updateNumberOfSearchProductAddress(item, callback) {
 }
 
 function getProductWithoutAnything(callback) {
-    var sql = 'select * from product_address order by rate desc';
+    var sql = 'select * from productdetail order by rate desc';
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
 }
 
 function getProductWithOnlyProductName(productName, callback) {
-    var sql = 'select * from product_address where productName regexp "' + productName + '" order by rate desc';
+    var sql = 'select * from productdetail where productName regexp "' + productName + '" order by rate desc';
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
 }
 
 function getProductWithOnlyAddressName(addressName, callback) {
-    var sql = 'select * from product_address where addressName regexp "' + addressName + '" order by rate desc';
+    var sql = 'select * from productdetail where addressName regexp "' + addressName + '" order by rate desc';
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
 }
 
 function getProductWithProductNameAndAddressName(productName, addressName, callback) {
-    var sql = 'select * from product_address where productName regexp "' + productName + '" and addressName regexp "' + addressName + '" order by rate desc';
+    var sql = 'select * from productdetail where productName regexp "' + productName + '" and addressName regexp "' + addressName + '" order by rate desc';
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
