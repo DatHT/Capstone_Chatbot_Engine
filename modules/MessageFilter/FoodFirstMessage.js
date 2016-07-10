@@ -74,7 +74,6 @@ function handleWordProcessingFoodFirst(response, user) {
         // have food - do not have location
         if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation())) {
             user.setFood(params.Food);
-            var responseText = "Vâng bạn đổi sang món " + user.getFood().trim() + "! Bạn muốn ăn ở đâu?";
             var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON, user);
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
         }

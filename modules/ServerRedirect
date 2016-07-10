@@ -3,7 +3,7 @@ var config = require('../common/app-config').config;
 var url = require('url');
 var express = require('express');
 var router = express.Router();
-var databaseConennection = require('./Database');
+var databaseConennection = require('./DBManager/Database');
 
 /* GET home page. */
 router.get('/', function(req, res) {

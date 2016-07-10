@@ -44,8 +44,8 @@ FacebookAPI.prototype.sendFBMessageTypeStructureMessage = function (sender, elem
     return sendFBMessageTypeStructureMessage(sender, elementArray);
 };
 
-FacebookAPI.prototype.sendWelcomeMessage = function () {
-    return sendWelcomeMessage();
+FacebookAPI.prototype.sendWelcomeMessage = function (sender) {
+    return sendWelcomeMessage(sender);
 };
 
 FacebookAPI.prototype.getSenderInformation = function (sender, callback) {
@@ -54,7 +54,23 @@ FacebookAPI.prototype.getSenderInformation = function (sender, callback) {
 
 FacebookAPI.prototype.sendFBMessageTypeStructureMessageIncludeMessage= function (sender, elementArray ,responseText) {
     return sendFBMessageTypeStructureMessageIncludeMessage(sender, elementArray ,responseText);
-}
+};
+
+FacebookAPI.prototype.createGetStartButton = function (callback) {
+    return createGetStartButton(callback);
+};
+
+FacebookAPI.prototype.createGreetingText = function (callback) {
+    return createGreetingText(callback);
+};
+
+FacebookAPI.prototype.createPersistentMenu = function (callback) {
+    return createPersistentMenu(callback);
+};
+
+FacebookAPI.prototype.sendFBQuickReplyMessage = function (sender, elementArray, quickReplyArray) {
+    return sendFBQuickReplyMessage(sender, elementArray, quickReplyArray);
+};
 
 function sendFBMessageTypeText(sender, messageData) {
     console.log("do send text message");
@@ -213,7 +229,6 @@ function sendFBMessageTypeButtonTemplate(sender, buttonArray, responseText) {
     });
 }
 
-
 /**
  [{
         title: "Classic White T-Shirt",
@@ -314,8 +329,10 @@ function sendWelcomeMessage(sender) {
         qs: {access_token: pageAccessToken},
         method: 'POST',
         json: {
-
-            message: {text: "chào mừng bạn đến với chat bot thông minh, bạn thích ăn món gì, ở đâu?"}
+            setting_type : "greeting",
+            message: {
+                text: "chào mừng bạn đến với chat bot thông minh, bạn thích ăn món gì, ở đâu?"
+            }
         }
     }, function (error, response, body) {
         if (error) {
@@ -352,6 +369,162 @@ function getSenderInformation(sender, callback) {
             console.log('response ok successfully');
         }
 
+    });
+}
+
+//create greeting text
+function createGetStartButton(callback) {
+    console.log("create get start button");
+    request({
+        timeout: 20000,
+        url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+        qs: {
+            access_token: pageAccessToken
+        },
+        json: {
+            setting_type: "call_to_actions",
+            thread_state: "new_thread",
+            call_to_actions:[
+                {
+                    payload :"get_start"
+                }
+            ]
+        },
+        method: 'POST'
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error Sender Information: ', response.body.error);
+        } else {
+            return callback(body);
+        }
+        if (response) {
+            console.log('response ok successfully');
+        }
+    });
+}
+
+//create greeting text
+function createGreetingText(callback) {
+    console.log("create greeting text");
+    request({
+        timeout: 20000,
+        url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+        qs: {
+            access_token: pageAccessToken
+        },
+        json: {
+            setting_type:"greeting",
+            greeting: {
+                text: "Welcome to My Company!"
+            }
+        },
+        method: 'POST'
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error Sender Information: ', response.body.error);
+        } else {
+            return callback(body);
+        }
+        if (response) {
+            console.log('response ok successfully');
+        }
+    });
+}
+
+//persistent menu
+function createPersistentMenu(callback) {
+    console.log('create persistent menu');
+    request({
+        timeout: 20000,
+        url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+        qs: {
+            access_token: pageAccessToken
+        },
+        json: {
+            setting_type : "call_to_actions",
+            thread_state : "existing_thread",
+            call_to_actions:[
+                {
+                    type : "postback",
+                    title : "Help",
+                    payload : "DEVELOPER_DEFINED_PAYLOAD_FOR_HELP"
+                },
+                {
+                    type : "postback",
+                    title : "Start a New Order",
+                    payload : "DEVELOPER_DEFINED_PAYLOAD_FOR_START_ORDER"
+                },
+                {
+                    type : "web_url",
+                    title : "View Website",
+                    url : "http://petersapparel.parseapp.com/"
+                }
+            ]
+        },
+        method: 'POST'
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error Sender Information: ', response.body.error);
+        } else {
+            return callback(body);
+        }
+        if (response) {
+            console.log('response ok successfully');
+        }
+    });
+}
+
+//quick reply
+/*
+    [{
+        content_type:"text",
+        title:"Red",
+        payload:"DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED"
+    },
+    {
+        content_type:"text",
+        title:"Green",
+        payload:"DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN"
+    }]
+*/
+function sendFBQuickReplyMessage(sender, elementArray, quickReplyArray) {
+    console.log("do send structure message");
+    request({
+        timeout: 20000,
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token: pageAccessToken},
+        method: 'POST',
+        json: {
+            recipient:{
+                id: sender
+            },
+            message:{
+                // text:"Pick a color:",
+                attachment: {
+                    type: "template",
+                    payload: {
+                        template_type: "generic",
+                        elements: elementArray
+                    }
+                },
+                quick_replies: quickReplyArray
+            }
+        }
+    }, function (error, response, body) {
+        if (error) {
+            console.log('Error sending message: ', error);
+        } else if (response.body.error) {
+            console.log('Error quick reply Message: ', response.body.error);
+        }
+        if (response) {
+            console.log('response ok successfully');
+        }
     });
 }
 

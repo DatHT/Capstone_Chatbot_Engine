@@ -1,93 +1,143 @@
 {
-  "FACEBOOK_TOKEN" : {
-    "FB_PAGE_ACCESS_TOKEN" : "EAAYSqRpxAJABAKKoK1dGeMGwNERxZBC4kaulOWDqEuz97S0iwdrq8M6VnZCmtzEGlyyaIw5yv4nZBxVhZCzWpJUXRZB9annGiv5ZBoDJoSKgttBrdAkfPTa2ZCDVdiGcFeY7T4TlutiioQAgCir4mmQWwCtDcYjwVZB8VaWFz60gGlt8oTZCNrb9z",
-    "VERIFY_TOKEN" : "hello"
+  "FACEBOOK_TOKEN": {
+    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABAKKoK1dGeMGwNERxZBC4kaulOWDqEuz97S0iwdrq8M6VnZCmtzEGlyyaIw5yv4nZBxVhZCzWpJUXRZB9annGiv5ZBoDJoSKgttBrdAkfPTa2ZCDVdiGcFeY7T4TlutiioQAgCir4mmQWwCtDcYjwVZB8VaWFz60gGlt8oTZCNrb9z",
+    "VERIFY_TOKEN": "hello"
   },
-  "API_AI" : {
-    "CLIENT_ACCESS_TOKEN" : "",
-    "DEV_ACCESS_TOKEN" : "f3d71301c93646e59acbe09ec080cf14"
+  "API_AI": {
+    "CLIENT_ACCESS_TOKEN": "",
+    "DEV_ACCESS_TOKEN": "f3d71301c93646e59acbe09ec080cf14"
   },
-  "GM_API" : {
-    "API_KEY" : "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
+  "GM_API": {
+    "API_KEY": "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
   },
-  "DBManager" : {
-    "connection" : {
-      "host" : "localhost",
-      "user" : "root",
-      "password" : "",
-      "database" : "system_engine_bot_db"
+  "DBManager": {
+    "connection": {
+      "host": "localhost",
+      "user": "root",
+      "password": "",
+      "database": "system_engine_bot_db"
     }
   },
-  "BUTTON_TYPE" : {
-    "postback" : "postback",
-    "web_url" : "web_url"
+  "BUTTON_TYPE": {
+    "postback": "postback",
+    "web_url": "web_url"
   },
-  "LOCATION_AMBIGUITY1" : "location_ambiguity1",
-  "LOCATION_AMBIGUITY2" : "location_ambiguity2",
-  "FOOD_AMBIGUITY1" : "Food_Ambiguity1",
-
-  "ACTION_FIND_FOOD" : "find.food",
-  "ACTION_FIND_LOCATION" : "find.location",
-  "ACTION_CHANGE_FOOD" : "change.food",
-  "ACTION_UNKNOWN" : "unknown",
-  "ACTION_CHANGE_LOCATION" : "change.location",
-  "ACTION_RATING_REQUEST_FOOD_IN_LOCATION" : "rating.request.food.in.location",
-  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION" : "rating.request.food.no.location",
-  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_ACCEPT" : "rating.request.food.no.location.accept",
-  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT" : "rating.request.food.no.location.not.accept",
-  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT_ANSWER" : "rating.request.food.no.location.not.accept.answer",
-  "ACTION_FULL_TYPE_REQUEST" : "full.type.request",
-  "ACTION_SENSATION_STATEMENT" : "sensation.statements",
-  "ACTION_SENSATION_STATEMENT_ACCEPT" : "sensation.statements.accept",
-  "ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION" : "sensation.statements.accept.acceptlocation",
-  "ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION" : "sensation.statements.accept.notacceptlocation",
-  "ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER" : "sensation.statements.accept.notacceptlocation.answer",
-  "ACTION_SENSATION_STATEMENT_NOTACCEPT" : "sensation.statements.notaccept",
-  "ACTION_REFUSE" : "refuse",
-  "ACTION_RATING_REQUEST_LOCATION" : "rating.request.location",
-  "ACTION_SENSATION_STATEMENT_REQUEST_CHOOSE_BUTTON" : "sensation.statements.request.choose.button",
-  "ACTION_TRAINING" : "training",
-  "ACTION_FEEDBACK" : "feedback",
-
-
-  "INPUT_INTENT_GREETING" : "Greeting",
-  "INPUT_INTENT_FOOD_FIRST" : "FoodFirst",
-  "INPUT_INTENT_LOCATION_FIRST" : "LocationFirst",
-  "INPUT_INTENT_UNKNOWN" : "Unknown",
-  "INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION" : "RatingRequestFood_InLocation",
-  "INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION" : "RatingRequestFood_NoLocation",
-  "INPUT_INTENT_FULL_TYPE_REQUEST" : "FullTypeRequest",
-  "INPUT_INTENT_SENSATION_STATEMENT" : "SensationStatement",
-  "INPUT_INTENT_REFUSE" : "Refuse",
-  "INPUT_INTENT_RATING_REQUEST_LOCATION" : "RatingRequestLocation",
-  "INPUT_INTENT_TRAINING" : "TrainingRequest",
-  "INPUT_INTENT_FEEDBACK" : "FeedbackMessage",
-  "successMessage" : "success",
-
-  "PAGING_BUTTON" : "PAGING_BUTTON",
-  "CHANGE_BUTTON_TYPE_1" : "CHANGE_BUTTON_TYPE_1",
-  "CHANGE_BUTTON_TYPE_2" : "CHANGE_BUTTON_TYPE_2",
-  "ASK_FOOD_BUTTON" : "ASK_FOOD_BUTTON",
-  "ASK_LOCATION_BUTTON" : "ASK_LOCATION_BUTTON",
-  "ASK_FOOD_BUTTON_TYPE_SENSATION" : "ASK_FOOD_BUTTON_TYPE_SENSATION",
-  "YES_NO_BUTTON" : "YES_NO_BUTTON",
-  "MORE_FUNCTION_BUTTON" : "MORE_FUNCTION_BUTTON",
-  "GUIDELINE_BUTTON" : "GUIDELINE_BUTTON",
-  "QUERY_TYPE" : {
-    "ONLY_FOOD" : "ONLY_FOOD",
-    "ONLY_LOCATION" : "ONLY_LOCATION",
-    "FOOD_LOCATION" : "FOOD_LOCATION",
-    "NO_FOOD_LOCATION" : "NO_FOOD_LOCATION"
+  "LOCATION_AMBIGUITY1": "location_ambiguity1",
+  "LOCATION_AMBIGUITY2": "location_ambiguity2",
+  "FOOD_AMBIGUITY1": "Food_Ambiguity1",
+  "ACTION_FIND_FOOD": "find.food",
+  "ACTION_FIND_LOCATION": "find.location",
+  "ACTION_CHANGE_FOOD": "change.food",
+  "ACTION_UNKNOWN": "unknown",
+  "ACTION_CHANGE_LOCATION": "change.location",
+  "ACTION_RATING_REQUEST_FOOD_IN_LOCATION": "rating.request.food.in.location",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION": "rating.request.food.no.location",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_ACCEPT": "rating.request.food.no.location.accept",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT": "rating.request.food.no.location.not.accept",
+  "ACTION_RATING_REQUEST_FOOD_NO_LOCATION_NOT_ACCEPT_ANSWER": "rating.request.food.no.location.not.accept.answer",
+  "ACTION_FULL_TYPE_REQUEST": "full.type.request",
+  "ACTION_SENSATION_STATEMENT": "sensation.statements",
+  "ACTION_SENSATION_STATEMENT_ACCEPT": "sensation.statements.accept",
+  "ACTION_SENSATION_STATEMENT_ACCEPT_ACCEPT_LOCATION": "sensation.statements.accept.acceptlocation",
+  "ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION": "sensation.statements.accept.notacceptlocation",
+  "ACTION_SENSATION_STATEMENT_ACCEPT_NOTACCEPT_LOCATION_ANSWER": "sensation.statements.accept.notacceptlocation.answer",
+  "ACTION_SENSATION_STATEMENT_NOTACCEPT": "sensation.statements.notaccept",
+  "ACTION_REFUSE": "refuse",
+  "ACTION_RATING_REQUEST_LOCATION": "rating.request.location",
+  "ACTION_SENSATION_STATEMENT_REQUEST_CHOOSE_BUTTON": "sensation.statements.request.choose.button",
+  "ACTION_TRAINING": "training",
+  "ACTION_FEEDBACK": "feedback",
+  "INPUT_INTENT_GREETING": "Greeting",
+  "INPUT_INTENT_FOOD_FIRST": "FoodFirst",
+  "INPUT_INTENT_LOCATION_FIRST": "LocationFirst",
+  "INPUT_INTENT_UNKNOWN": "Unknown",
+  "INPUT_INTENT_RATING_REQUEST_FOOD_IN_LOCATION": "RatingRequestFood_InLocation",
+  "INPUT_INTENT_RATING_REQUEST_FOOD_NO_LOCATION": "RatingRequestFood_NoLocation",
+  "INPUT_INTENT_FULL_TYPE_REQUEST": "FullTypeRequest",
+  "INPUT_INTENT_SENSATION_STATEMENT": "SensationStatement",
+  "INPUT_INTENT_REFUSE": "Refuse",
+  "INPUT_INTENT_RATING_REQUEST_LOCATION": "RatingRequestLocation",
+  "INPUT_INTENT_TRAINING": "TrainingRequest",
+  "INPUT_INTENT_FEEDBACK": "FeedbackMessage",
+  "successMessage": "success",
+  "PAGING_BUTTON": "PAGING_BUTTON",
+  "CHANGE_BUTTON_TYPE_1": "CHANGE_BUTTON_TYPE_1",
+  "CHANGE_BUTTON_TYPE_2": "CHANGE_BUTTON_TYPE_2",
+  "ASK_FOOD_BUTTON": "ASK_FOOD_BUTTON",
+  "ASK_LOCATION_BUTTON": "ASK_LOCATION_BUTTON",
+  "ASK_FOOD_BUTTON_TYPE_SENSATION": "ASK_FOOD_BUTTON_TYPE_SENSATION",
+  "YES_NO_BUTTON": "YES_NO_BUTTON",
+  "MORE_FUNCTION_BUTTON": "MORE_FUNCTION_BUTTON",
+  "GUIDELINE_BUTTON": "GUIDELINE_BUTTON",
+  "QUERY_TYPE": {
+    "ONLY_FOOD": "ONLY_FOOD",
+    "ONLY_LOCATION": "ONLY_LOCATION",
+    "FOOD_LOCATION": "FOOD_LOCATION",
+    "NO_FOOD_LOCATION": "NO_FOOD_LOCATION"
   },
-
-  "HOST" : {
+  "HOST": {
     "protocol": "http:",
     "slashes": true,
     "auth": null,
     "host": "88485a38.ngrok.io",
-    "port" : "5000",
-    "hostname" : "88485a38.ngrok.io",
-    "hash" : null,
-    "pathname" : "/redirect"
+    "port": "5000",
+    "hostname": "https://b7f123b9.ngrok.io",
+    "hash": null,
+    "pathname": "/redirect"
+  },
+  "districts": {
+    "district_1": {
+      "name": "quận 1",
+      "nearby": []
+    },
+    "district_2": {
+      "name": "quận 2",
+      "nearby": []
+    },
+    "district_3": {
+      "name": "quận 3",
+      "nearby": []
+    },
+    "district_4": {
+      "name": "quận 4",
+      "nearby": []
+    },
+    "district_5": {
+      "name": "quận 5",
+      "nearby": []
+    },
+    "district_6": {
+      "name": "quận 6",
+      "nearby": []
+    },
+    "district_7": {
+      "name": "quận 7",
+      "nearby": []
+    },
+    "district_8": {
+      "name": "quận 8",
+      "nearby": []
+    },
+    "district_9": {
+      "name": "quận 9",
+      "nearby": []
+    },
+    "district_10": {
+      "name": "quận 10",
+      "nearby": []
+    },
+    "district_11": {
+      "name": "quận 11",
+      "nearby": []
+    },
+    "district_12": {
+      "name": "quận 12",
+      "nearby": [
+        "Quận Gò Vấp",
+        "Quận Hóc Môn",
+        "Quận Thử Đức",
+        "Quận Tân Bình"
+      ]
+    }
   }
 }

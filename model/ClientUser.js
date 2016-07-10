@@ -4,7 +4,7 @@
 
 var config = require('../common/app-config').config;
 var FB_PAGE_ACCESS_TOKEN = config.FACEBOOK_TOKEN.FB_PAGE_ACCESS_TOKEN;
-var fbAPIRequest = require('./FacebookAPI').FacebookAPI;
+var fbAPIRequest = require('./../common/FacebookAPI').FacebookAPI;
 var fbClient = new fbAPIRequest(FB_PAGE_ACCESS_TOKEN);
 
 var sessionId;
@@ -117,6 +117,10 @@ ClientUser.prototype.getSenderInformation = function (callback) {
     fbClient.getSenderInformation(this.senderID, function (response) {
         return callback(response);
     });
-}
+};
+
+ClientUser.prototype.sendFBQuickReplyMessage = function (elementArray, quickReplyArray) {
+    return fbClient.sendFBQuickReplyMessage(this.senderID ,elementArray, quickReplyArray);
+};
 
 

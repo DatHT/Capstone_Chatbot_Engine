@@ -1,6 +1,6 @@
 var config = require('../../common/app-config').config;
 var util = require('../../common/CommonUtil');
-var databaseConnection = require('../Database');
+var databaseConnection = require('../DBManager/Database');
 
 module.exports = createRatingLocationMessage;
 
@@ -17,7 +17,7 @@ function createRatingLocationMessage(user) {
 
 RatingLocationMessage.prototype.handleWordPrcccessingRatingRequestLocationStatement = function (response) {
     return handleWordPrcccessingRatingRequestLocationStatement(response, this.user);
-}
+};
 
 //handle response processing rating request location
 function handleWordPrcccessingRatingRequestLocationStatement(response, user) {
@@ -31,7 +31,7 @@ function handleWordPrcccessingRatingRequestLocationStatement(response, user) {
             user.setFood(params.Food);
             user.setLocation(config.LOCATION_AMBIGUITY2);
             var setSql = "SET `sql_mode` = '';";
-            var querySql = 'SELECT * FROM `product_address` where `productName` regexp "' + user.getFood().trim() + '" group by `restaurantName` order by `rate` desc ';
+            var querySql = 'SELECT * FROM `productdetail` where `productName` regexp "' + user.getFood().trim() + '" group by `restaurantName` order by `rate` desc ';
             var sql = setSql + querySql;
             databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
                 if (err) {

@@ -54,7 +54,6 @@ function handleWordProcessingSensationMessage(response, user) {
                 if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
                     user.setLocation(config.LOCATION_AMBIGUITY2);
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
-                        sql = 'select * from product_address order by rate desc';
                         typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     } else {
                         typeQuery = config.QUERY_TYPE.ONLY_FOOD;
@@ -73,7 +72,7 @@ function handleWordProcessingSensationMessage(response, user) {
 
         if (!util.isDefined(user.getLocation())) {
             user.setLocation(params.Location);
-            util.checkQueryOrCache(user, config.QUERY_TYPE.FOOD_LOCATION);
+            util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_LOCATION);
         }
     }
 

@@ -1,6 +1,6 @@
 var config = require('../../common/app-config').config;
 var responseFilter = require('./FilterResponse');
-var databaseConnection = require('../Database');
+var databaseConnection = require('../DBManager/Database');
 
 module.exports = {
     getCurrentSenderInformation: (user => {

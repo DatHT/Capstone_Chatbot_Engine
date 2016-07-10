@@ -1,10 +1,11 @@
 var config = require('../common/app-config').config;
 var util = require('../common/CommonUtil');
 var apiai = require('apiai');
-var logHandle = require('./Logger');
+var logHandle = require('./LogHandler/Logger');
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 var responseFilter = require('./MessageFilter/FilterResponse');
-var databaseConnection = require('./Database');
+var databaseConnection = require('./DBManager/Database');
+var greetingMessageFilter = require('./MessageFilter/GreetingMessage');
 
 const PAYLOAD_LOCATION = "location";
 const PAYLOAD_REPORT = "report";
@@ -20,7 +21,7 @@ const PAYLOAD_YES_NO = 'yes_no';
 const PAYLOAD_SENSATION = 'sensation';
 const PAYLOAD_TREND = 'trend';
 const PAYLOAD_GUIDELINE = 'guideline';
-const PAYLOAD_MORE = 'more'
+const PAYLOAD_MORE = 'more';
 
 module.exports = createPostbackHandler;
 
@@ -43,7 +44,12 @@ function createPostbackHandler(user, userMappingObject) {
 
 PostbackHandler.prototype.handelPostback = function (jsonObject) {
     return handlePostback(jsonObject, this.user, this.userMappingObj);
-}
+};
+
+PostbackHandler.prototype.handleGetStartButtonPostback = function (tmpString) {
+    return handleGetStartButtonPostback(tmpString, this.user);
+};
+
 
 function handlePostback(jsonObject, user, userMappingObject) {
     switch (jsonObject.type) {
@@ -78,6 +84,12 @@ function handlePostback(jsonObject, user, userMappingObject) {
     }
 }
 
+function handleGetStartButtonPostback(tmpString, user) {
+    if (tmpString === 'get_start') {
+        return greetingMessageFilter.getCurrentSenderInformation(user);
+    }
+}
+
 //handle more function postback
 function handleMoreFunctionPostback(jsonObject, user) {
     if (jsonObject.typeMore === 'more_function') {
@@ -104,21 +116,13 @@ function handleGuidelineFunctionPostback(jsonObject, user) {
         var responseText = 'Bạn có thể xem hướng dẫn dưới đây để có thể sử dụng tốt nhất :D';
         user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
     }
-
-    if (jsonObject.typeGuideline === 'training') {
-q       
-    }
-
-    if (jsonObject.typeGuideline === 'bookmark') {
-
-    }
 }
 
 //handle rating_food postback
 function handleRatingPostbackFromUser(jsonObject, user) {
     if (jsonObject.typeTrend === 'food') {
         var setSql = "SET sql_mode = '';";
-        var querySql = 'SELECT * FROM product_address order by rate desc limit 10';
+        var querySql = 'SELECT * FROM productdetail order by rate desc limit 10';
         var sql = setSql + querySql;
         databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
             if (err) {
@@ -149,7 +153,7 @@ function handleRatingPostbackFromUser(jsonObject, user) {
 
     if (jsonObject.typeTrend === 'location') {
         var setSql = "SET sql_mode = '';";
-        var querySql = 'SELECT * FROM product_address group by restaurantName order by rate desc limit 10';
+        var querySql = 'SELECT * FROM productdetail group by restaurantName order by rate desc limit 10';
         var sql = setSql + querySql;
         databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
             if (err) {
@@ -327,7 +331,6 @@ function handleAskLocationPostback(jsonObject, user) {
             user.setResponseAPI(response);
             console.log("send dummy request successfully");
         });
-        // var sql = 'select * from product_address where productName regexp "' + user.getFood().trim() + '" order by rate desc';
         util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_FOOD);
     }
 
@@ -349,8 +352,7 @@ function handleAskFoodPostback(jsonObject, user) {
             user.setStatusCode(200);
             user.setResponseAPI(response);
             console.log("send dummy request successfully");
-        })
-        // var sql = 'select * from product_address where addressName like "%' + user.getLocation().toString().trim() + '%" order by rate desc';
+        });
         util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_LOCATION);
     }
 
@@ -376,7 +378,7 @@ function handleYesNoPostback(jsonObject, user) {
 
     if (jsonObject.isYes === 'no') {
         user.setLocation(config.LOCATION_AMBIGUITY2);
-        var sql = 'select * from product_address order by rate desc';
+        var sql = 'select * from productdetail order by rate desc';
         util.checkQueryOrCache(user, config.QUERY_TYPE.NO_FOOD_LOCATION)
     }
 
@@ -448,11 +450,9 @@ function handleSensationPostback(jsonObject, user) {
         });
         var typeQuery;
         if (user.getFood() === config.FOOD_AMBIGUITY1) {
-            // sql = 'select * from product_address order by rate desc';
-            typeQuery = config.TYPE_QUERY.NO_FOOD_LOCATION;
+            typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
         } else {
-            // sql = 'select * from product_address where productName like "%' + user.getFood().toString().trim() + '%" order by rate desc';
-            typeQuery = config.TYPE_QUERY.ONLY_FOOD;
+            typeQuery = config.QUERY_TYPE.ONLY_FOOD;
         }
         util.checkQueryOrCache(user, typeQuery);
     }

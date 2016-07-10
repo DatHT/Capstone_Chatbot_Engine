@@ -4,8 +4,8 @@
 'use strict'
 var config = require('../common/app-config').config;
 var productAddress = require('../model/ProductAddress');
-var careTakerModule = require('../modules/CareTaker');
-var databaseConnection = require('../modules/Database');
+var careTakerModule = require('./CareTaker');
+var databaseConnection = require('../modules/DBManager/Database');
 var caretaker = careTakerModule();
 var url = require('url');
 
@@ -55,7 +55,12 @@ module.exports = {
     // create structure response for facebook base on data query from database
     createStructureResponseQueryFromDatabase: function (sql, user) {
         return createStructureResponseQueryFromDatabase(sql, user);
+    },
+
+    createQueryNearbyWithType: (queryType, callback,option) => {
+        return createQueryNearbyWithType(queryType, callback,option)
     }
+
 };
 
 function chunkString() {
@@ -85,6 +90,7 @@ function chunkString() {
     output.push(s.substr(prev));
     return output;
 }
+
 function splitResponse(str) {
     if (str.length <= 320) {
         return [str];
@@ -191,7 +197,7 @@ function checkQueryOrCache(user, queryType) {
     var option = {
         productName: user.getFood().trim(),
         addressName: user.getLocation().trim()
-    }
+    };
     if (!checkIsDefined(dataQuery)) {
         console.log('QUERYYYYYYYYYYYYYYYYY');
         createQueryData(user, queryType, option);
@@ -221,7 +227,7 @@ function checkQueryOrCache(user, queryType) {
                 }, 5000);
             }
         } else {
-            var queryType = config.FOOD_LOCATION;
+            var queryType = config.QUERY_TYPE.FOOD_LOCATION;
             if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
                 queryType = config.QUERY_TYPE.ONLY_FOOD;
             }
@@ -445,22 +451,22 @@ function createItemOfStructureButton(type, user) {
                     typeMore: "training"
                 })
             }
-            //     , {
-            //     type: "postback",
-            //     title: "Đặt Bookmark",
-            //     payload: JSON.stringify({
-            //         type: "more",
-            //         typeMore: 'bookmark'
-            //     })
-            // }
+                //     , {
+                //     type: "postback",
+                //     title: "Đặt Bookmark",
+                //     payload: JSON.stringify({
+                //         type: "more",
+                //         typeMore: 'bookmark'
+                //     })
+                // }
                 , {
-                type: "postback",
-                title: "Hướng dẫn Training Bot",
-                payload: JSON.stringify({
-                    type: "more",
-                    typeMore: 'guideline_function'
-                })
-            }];
+                    type: "postback",
+                    title: "Hướng dẫn Training Bot",
+                    payload: JSON.stringify({
+                        type: "more",
+                        typeMore: 'guideline_function'
+                    })
+                }];
             break;
         }
         case (config.GUIDELINE_BUTTON) :
@@ -572,6 +578,28 @@ function createButton(title, type, optionalString) {
     }
 }
 
+function createQueryNearbyWithType(queryType, callback,option) {
+    var productName = (checkIsDefined(option.productName)) ? option.productName : {};
+    var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
+
+    switch (queryType) {
+        case (config.QUERY_TYPE.FOOD_LOCATION): {
+            databaseConnection.getProductNearbyWithProductNameAndAddressName(productName, addressName, (rows, err) => {
+                // return createStructureResponseQueryFromDatabase(user, rows, err);
+                return callback(rows, err);
+            });
+            break;
+        }
+        case (config.QUERY_TYPE.ONLY_LOCATION): {
+            databaseConnection.getProductNearbyWithOnlyAddressname(addressName, (rows, err) => {
+                // return createStructureResponseQueryFromDatabase(user, rows, err);
+                return callback(rows, err);
+            });
+            break;
+        }
+    }
+}
+
 function createQueryData(user, queryType, option) {
     var productName = (checkIsDefined(option.productName)) ? option.productName : {};
     var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
@@ -609,55 +637,84 @@ function createQueryData(user, queryType, option) {
             console.log('ERROR: bug create query not match');
         }
     }
+}
 
-    function createStructureResponseQueryFromDatabase(user, rows, err) {
-        if (checkIsDefined(err)) {
-            return new Error(err);
-        } else {
-            user.setData(rows);
-            var data = user.getData();
+function createStructureResponseQueryFromDatabase(user, rows, err) {
+    if (checkIsDefined(err)) {
+        return new Error(err);
+    } else {
+        user.setData(rows);
+        var data = user.getData();
 
-            //create cache + add cache
-            var key = JSON.stringify({
-                food: user.getFood(),
-                location: user.getLocation()
-            })
-            var objProductAddress = productAddress(rows);
-            caretaker.add(key, objProductAddress.hydrate());
+        //create cache + add cache
+        var key = JSON.stringify({
+            food: user.getFood(),
+            location: user.getLocation()
+        })
+        var objProductAddress = productAddress(rows);
+        caretaker.add(key, objProductAddress.hydrate());
 
-            // create message
-            if (rows.length > 0) {
-                var elementArray = [];
-                var lengthArray = rows.length >= 10 ? 10 : rows.length;
-                user.setCurrentPositionItem(lengthArray);
-                for (var i = 0; i < lengthArray; i++) {
-                    var structureObj = createItemOfStructureResponseForProduct(rows[i]);
-                    elementArray.push(structureObj);
-                }
-                user.sendFBMessageTypeStructureMessage(elementArray);
-
-                // nếu lớn hơn 10  thì mới paging
-                if (data.length > 10) {
-                    setTimeout(function () {
-                        elementArray = createItemOfStructureButton(config.PAGING_BUTTON, user);
-                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
-                    }, 5000);
-                } else {
-                    setTimeout(function () {
-                        elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
-                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
-                    }, 5000);
-                }
+        // create message
+        if (rows.length > 0) {
+            var elementArray = [];
+            var lengthArray = rows.length >= 10 ? 10 : rows.length;
+            user.setCurrentPositionItem(lengthArray);
+            for (var i = 0; i < lengthArray; i++) {
+                var structureObj = createItemOfStructureResponseForProduct(rows[i]);
+                elementArray.push(structureObj);
+            }
+            user.sendFBMessageTypeStructureMessage(elementArray);
+            // nếu lớn hơn 10  thì mới paging
+            if (data.length > 10) {
+                setTimeout(function () {
+                    elementArray = createItemOfStructureButton(config.PAGING_BUTTON, user);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                }, 5000);
             } else {
-                user.setStatusCode(404);
-                var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
-                user.sendFBMessageTypeText(responseText);
-
                 setTimeout(function () {
                     elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
                     user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
                 }, 5000);
             }
+        } else {
+            user.setStatusCode(404);
+            var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
+            user.sendFBMessageTypeText(responseText);
+
+            setTimeout(function () {
+                elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+            }, 5000);
+        }
+    }
+}
+
+function createQuickReplyArray(type) {
+    var quickReplyArray;
+    switch (type) {
+        case (config.PAGING_BUTTON) :
+        {
+            return quickReplyArray = [{
+                content_type: "text",
+                title: "  Tiếp  ",
+                payload: JSON.stringify({
+                    type: "continue",
+                    isNext: 1
+                })
+            }, {
+                content_type: "text",
+                title: "Quay Lại",
+                payload: JSON.stringify({
+                    type: "continue",
+                    isNext: 0
+                })
+            }];
+            break;
+        }
+        default :
+        {
+            console.log('ERROR: cannot mapping any type button quick reply')
+            break;
         }
     }
 }

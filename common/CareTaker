@@ -1,5 +1,4 @@
-
-
+'use strict'
 var CareTaker = function () {
     this.mementos = {};
 
