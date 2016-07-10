@@ -59,8 +59,11 @@ module.exports = {
 
     createQueryNearbyWithType: (queryType, callback,option) => {
         return createQueryNearbyWithType(queryType, callback,option)
-    }
+    },
 
+    handleQueryNearbyLocation: (user, tmp, location) => {
+        return handleQueryNearbyLocation(user, tmp, location)
+    }
 };
 
 function chunkString() {
@@ -125,7 +128,7 @@ function createStructureResponseQueryFromDatabase(sql, user) {
             //create cache + add cache
             var key = JSON.stringify({
                 food: user.getFood(),
-                location: user.getLocation()
+                location: user.getLocation().name
             })
             var objProductAddress = productAddress(rows);
             caretaker.add(key, objProductAddress.hydrate());
@@ -191,12 +194,12 @@ function createItemOfStructureResponseForRestaurant(item) {
 
 function checkQueryOrCache(user, queryType) {
     var dataQuery = caretaker.get(JSON.stringify({
-        food: user.getFood(),
-        location: user.getLocation()
+        food: user.getFood().trim(),
+        location: user.getLocation().name.trim()
     }));
     var option = {
         productName: user.getFood().trim(),
-        addressName: user.getLocation().trim()
+        addressName: user.getLocation().name.trim()
     };
     if (!checkIsDefined(dataQuery)) {
         console.log('QUERYYYYYYYYYYYYYYYYY');
@@ -228,7 +231,7 @@ function checkQueryOrCache(user, queryType) {
             }
         } else {
             var queryType = config.QUERY_TYPE.FOOD_LOCATION;
-            if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+            if (user.getLocation().name === config.LOCATION_AMBIGUITY2) {
                 queryType = config.QUERY_TYPE.ONLY_FOOD;
             }
             createQueryData(user, queryType, option);
@@ -649,7 +652,7 @@ function createStructureResponseQueryFromDatabase(user, rows, err) {
         //create cache + add cache
         var key = JSON.stringify({
             food: user.getFood(),
-            location: user.getLocation()
+            location: user.getLocation().name
         })
         var objProductAddress = productAddress(rows);
         caretaker.add(key, objProductAddress.hydrate());
@@ -687,6 +690,102 @@ function createStructureResponseQueryFromDatabase(user, rows, err) {
             }, 5000);
         }
     }
+}
+
+//nearby
+function handleQueryNearbyLocation(user, tmp, location) {
+    console.log('location:', tmp);
+    return new Promise(function (resolve, reject) {
+        var option = {
+            productName: user.getFood().trim().toLocaleLowerCase(),
+            addressName: user.getLocation().name.trim().toLocaleLowerCase()
+        };
+        createQueryNearbyWithType(config.QUERY_TYPE.FOOD_LOCATION, (rows, error) => {
+            if (!error) {
+                resolve(rows);
+            } else {
+                reject(error);
+            }
+        }, option);
+    })
+        .then((rows) => {
+            console.log('go to query');
+            var products = [];
+            var count = 0;
+            var tmpDistance;
+            for (var i = 0; i < rows.length; i++) {
+                tmpDistance = getDistanceFromCoordinate(location[0], location[1], rows[i].latitude, rows[i].longitude);
+                if (tmpDistance < 5) {
+                    console.log('good distance: ', tmpDistance);
+                    products[count] = rows[i];
+                    count++;
+                }
+            }
+            user.setData(products);
+
+            if (products.length > 0) {
+                var elementArray = [];
+                var lengthArray = products.length >= 10 ? 10 : products.length;
+                user.setCurrentPositionItem(lengthArray);
+                for (var i = 0; i < lengthArray; i++) {
+                    var structureObj = createItemOfStructureResponseForProduct(products[i]);
+                    elementArray.push(structureObj);
+                }
+                user.sendFBMessageTypeStructureMessage(elementArray);
+
+                // nếu lớn hơn 10  thì mới paging
+                if (products.length > 10) {
+                    setTimeout(function () {
+                        elementArray = createItemOfStructureButton(config.PAGING_BUTTON, user);
+                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                    }, 5000);
+                } else {
+                    setTimeout(function () {
+                        elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                    }, 5000);
+                }
+            } else {
+                user.setStatusCode(404);
+                var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
+                user.sendFBMessageTypeText(responseText);
+
+                setTimeout(function () {
+                    elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                }, 5000);
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+}
+
+
+function getDistanceFromCoordinate(latitude1, longitude1, latitude2, longitude2) {
+    function toRad(x) {
+        return x * Math.PI / 180;
+    }
+
+    var lon1 = longitude1;
+    var lat1 = latitude1;
+
+    var lon2 = longitude2;
+    var lat2 = latitude2;
+
+    var R = 6371; // km
+
+    var x1 = lat2 - lat1;
+    var dLat = toRad(x1);
+    var x2 = lon2 - lon1;
+    var dLon = toRad(x2)
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+
+    return d;
 }
 
 function createQuickReplyArray(type) {

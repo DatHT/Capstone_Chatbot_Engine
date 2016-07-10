@@ -313,7 +313,10 @@ function handleAskLocationPostback(jsonObject, user) {
 
     // near my place
     if (jsonObject.locationType === config.LOCATION_AMBIGUITY1) {
-        user.setLocation(config.LOCATION_AMBIGUITY1);
+        user.setLocation({
+            name: config.LOCATION_AMBIGUITY1,
+            type: config.location_type.nearby
+        });
         sendDummyRequestToApi(config.LOCATION_AMBIGUITY1, opt, function (response) {
             user.setStatusCode(200);
             user.setResponseAPI(response);
@@ -325,7 +328,10 @@ function handleAskLocationPostback(jsonObject, user) {
 
     // any place
     if (jsonObject.locationType === config.LOCATION_AMBIGUITY2) {
-        user.setLocation(config.LOCATION_AMBIGUITY2);
+        user.setLocation({
+            name: config.LOCATION_AMBIGUITY2,
+            type: config.location_type.anywhere
+        });
         sendDummyRequestToApi(config.LOCATION_AMBIGUITY2, opt, function (response) {
             user.setStatusCode(200);
             user.setResponseAPI(response);
@@ -378,7 +384,6 @@ function handleYesNoPostback(jsonObject, user) {
 
     if (jsonObject.isYes === 'no') {
         user.setLocation(config.LOCATION_AMBIGUITY2);
-        var sql = 'select * from productdetail order by rate desc';
         util.checkQueryOrCache(user, config.QUERY_TYPE.NO_FOOD_LOCATION)
     }
 
@@ -430,7 +435,10 @@ function handleSensationPostback(jsonObject, user) {
 
     // near my place
     if (jsonObject.locationType === config.LOCATION_AMBIGUITY1) {
-        user.setLocation(config.LOCATION_AMBIGUITY1);
+        user.setLocation({
+            name: config.LOCATION_AMBIGUITY1,
+            type: config.location_type.nearby
+        });
         sendDummyRequestToApi(config.LOCATION_AMBIGUITY1, opt, function (response) {
             user.setStatusCode(200);
             user.setResponseAPI(response);
@@ -442,7 +450,10 @@ function handleSensationPostback(jsonObject, user) {
 
     // any place
     if (jsonObject.locationType === config.LOCATION_AMBIGUITY2) {
-        user.setLocation(config.LOCATION_AMBIGUITY2);
+        user.setLocation({
+            name: config.LOCATION_AMBIGUITY2,
+            type: config.location_type.anywhere
+        });
         sendDummyRequestToApi(config.LOCATION_AMBIGUITY2, opt, function (response) {
             user.setStatusCode(200);
             user.setResponseAPI(response);

@@ -44,34 +44,51 @@ function handleWordProcessingSensationMessage(response, user) {
 
     if (action === config.ACTION_CHANGE_LOCATION) {
         // have all 
-        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
-                user.setLocation(config.LOCATION_AMBIGUITY1);
+                user.setLocation({
+                    name: config.LOCATION_AMBIGUITY1,
+                    type: config.location_type.nearby
+                });
                 var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
                 user.sendFBMessageTypeText(responseText);
             } else {
                 var typeQuery;
                 if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
-                    user.setLocation(config.LOCATION_AMBIGUITY2);
+                    user.setLocation({
+                        name: config.LOCATION_AMBIGUITY2,
+                        type: config.location_type.anywhere
+                    });
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
                         typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     } else {
                         typeQuery = config.QUERY_TYPE.ONLY_FOOD;
                     }
                 } else if (params.Location) {
-                    user.setLocation(params.Location);
+                    user.setLocation({
+                        name: params.Location,
+                        type: config.location_type.normal
+                    });
                     if (user.getFood() === config.FOOD_AMBIGUITY1) {
                         typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                     } else {
                         typeQuery = config.QUERY_TYPE.FOOD_LOCATION;
                     }
                 }
-                util.checkQueryOrCache(user, typeQuery);
+
+                if (user.getLocation().type !== config.location_type.nearby) {
+                    util.checkQueryOrCache(user, typeQuery);
+                } else {
+                    util.handleQueryNearbyLocation(user, user.getLocation().name, user.getLocation().coordinate);
+                }
             }
         }
 
-        if (!util.isDefined(user.getLocation())) {
-            user.setLocation(params.Location);
+        if (!util.isDefined(user.getLocation().name)) {
+            user.setLocation({
+                name: params.Location,
+                type: config.location_type.normal
+            });
             util.checkQueryOrCache(user, config.QUERY_TYPE.ONLY_LOCATION);
         }
     }
@@ -85,7 +102,7 @@ function handleWordProcessingSensationMessage(response, user) {
     }
 
     if (action === config.ACTION_CHANGE_FOOD) {
-        if (!util.isDefined(user.getLocation())) {
+        if (!util.isDefined(user.getLocation().name)) {
             user.setFood(params.Food);
             var elementArray = [{
                 type: "postback",
@@ -102,16 +119,16 @@ function handleWordProcessingSensationMessage(response, user) {
             }];
             var responseText = 'Vậy bạn muốn ăn ở gần đây hay ăn đâu cũng được nhỉ :D';
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
-        } else if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
+        } else if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
             var typeQuery;
             // clear food
             if (params.Food) {
                 user.setFood(params.Food);
-                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                if (user.getLocation().name === config.LOCATION_AMBIGUITY2) {
                     typeQuery = config.QUERY_TYPE.ONLY_FOOD;
                 } else {
                     typeQuery = config.QUERY_TYPE.FOOD_LOCATION;
-                    if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                    if (user.getLocation().name === config.LOCATION_AMBIGUITY2) {
                         typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                     }
                 }
@@ -120,14 +137,18 @@ function handleWordProcessingSensationMessage(response, user) {
             // an gi cung dc
             if (params.Food_Ambiguity) {
                 user.setFood(config.FOOD_AMBIGUITY1);
-                if (user.getLocation() === config.LOCATION_AMBIGUITY2) {
+                if (user.getLocation().name === config.LOCATION_AMBIGUITY2) {
                     typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
                 } else {
                     typeQuery = config.QUERY_TYPE.ONLY_LOCATION;
                 }
             }
 
-            util.checkQueryOrCache(user, typeQuery);
+            if (user.getLocation().type !== config.location_type.nearby) {
+                util.checkQueryOrCache(user, typeQuery);
+            } else {
+                util.handleQueryNearbyLocation(user, user.getLocation().name, user.getLocation().coordinate);
+            }
         }
     }
 }

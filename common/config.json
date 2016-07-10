@@ -139,5 +139,11 @@
         "Quận Tân Bình"
       ]
     }
+  },
+
+  "location_type" : {
+    "normal" : "normal_location",
+    "nearby" : "nearby",
+    "anywhere" : "anywhere"
   }
 }

@@ -29,7 +29,10 @@ function handleWordPrcccessingRatingRequestLocationStatement(response, user) {
     if (action === config.ACTION_RATING_REQUEST_LOCATION) {
         if (splittedText.length > 0 && splittedText.toString().trim() === config.successMessage) {
             user.setFood(params.Food);
-            user.setLocation(config.LOCATION_AMBIGUITY2);
+            user.setLocation({
+                name: config.LOCATION_AMBIGUITY2,
+                type: config.location_type.anywhere
+            });
             var setSql = "SET `sql_mode` = '';";
             var querySql = 'SELECT * FROM `productdetail` where `productName` regexp "' + user.getFood().trim() + '" group by `restaurantName` order by `rate` desc ';
             var sql = setSql + querySql;
