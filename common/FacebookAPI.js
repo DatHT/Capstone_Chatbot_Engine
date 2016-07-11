@@ -450,18 +450,40 @@ function createPersistentMenu(callback) {
             call_to_actions:[
                 {
                     type : "postback",
-                    title : "Help",
-                    payload : "DEVELOPER_DEFINED_PAYLOAD_FOR_HELP"
+                    title : "Món ăn xu hướng mới",
+                    payload : JSON.stringify({
+                        type: "trend",
+                        typeTrend: "food"})
                 },
                 {
                     type : "postback",
-                    title : "Start a New Order",
-                    payload : "DEVELOPER_DEFINED_PAYLOAD_FOR_START_ORDER"
+                    title : "Quán được nổi nhất",
+                    payload : JSON.stringify({
+                        type: "trend",
+                        typeTrend: "location"})
                 },
                 {
-                    type : "web_url",
-                    title : "View Website",
-                    url : "http://petersapparel.parseapp.com/"
+                    type: "postback",
+                    title: "Training cho Bot",
+                    payload: JSON.stringify({
+                        type: "more",
+                        typeMore: "training"
+                    })
+                },
+                {
+                    type: "postback",
+                    title: "Hướng dẫn Training Bot",
+                    payload: JSON.stringify({
+                        type: "more",
+                        typeMore: 'guideline_function'
+                    })
+                },
+                {
+                    type: "postback",
+                    title: "Kết thúc cuộc nói chuyện",
+                    payload: JSON.stringify({
+                        type: "cancel"
+                    })
                 }
             ]
         },
