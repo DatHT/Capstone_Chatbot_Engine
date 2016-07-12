@@ -24,10 +24,16 @@ function handleWordProcessingFulfillMessage(response, user) {
     var splittedText = util.splitResponse(responseText);
     var params = response.result.parameters;
 
+    var isLocationNearby = (params.Location_Ambiguity &&  params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) ? true : false;
+    var isLocationAnywhere = (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) ? true : false;
+    var isLocationNormal = params.Location ? true : false;
+    var isFoodAmbiguity = (params.Food_Ambiguity) ? true : false;
+    var isFoodNormal = (params.Food) ? true : false;
+
     if (action === config.ACTION_FULL_TYPE_REQUEST) {
         if (splittedText.toString().trim() === config.successMessage) {
             user.setFood(params.Food);
-            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+            if (isLocationNearby) {
                 user.setLocation({
                     name: config.LOCATION_AMBIGUITY1,
                     type: config.location_type.nearby
@@ -40,13 +46,13 @@ function handleWordProcessingFulfillMessage(response, user) {
                     name: params.Location,
                     type: config.location_type.normal
                 });
-                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                if (isLocationAnywhere) {
                     user.setLocation({
                         name: config.LOCATION_AMBIGUITY2,
                         type: config.location_type.anywhere
                     });
                     typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
-                } else if (params.Location) {
+                } else if (isLocationNormal) {
                     user.setLocation({
                         name: params.Location,
                         type: config.location_type.normal
@@ -66,7 +72,7 @@ function handleWordProcessingFulfillMessage(response, user) {
     if (action === config.ACTION_CHANGE_LOCATION) {
         // have all 
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
-            if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
+            if (isLocationNearby) {
                 user.setLocation({
                     name: config.LOCATION_AMBIGUITY1,
                     type: config.location_type.nearby
@@ -79,7 +85,7 @@ function handleWordProcessingFulfillMessage(response, user) {
                     type: config.location_type.normal
                 });
                 var typeQuery;
-                if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
+                if (isLocationAnywhere) {
                     user.setLocation({
                         name: config.LOCATION_AMBIGUITY2,
                         type: config.location_type.anywhere
@@ -89,7 +95,7 @@ function handleWordProcessingFulfillMessage(response, user) {
                     } else {
                         typeQuery = config.QUERY_TYPE.ONLY_FOOD;
                     }
-                } else if (params.Location) {
+                } else if (isLocationNormal) {
                     user.setLocation({
                         name: params.Location,
                         type: config.location_type.normal
@@ -115,7 +121,7 @@ function handleWordProcessingFulfillMessage(response, user) {
         if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
             var typeQuery;
             // clear food
-            if (params.Food) {
+            if (isFoodNormal) {
                 user.setFood(params.Food);
                 if (user.getLocation().name === config.LOCATION_AMBIGUITY2) {
                     typeQuery = config.QUERY_TYPE.ONLY_FOOD;
@@ -128,7 +134,7 @@ function handleWordProcessingFulfillMessage(response, user) {
             }
 
             // an gi cung dc
-            if (params.Food_Ambiguity) {
+            if (isFoodAmbiguity) {
                 user.setFood(config.FOOD_AMBIGUITY1);
                 if (user.getLocation().name === config.LOCATION_AMBIGUITY2) {
                     typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;
