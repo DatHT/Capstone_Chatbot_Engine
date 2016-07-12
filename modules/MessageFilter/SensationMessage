@@ -44,7 +44,7 @@ function handleWordProcessingSensationMessage(response, user) {
 
     if (action === config.ACTION_CHANGE_LOCATION) {
         // have all 
-        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
                 user.setLocation({
                     name: config.LOCATION_AMBIGUITY1,
@@ -84,7 +84,7 @@ function handleWordProcessingSensationMessage(response, user) {
             }
         }
 
-        if (!util.isDefined(user.getLocation().name)) {
+        if (!util.isDefined(user.getLocation())) {
             user.setLocation({
                 name: params.Location,
                 type: config.location_type.normal
@@ -102,7 +102,7 @@ function handleWordProcessingSensationMessage(response, user) {
     }
 
     if (action === config.ACTION_CHANGE_FOOD) {
-        if (!util.isDefined(user.getLocation().name)) {
+        if (!util.isDefined(user.getLocation())) {
             user.setFood(params.Food);
             var elementArray = [{
                 type: "postback",
@@ -119,7 +119,7 @@ function handleWordProcessingSensationMessage(response, user) {
             }];
             var responseText = 'Vậy bạn muốn ăn ở gần đây hay ăn đâu cũng được nhỉ :D';
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
-        } else if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
+        } else if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             var typeQuery;
             // clear food
             if (params.Food) {

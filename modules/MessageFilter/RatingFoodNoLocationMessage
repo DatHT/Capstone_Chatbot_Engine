@@ -48,7 +48,7 @@ function handleWordProcessingRatingFoodNoLocation(response, user) {
 
     if (action === config.ACTION_CHANGE_FOOD) {
         // have all
-        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             var typeQuery;
             // clear food
             if (params.Food) {
@@ -82,7 +82,7 @@ function handleWordProcessingRatingFoodNoLocation(response, user) {
     }
 
     if (action == config.ACTION_CHANGE_LOCATION) {
-        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY1) {
                 user.setLocation({
                     name: config.LOCATION_AMBIGUITY1,

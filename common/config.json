@@ -22,8 +22,8 @@
     "postback": "postback",
     "web_url": "web_url"
   },
-  "LOCATION_AMBIGUITY1": "location_ambiguity1",
-  "LOCATION_AMBIGUITY2": "location_ambiguity2",
+  "LOCATION_AMBIGUITY1": "location_nearby",
+  "LOCATION_AMBIGUITY2": "location_anywhere",
   "FOOD_AMBIGUITY1": "Food_Ambiguity1",
   "ACTION_FIND_FOOD": "find.food",
   "ACTION_FIND_LOCATION": "find.location",

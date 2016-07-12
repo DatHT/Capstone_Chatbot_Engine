@@ -31,6 +31,7 @@ function handleWordProcessingFulfillMessage(response, user) {
     var isFoodNormal = (params.Food) ? true : false;
 
     if (action === config.ACTION_FULL_TYPE_REQUEST) {
+        util.setRemoveDataWhenChangeContext(user);
         if (splittedText.toString().trim() === config.successMessage) {
             user.setFood(params.Food);
             if (isLocationNearby) {

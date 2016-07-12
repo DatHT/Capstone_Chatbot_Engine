@@ -46,7 +46,7 @@ function handleWordProcessingFoodFirst(response, user) {
 
     if (action === config.ACTION_CHANGE_FOOD) {
         // have all
-        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation().name)) {
+        if (util.isDefined(user.getFood()) && util.isDefined(user.getLocation())) {
             var typeQuery;
             // clear food
             if (params.Food) {
@@ -79,9 +79,10 @@ function handleWordProcessingFoodFirst(response, user) {
         }
 
         // have food - do not have location
-        if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation().name)) {
+        if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation())) {
             user.setFood(params.Food);
             var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON, user);
+            var responseText = "Bạn muốn ăn ở đâu?"
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
         }
     }

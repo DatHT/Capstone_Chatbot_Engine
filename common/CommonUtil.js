@@ -63,8 +63,17 @@ module.exports = {
 
     handleQueryNearbyLocation: (user, tmp, location) => {
         return handleQueryNearbyLocation(user, tmp, location)
+    },
+
+    setRemoveDataWhenChangeContext(user) {
+        return setRemoveDataWhenChangeContext(user);
     }
 };
+
+function setRemoveDataWhenChangeContext(user) {
+    delete user.getLocation();
+    delete user.getFood();
+}
 
 function chunkString() {
     var curr = len, prev = 0;
