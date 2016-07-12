@@ -1,6 +1,6 @@
 {
   "FACEBOOK_TOKEN": {
-    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABAKKoK1dGeMGwNERxZBC4kaulOWDqEuz97S0iwdrq8M6VnZCmtzEGlyyaIw5yv4nZBxVhZCzWpJUXRZB9annGiv5ZBoDJoSKgttBrdAkfPTa2ZCDVdiGcFeY7T4TlutiioQAgCir4mmQWwCtDcYjwVZB8VaWFz60gGlt8oTZCNrb9z",
+    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABAHLaVoNKJL2hh8bg1gn8ktDl5Q5uv7PbcV5TjmDMZBqFZAZBTNNAeKBrVD7dNjHm4bS3oUmk6t8SXMzYPKZBejYAstUwcxFn7KQdOgztEf4C6D6IzJneJZAs4niZAQOfrF3qBZBlpfZA5DhYr0wZAhc4ZA1JVTcThrzxOdKxdrMDho",
     "VERIFY_TOKEN": "hello"
   },
   "API_AI": {
@@ -88,62 +88,195 @@
   "districts": {
     "district_1": {
       "name": "quận 1",
-      "nearby": []
+      "nearby": [
+        "Quận 1",
+        "Quận 2",
+        "Quận 3",
+        "Quận 4",
+        "Quận 5",
+        "Quận Phú Nhuận",
+        "Quận Bình Thạnh"
+      ]
     },
     "district_2": {
       "name": "quận 2",
-      "nearby": []
+      "nearby": [
+        "Quận 2",
+        "Quận Thủ Đức",
+        "Quận 9",
+        "Quận Bình Thạnh"
+      ]
     },
     "district_3": {
       "name": "quận 3",
-      "nearby": []
+      "nearby": [
+        "Quận 3",
+        "Quận 1",
+        "Quận 5",
+        "Quận Phú Nhuận",
+        "Quận Bình Thạnh",
+        "Quận Tân Bình"
+      ]
     },
     "district_4": {
       "name": "quận 4",
-      "nearby": []
+      "nearby": [
+        "Quận 4",
+        "Quận 2",
+        "Quận 1",
+        "Quận 7",
+        "Quận 8",
+        "Quận 5"
+      ]
     },
     "district_5": {
       "name": "quận 5",
-      "nearby": []
+      "nearby": [
+        "Quận 5",
+        "Quận 1",
+        "Quận 4",
+        "Quận 6",
+        "Quận 8",
+        "Quận 10",
+        "Quận 11"
+      ]
     },
     "district_6": {
       "name": "quận 6",
-      "nearby": []
+      "nearby": [
+        "Quận 6",
+        "Quận Bình Tân",
+        "Quận 5",
+        "Quận 6",
+        "Quận 11",
+        "Quận Tân Phú"
+      ]
     },
     "district_7": {
       "name": "quận 7",
-      "nearby": []
+      "nearby": [
+        "Quận 7",
+        "Huyện Nhà Bè",
+        "Huyện Bình Chánh",
+        "Quận 8",
+        "Quận 4",
+        "Quận 2"
+      ]
     },
     "district_8": {
       "name": "quận 8",
-      "nearby": []
+      "nearby": [
+        "Quận 8",
+        "Huyện Bình Chánh",
+        "Quận 7",
+        "Quận 4",
+        "Quận 5",
+        "Quận 6",
+        "Quận Bình Tân"
+      ]
     },
     "district_9": {
       "name": "quận 9",
-      "nearby": []
+      "nearby": [
+        "Quận 9",
+        "Quận 2",
+        "Quận Thủ Đức"
+      ]
     },
     "district_10": {
       "name": "quận 10",
-      "nearby": []
+      "nearby": [
+        "Quận 10",
+        "Quận 3",
+        "Quận 5",
+        "Quận 1",
+        "Quận Tân Phú",
+        "Quận 11"
+      ]
     },
     "district_11": {
       "name": "quận 11",
-      "nearby": []
+      "nearby": [
+        "Quận 11",
+        "Quận Tân Phú",
+        "Quận 6",
+        "Quận 5",
+        "Quận 10"
+      ]
     },
     "district_12": {
       "name": "quận 12",
       "nearby": [
         "Quận Gò Vấp",
-        "Quận Hóc Môn",
-        "Quận Thử Đức",
-        "Quận Tân Bình"
+        "Huyện Hóc Môn",
+        "Quận Thủ Đức",
+        "Quận Tân Bình",
+        "Quận 12"
       ]
-    }
+    },
+    "district_tan_phu": {
+      "name": "quận tân phú",
+      "nearby": [
+        "Quận Phú Nhuận",
+        "Quận Tân Phú",
+        "Quận Tân Bình",
+        "Quận 11",
+        "Quận 12",
+        "Quận Bình Tân"
+      ]
+    },
+    "district_tan_binh": {
+      "name": "quận tân bình",
+      "nearby": [
+        "Quận Tân Bình",
+        "Quận Tân Phú",
+        "Quận Gò Vấp",
+        "Quận Phú Nhuận",
+        "Quận 12"
+      ]
+    },
+    "district_go_vap": {
+      "name": "quận gò ",
+      "nearby": [
+        "Quận Gò Vấp",
+        "Quận Tân Bình",
+        "Quận Bình Thạnh",
+        "Quận 12"
+      ]
+    },
+    "district_binh_thanh": {
+      "name": "quận 12",
+      "nearby": [
+        "Quận Gò Vấp",
+        "Huyện Hóc Môn",
+        "Quận Thủ Đức",
+        "Quận Tân Bình",
+        "Quận 12"
+      ]
+    },
+    "district_binh_tan": {
+      "name": "quận 12",
+      "nearby": [
+        "Quận Gò Vấp",
+        "Huyện Hóc Môn",
+        "Quận Tân Bình",
+        "Quận 12"
+      ]
+    },
+    "district_phu_nhuan": {
+      "name": "quận 12",
+      "nearby": [
+        "Quận Gò Vấp",
+        "Huyện Hóc Môn",
+        "Quận Thủ Đức",
+        "Quận Tân Bình",
+        "Quận 12"
+      ]
+    },
   },
-
-  "location_type" : {
-    "normal" : "normal_location",
-    "nearby" : "nearby",
-    "anywhere" : "anywhere"
+  "location_type": {
+    "normal": "normal_location",
+    "nearby": "nearby",
+    "anywhere": "anywhere"
   }
 }

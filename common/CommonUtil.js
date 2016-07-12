@@ -521,7 +521,6 @@ function createUrl(item) {
         slashes: config.HOST.slashes,
         auth: config.HOST.auth,
         host: config.HOST.host,
-        // port: '5000',
         hostname: config.HOST.hostname,
         hash: config.HOST.hash,
         query: item,
