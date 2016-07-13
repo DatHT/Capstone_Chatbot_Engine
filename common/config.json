@@ -245,32 +245,35 @@
       ]
     },
     "district_binh_thanh": {
-      "name": "quận 12",
+      "name": "quận bình thạnh",
       "nearby": [
         "Quận Gò Vấp",
         "Huyện Hóc Môn",
         "Quận Thủ Đức",
-        "Quận Tân Bình",
-        "Quận 12"
+        "Quận Phú Nhuận",
+        "Quận 2",
+        "Quận 1"
       ]
     },
     "district_binh_tan": {
-      "name": "quận 12",
+      "name": "quận bình tân",
       "nearby": [
-        "Quận Gò Vấp",
-        "Huyện Hóc Môn",
-        "Quận Tân Bình",
-        "Quận 12"
+        "Quận Bình Tân",
+        "Quận Tân Phú",
+        "Quận 6",
+        "Quận 8"
       ]
     },
     "district_phu_nhuan": {
-      "name": "quận 12",
+      "name": "quận Phú Nhuận",
       "nearby": [
         "Quận Gò Vấp",
-        "Huyện Hóc Môn",
-        "Quận Thủ Đức",
+        "Quận Phú Nhuận",
         "Quận Tân Bình",
-        "Quận 12"
+        "Quận Bình Thạnh",
+        "Quận Gò Vấp",
+        "Quận 3",
+        "Quận 1"
       ]
     },
   },

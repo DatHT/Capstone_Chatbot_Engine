@@ -164,6 +164,30 @@ function setParamAddressName(location) {
         {
             return getMultipleDistrict(config.districts.district_12.nearby);
         }
+        case (config.districts.district_tan_phu.name) :
+        {
+            return getMultipleDistrict(config.districts.district_tan_phu.nearby);
+        }
+        case (config.districts.district_tan_binh.name) :
+        {
+            return getMultipleDistrict(config.districts.district_tan_binh.nearby);
+        }
+        case (config.districts.district_go_vap.name) :
+        {
+            return getMultipleDistrict(config.districts.district_go_vap.nearby);
+        }
+        case (config.districts.district_binh_thanh.name) :
+        {
+            return getMultipleDistrict(config.districts.district_binh_thanh.nearby);
+        }
+        case (config.districts.district_binh_tan.name) :
+        {
+            return getMultipleDistrict(config.districts.district_binh_tan.nearby);
+        }
+        case (config.districts.district_phu_nhuan.name) :
+        {
+            return getMultipleDistrict(config.districts.district_phu_nhuan.nearby);
+        }
         default:
         {
             console.log('do not match any district');
