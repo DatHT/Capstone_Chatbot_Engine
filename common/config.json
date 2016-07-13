@@ -1,6 +1,6 @@
 {
   "FACEBOOK_TOKEN": {
-    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABAHLaVoNKJL2hh8bg1gn8ktDl5Q5uv7PbcV5TjmDMZBqFZAZBTNNAeKBrVD7dNjHm4bS3oUmk6t8SXMzYPKZBejYAstUwcxFn7KQdOgztEf4C6D6IzJneJZAs4niZAQOfrF3qBZBlpfZA5DhYr0wZAhc4ZA1JVTcThrzxOdKxdrMDho",
+    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABAOSHAsC52uEQZAHQ7LbNEXPIj3QAHCZBi9HTLWZAEN3YZB01507qg8iHp07Gx0aCY0Nflnj8sZCQZBkYXkYsqdahZCqQgrnt34yLC4Sq3C4MbxZBqO3naJzpWS14Fd0Et4SZAQPvUkNARDDV6MYw9dNwH9IybPxxoZCZBJ9jHTWKVVA",
     "VERIFY_TOKEN": "hello"
   },
   "API_AI": {
@@ -275,7 +275,7 @@
         "Quận 3",
         "Quận 1"
       ]
-    },
+    }
   },
   "location_type": {
     "normal": "normal_location",

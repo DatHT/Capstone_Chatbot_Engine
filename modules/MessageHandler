@@ -63,7 +63,7 @@ function doDispathchingMesssage(response, user, userMappingObject) {
 
         if (intentName.indexOf(config.INPUT_INTENT_UNKNOWN) > -1) {
             user.setStatusCode(300);
-            var unknownMessageFilterObject = unknownMessageFilter(user);
+            var unknownMessageFilterObject = unknownMessageFilter(user, userMappingObject);
             return unknownMessageFilterObject.handleUnknownMessage(response);
         }
 
@@ -101,12 +101,6 @@ function doDispathchingMesssage(response, user, userMappingObject) {
             user.setStatusCode(200);
             var ratingLocationMessageFilterObject = ratingLocationMessageFilter(user);
             return ratingLocationMessageFilterObject.handleWordPrcccessingRatingRequestLocationStatement(response);
-        }
-
-        if (intentName.indexOf(config.INPUT_INTENT_TRAINING)>-1) {
-            user.setStatusCode(202);
-            var trainingMessageFilterObject = trainingMessageFilter(user, userMappingObject);
-            return trainingMessageFilterObject.handleWordProcessingTrainingMessage(response);
         }
 
         if (intentName.indexOf(config.INPUT_INTENT_FEEDBACK)>-1) {

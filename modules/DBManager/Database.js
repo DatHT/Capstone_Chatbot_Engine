@@ -60,6 +60,7 @@ function updateNumberOfSearchProductAddress(item, callback) {
     var sql = 'update productdetail ' +
         'set numOfSearch =' + item.numOfSearch +
         ' where productId = "' + item.productId + '" and addressId = "' + item.addressId + '"';
+    console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err)
     });
@@ -67,6 +68,7 @@ function updateNumberOfSearchProductAddress(item, callback) {
 
 function getProductWithoutAnything(callback) {
     var sql = 'select * from productdetail order by rate desc';
+    console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
@@ -74,6 +76,7 @@ function getProductWithoutAnything(callback) {
 
 function getProductWithOnlyProductName(productName, callback) {
     var sql = 'select * from productdetail where productName regexp "' + productName + '" order by rate desc';
+    console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
@@ -81,6 +84,7 @@ function getProductWithOnlyProductName(productName, callback) {
 
 function getProductWithOnlyAddressName(addressName, callback) {
     var sql = 'select * from productdetail where addressName regexp "' + addressName + '" order by rate desc';
+    console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
@@ -88,6 +92,7 @@ function getProductWithOnlyAddressName(addressName, callback) {
 
 function getProductWithProductNameAndAddressName(productName, addressName, callback) {
     var sql = 'select * from productdetail where productName regexp "' + productName + '" and addressName regexp "' + addressName + '" order by rate desc';
+    console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
@@ -95,6 +100,7 @@ function getProductWithProductNameAndAddressName(productName, addressName, callb
 
 function getCoordinateWithAddress(addressName, callback) {
     var sql = 'select * from productdetail where addressName regexp "' + addressName + '"';
+    console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
@@ -197,11 +203,15 @@ function setParamAddressName(location) {
 }
 
 function createQueryNearbyWithProductAndLocation(product, location) {
-    return 'select * from productdetail where productName regexp "' + product + '" and ' + setParamAddressName(location) + ' order by rate desc ';
+    var sql = 'select * from productdetail where productName regexp "' + product + '" and ' + setParamAddressName(location) + ' order by rate desc ';
+    console.log("LOG: SQL = ", sql);
+    return sql;
 }
 
-function createQueryNearbyWithOnlyLocation() {
-    return 'select * from productdetail where ' + setParamAddressName(location) + ' order by rate desc ';
+function createQueryNearbyWithOnlyLocation(location) {
+    var sql = 'select * from productdetail where ' + setParamAddressName(location) + ' order by rate desc ';
+    console.log("LOG: SQL = ", sql);
+    return sql;
 
 }
 
