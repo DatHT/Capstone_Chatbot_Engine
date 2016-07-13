@@ -281,5 +281,6 @@
     "normal": "normal_location",
     "nearby": "nearby",
     "anywhere": "anywhere"
-  }
+  },
+  "maximum_nearby" : 5
 }

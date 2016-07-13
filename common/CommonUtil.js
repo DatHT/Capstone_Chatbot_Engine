@@ -723,8 +723,8 @@ function handleQueryNearbyLocation(user, tmp, location) {
             var tmpDistance;
             for (var i = 0; i < rows.length; i++) {
                 tmpDistance = getDistanceFromCoordinate(location[0], location[1], rows[i].latitude, rows[i].longitude);
-                if (tmpDistance < 5) {
-                    console.log('good distance: ', tmpDistance);
+                if (tmpDistance <= config.maximum_nearby) {
+                    console.log('LOG: Good distance: ', tmpDistance);
                     products[count] = rows[i];
                     count++;
                 }

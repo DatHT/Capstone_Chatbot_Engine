@@ -9,7 +9,6 @@ var sensationMessageFilter = require('./MessageFilter/SensationMessage');
 var ratingFoodInLocationMessageFilter = require('./MessageFilter/RatingFoodInLocationMessage');
 var ratingFoodNoLocationMessageFilter = require('./MessageFilter/RatingFoodNoLocationMessage');
 var ratingLocationMessageFilter = require('./MessageFilter/RatingLocationMessage');
-var trainingMessageFilter = require('./MessageFilter/TrainingMessage');
 var feedbackMessageFilter = require('./MessageFilter/FeedbackMessage');
 
 module.exports = createMessageHandler;

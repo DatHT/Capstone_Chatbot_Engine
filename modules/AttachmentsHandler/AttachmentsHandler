@@ -38,6 +38,8 @@ function handlerAttachmentsFromUser(event, user, userMappingObject) {
                 util.handleQueryNearbyLocation(user, tmp, location);
             })
 
+    } else {
+        
     }
 }
 
