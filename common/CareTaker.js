@@ -1,4 +1,3 @@
-'use strict'
 var CareTaker = function () {
     this.mementos = {};
 
@@ -9,7 +8,7 @@ var CareTaker = function () {
     this.get = function (key) {
         return this.mementos[key];
     }
-}
+};
 
 function createCareTaker() {
     return new CareTaker();
