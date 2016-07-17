@@ -29,11 +29,10 @@ router.get('/', function (req, res) {
             });
             fbClient.createGreetingText(function () {
                 console.log('create greeting message successfully');
-            })
+            });
             fbClient.createPersistentMenu(function () {
                 console.log('create persistent menu successfully');
-            })
-
+            });
         }, 3000);
     } else {
         res.send('Error, wrong validation token');
@@ -41,30 +40,106 @@ router.get('/', function (req, res) {
 });
 
 router.get('/test', function (req, res) {
-    // new Promise(function (resolve, reject) {
-    //     // A mock async action using setTimeout
-    //     console.log('hello noew');
-    //     setTimeout(function () {
-    //         resolve(10);
-    //     }, 3000);
-    // })
-    //     .then(function (num) {
-    //         console.log('first then: ', num);
-    //         return new Promise(function (resolve, reject) {
-    //             setTimeout(function () {
-    //                 resolve(num * 2);
-    //             }, 3000);
-    //         })
-    //             .then(function (num) {
-    //             console.log('second then: ', num);
-    //             return num * 2;
-    //         })
-    //             .then(function (num) {
-    //                 console.log('last then: ', num);
-    //             });
+    // doSomething()
+    //     .then(function (result) {
+    //         console.log(result);
+    //         return doSomthingElse();
     //     })
+    //     .then(function (anotherPromise) {
+    //         console.log("the final result is", anotherPromise);
+    //     });
 
+});
 
+function doSomthingElse() {
+    return new Promise(function (resolve) {
+        var value = 50;
+        setTimeout(() => {
+            resolve(value);
+        }, 2000);
+    });
+}
+
+function doSomething() {
+    return new Promise(function (resolve) {
+        var value = 42;
+        // setTimeout(() => {
+        resolve(value);
+        // }, 2000);
+    });
+}
+
+function Promise(fn) {
+    var state = 'pending';
+    var value;
+    var deferred = null;
+
+    function resolve(newValue) {
+        if (newValue && typeof newValue.then === 'function') {
+            newValue.then(resolve, reject);
+            return;
+        }
+        state = 'resolved';
+        value = newValue;
+
+        if (deferred) {
+            handle(deferred);
+        }
+    }
+
+    function reject(reason) {
+        state = 'rejected';
+        value = reason;
+
+        if (deferred) {
+            handle(deferred);
+        }
+    }
+
+    function handle(handler) {
+        if (state === 'pending') {
+            deferred = handler;
+            return;
+        }
+
+        var handlerCallback;
+
+        if (state === 'resolved') {
+            handlerCallback = handler.onResolved;
+        } else {
+            handlerCallback = handler.onRejected;
+        }
+
+        if (!handlerCallback) {
+            if (state === 'resolved') {
+                handler.resolve(value);
+            } else {
+                handler.reject(value);
+            }
+
+            return;
+        }
+
+        var ret = handlerCallback(value);
+        handler.resolve(ret);
+    }
+
+    this.then = function (onResolved, onRejected) {
+        return new Promise(function (resolve, reject) {
+            handle({
+                onResolved: onResolved,
+                onRejected: onRejected,
+                resolve: resolve,
+                reject: reject
+            });
+        });
+    };
+
+    fn(resolve, reject);
+}
+
+router.get('/test1', function (req, res) {
+    res.redirect('http://google.com');
 });
 
 

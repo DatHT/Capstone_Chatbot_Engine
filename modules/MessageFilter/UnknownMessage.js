@@ -40,7 +40,8 @@ function handleUnknownMessage(response, user, userMappingObject) {
     if (prefixString === 'map:') {
         if (util.isDefined(user.getCurrentData())) {
             var position = parseInt(resolveQuery.slice(4).trim());
-            var currentDataItem = user.getCurrentData()[position];
+            var a = user.getCurrentData();
+            var currentDataItem = user.getCurrentData()[position-1];
             googleMapAPI.getStaticGoogleMap(currentDataItem.latitude, currentDataItem.longitude, (response, error) => {
                 createStaticGoogleMap(response, user, (result) => {
                     if (result.status === 100) {
@@ -52,12 +53,94 @@ function handleUnknownMessage(response, user, userMappingObject) {
         }
     }
 
-    prefixString = resolveQuery.slice(0,5);
-    if (prefixString === 'next:') {
-        if (util.isDefined(user.getCurrentData())) {
-            var position = parseInt(resolveQuery.slice(4).trim());
-            var currentDataItem = user.getCurrentData()[position];
+    var elementArray = [];
+    var currentData = [];
+    var data = user.getData();
+    var temp;
+    var count = 0;
+    if (prefixString === 'next') {
+        if (util.isDefined(user.getCurrentData()) && user.getCurrentPosition()<user.getData().length) {
+            if (user.getCurrentPosition() + 10 >= data.length) {
+                temp = data.length - user.getCurrentPosition();
 
+                for (var i = user.getCurrentPosition(); i < data.length; i++) {
+                    currentData[count] = data[i];
+                    count++;
+                    var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                    elementArray.push(structureObj);
+                }
+                user.sendFBMessageTypeStructureMessage(elementArray);
+                user.setCurrentData(currentData);
+
+                setTimeout(function () {
+                    elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                }, 5000);
+
+                user.setCurrentPositionItem(user.getCurrentPosition() + temp);
+            } else if (user.getCurrentPosition() + 10 < data.length) {
+                for (var i = user.getCurrentPosition(); i < user.getCurrentPosition() + 10; i++) {
+                    currentData[count] = data[i];
+                    count++;
+                    var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                    elementArray.push(structureObj);
+                }
+                user.setCurrentData(currentData);
+                user.sendFBMessageTypeStructureMessage(elementArray);
+
+                setTimeout(function () {
+                    elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                }, 5000);
+                user.setCurrentPositionItem(user.getCurrentPosition() + 10);
+            }
+            return;
+        }
+    }
+
+    if (prefixString === 'back') {
+        if (util.isDefined(user.getCurrentData()) && user.getCurrentPosition()>0) {
+            if (user.getCurrentPosition() - 10 < 0) {
+                temp = user.getCurrentPosition() - 0;
+                user.setCurrentPositionItem(0);
+                for (var i = user.getCurrentPosition(); i < temp; i++) {
+                    currentData[count] = data[i];
+                    count++;
+                    var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                    elementArray.push(structureObj);
+                }
+                user.setCurrentData(currentData);
+                user.sendFBMessageTypeStructureMessage(elementArray);
+
+                setTimeout(function () {
+                    elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                }, 5000);
+            } else if (user.getCurrentPosition() - 10 >= 0) {
+                user.setCurrentPositionItem(user.getCurrentPosition() - 10);
+                if (user.getCurrentPosition() - 10 < 0) {
+                    for (var i = 0; i < existUser.getCurrentPosition(); i++) {
+                        currentData[count] = data[i];
+                        count++
+                        var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                        elementArray.push(structureObj);
+                    }
+                } else if (user.getCurrentPosition() - 10 >= 0) {
+                    for (var i = user.getCurrentPosition() - 10; i < user.getCurrentPosition(); i++) {
+                        currentData[count] = data[i];
+                        count++
+                        var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
+                        elementArray.push(structureObj);
+                    }
+                }
+                user.setCurrentData(currentData);
+                user.sendFBMessageTypeStructureMessage(elementArray);
+
+                setTimeout(function () {
+                    elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                }, 5000);
+            }
             return;
         }
     }

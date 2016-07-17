@@ -99,7 +99,7 @@ function handleMoreFunctionPostback(jsonObject, user) {
     }
 
     if (jsonObject.typeMore === 'training') {
-        var responseText ='Xin hãy nhập câu bạn muốn train cho Bot :D';
+        var responseText = 'Xin hãy nhập câu bạn muốn train cho Bot :D';
         user.sendFBMessageTypeText(responseText);
     }
 
@@ -215,17 +215,23 @@ function handleCancelPostback(user, userMappingObject) {
 // handle postback paging
 function handelPagingItemPostback(jSonObject, user) {
     var elementArray = [];
+    var currentData = [];
     var data = user.getData();
+    var temp;
+    var count = 0;
     if (jSonObject.isNext === 1) {
-        var temp;
         if (user.getCurrentPosition() + 10 >= data.length) {
             temp = data.length - user.getCurrentPosition();
 
             for (var i = user.getCurrentPosition(); i < data.length; i++) {
+                currentData[count] = data[i];
+                count++;
                 var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
                 elementArray.push(structureObj);
             }
             user.sendFBMessageTypeStructureMessage(elementArray);
+            user.setCurrentData(currentData);
+
             setTimeout(function () {
                 elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
@@ -234,10 +240,14 @@ function handelPagingItemPostback(jSonObject, user) {
             user.setCurrentPositionItem(user.getCurrentPosition() + temp);
         } else if (user.getCurrentPosition() + 10 < data.length) {
             for (var i = user.getCurrentPosition(); i < user.getCurrentPosition() + 10; i++) {
+                currentData[count] = data[i];
+                count++;
                 var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
                 elementArray.push(structureObj);
             }
+            user.setCurrentData(currentData);
             user.sendFBMessageTypeStructureMessage(elementArray);
+
             setTimeout(function () {
                 elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
@@ -247,36 +257,42 @@ function handelPagingItemPostback(jSonObject, user) {
     }
 
     if (jSonObject.isNext === 0) {
-        var temp;
         if (user.getCurrentPosition() - 10 < 0) {
             temp = user.getCurrentPosition() - 0;
             user.setCurrentPositionItem(0);
             for (var i = user.getCurrentPosition(); i < temp; i++) {
+                currentData[count] = data[i];
+                count++;
                 var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
                 elementArray.push(structureObj);
             }
+            user.setCurrentData(currentData);
             user.sendFBMessageTypeStructureMessage(elementArray);
+
             setTimeout(function () {
                 elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
             }, 5000);
         } else if (user.getCurrentPosition() - 10 >= 0) {
             user.setCurrentPositionItem(user.getCurrentPosition() - 10);
-
             if (user.getCurrentPosition() - 10 < 0) {
-                for (var i = 0; i < existUser.getCurrentPosition(); i) {
+                for (var i = 0; i < existUser.getCurrentPosition(); i++) {
+                    currentData[count] = data[i];
+                    count++
                     var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
                     elementArray.push(structureObj);
                 }
-
             } else if (user.getCurrentPosition() - 10 >= 0) {
                 for (var i = user.getCurrentPosition() - 10; i < user.getCurrentPosition(); i++) {
+                    currentData[count] = data[i];
+                    count++
                     var structureObj = util.createItemOfStructureResponseForProduct(data[i]);
                     elementArray.push(structureObj);
                 }
             }
-
+            user.setCurrentData(currentData);
             user.sendFBMessageTypeStructureMessage(elementArray);
+
             setTimeout(function () {
                 elementArray = util.createItemOfStructureButton(config.PAGING_BUTTON, user);
                 user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
