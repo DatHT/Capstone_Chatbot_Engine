@@ -5,7 +5,7 @@
 var config = require('../../common/app-config').config;
 var util = require('../../common/CommonUtil');
 var Promise = require('promise');
-var geocoding = require('../../lib/GoogleAPI/GMGeocodingAPI');
+var geocoding = require('../../lib/GoogleAPI/GoogleMapAPI');
 
 module.exports = createAttachmentsHandler;
 

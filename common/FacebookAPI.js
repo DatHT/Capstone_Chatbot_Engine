@@ -117,7 +117,7 @@ function doSubscribeRequest() {
 }
 
 function sendFBMessageTypeImage(sender, urlString) {
-    console.log("do send  message");
+    console.log("URL: ", urlString);
     request({
         timeout: 20000,
         url: 'https://graph.facebook.com/v2.6/me/messages',

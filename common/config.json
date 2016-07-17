@@ -1,6 +1,6 @@
 {
   "FACEBOOK_TOKEN": {
-    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABAOSHAsC52uEQZAHQ7LbNEXPIj3QAHCZBi9HTLWZAEN3YZB01507qg8iHp07Gx0aCY0Nflnj8sZCQZBkYXkYsqdahZCqQgrnt34yLC4Sq3C4MbxZBqO3naJzpWS14Fd0Et4SZAQPvUkNARDDV6MYw9dNwH9IybPxxoZCZBJ9jHTWKVVA",
+    "FB_PAGE_ACCESS_TOKEN": "EAAYSqRpxAJABADGw1NYt1xcBa1Xta8mwjH1CnYzZCxMgR6pPQ5ySfnZBY821E1IZC5OsPw6vQB1BwzPUAUc7uCcDFTi9bSTVSiNwMDiC0BblXmClj3cG4cqlsA3SHZBnXcOgJOdFr2qkDLpEeikoQk98ZAQiYYH4dzmZBx7QrXvagZAM5tA10AR",
     "VERIFY_TOKEN": "hello"
   },
   "API_AI": {
@@ -8,7 +8,7 @@
     "DEV_ACCESS_TOKEN": "f3d71301c93646e59acbe09ec080cf14"
   },
   "GM_API": {
-    "API_KEY": "AIzaSyC-kLxymmWloRmvdJZ99rz_6n_PbpEeoqg"
+    "API_KEY": "AIzaSyBTZ7QYHCjFVsSVQeGMK3JcqXrIcOMAyuU"
   },
   "DBManager": {
     "connection": {
@@ -79,9 +79,9 @@
     "protocol": "http:",
     "slashes": true,
     "auth": null,
-    "host": "88485a38.ngrok.io",
+    "host": "b67a7c20.ngrok.io",
     "port": "5000",
-    "hostname": "https://b7f123b9.ngrok.io",
+    "hostname": "https://b67a7c20.ngrok.io",
     "hash": null,
     "pathname": "/redirect"
   },

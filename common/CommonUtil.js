@@ -67,6 +67,10 @@ module.exports = {
 
     setRemoveDataWhenChangeContext(user) {
         return setRemoveDataWhenChangeContext(user);
+    },
+
+    createUrl(item) {
+        return createUrl(item);
     }
 };
 
@@ -596,14 +600,12 @@ function createQueryNearbyWithType(queryType, callback,option) {
     switch (queryType) {
         case (config.QUERY_TYPE.FOOD_LOCATION): {
             databaseConnection.getProductNearbyWithProductNameAndAddressName(productName, addressName, (rows, err) => {
-                // return createStructureResponseQueryFromDatabase(user, rows, err);
                 return callback(rows, err);
             });
             break;
         }
         case (config.QUERY_TYPE.ONLY_LOCATION): {
             databaseConnection.getProductNearbyWithOnlyAddressname(addressName, (rows, err) => {
-                // return createStructureResponseQueryFromDatabase(user, rows, err);
                 return callback(rows, err);
             });
             break;
@@ -656,12 +658,13 @@ function createStructureResponseQueryFromDatabase(user, rows, err) {
     } else {
         user.setData(rows);
         var data = user.getData();
+        var currentDataArray = [];
 
         //create cache + add cache
         var key = JSON.stringify({
             food: user.getFood(),
             location: user.getLocation().name
-        })
+        });
         var objProductAddress = productAddress(rows);
         caretaker.add(key, objProductAddress.hydrate());
 
@@ -671,9 +674,14 @@ function createStructureResponseQueryFromDatabase(user, rows, err) {
             var lengthArray = rows.length >= 10 ? 10 : rows.length;
             user.setCurrentPositionItem(lengthArray);
             for (var i = 0; i < lengthArray; i++) {
+                currentDataArray[i] = rows[i];
                 var structureObj = createItemOfStructureResponseForProduct(rows[i]);
                 elementArray.push(structureObj);
             }
+            // set current data
+            user.setCurrentData(currentDataArray);
+
+            // send message
             user.sendFBMessageTypeStructureMessage(elementArray);
             // nếu lớn hơn 10  thì mới paging
             if (data.length > 10) {
@@ -768,7 +776,6 @@ function handleQueryNearbyLocation(user, tmp, location) {
             console.log(error);
         })
 }
-
 
 function getDistanceFromCoordinate(latitude1, longitude1, latitude2, longitude2) {
     function toRad(x) {

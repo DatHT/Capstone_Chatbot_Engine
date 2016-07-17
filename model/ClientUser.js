@@ -15,6 +15,7 @@ var currentPositionItem;
 var responseAPI;
 var statusCode;
 var data;
+var currentData;
 function ClientUser(session, fbID) {
     this.sessionId = session;
     this.senderID = fbID;
@@ -33,60 +34,68 @@ function createClientUser(session, fbID) {
 }
 
 module.exports = createClientUser;
+ClientUser.prototype.setCurrentData = function (currentData) {
+    this.currentData = currentData
+}
+
 ClientUser.prototype.setData = function (data) {
     this.data = data;
-}
+};
 
 ClientUser.prototype.setResponseAPI = function (response) {
     this.responseAPI = response;
-}
+};
 
 ClientUser.prototype.setStatusCode = function (status) {
     this.statusCode = status;
-}
+};
 
 ClientUser.prototype.setFood = function (foodObj) {
     this.food = foodObj;
-}
+};
 
 ClientUser.prototype.setCurrentPositionItem = function (position) {
     this.currentPositionItem = position;
-}
+};
 
 ClientUser.prototype.setLocation = function (locationObj) {
     this.location = locationObj;
-}
+};
 
 ClientUser.prototype.getResponseAPI = function () {
     return this.responseAPI;
-}
+};
 
 ClientUser.prototype.getData = function () {
     return this.data;
-}
+};
 
 ClientUser.prototype.getStatusCode = function () {
      return this.statusCode;
-}
+};
 
 ClientUser.prototype.getSessionID = function () {
     return this.sessionId;
-}
+};
 
 ClientUser.prototype.getCurrentPosition = function () {
     return this.currentPositionItem;
-}
+};
 
 ClientUser.prototype.getSenderID = function () {
     return this.senderID;
-}
+};
 
 ClientUser.prototype.getFood = function () {
     return this.food;
-}
+};
 
 ClientUser.prototype.getLocation = function () {
     return this.location;
+};
+
+ClientUser.prototype.getCurrentData = function () {
+    return this.currentData;
 }
 
 ClientUser.prototype.sendFBMessageTypeText = function (messageData) {
