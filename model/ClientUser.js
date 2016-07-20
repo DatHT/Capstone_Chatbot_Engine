@@ -16,6 +16,7 @@ var responseAPI;
 var statusCode;
 var data;
 var currentData;
+var isSearchNearby;
 function ClientUser(session, fbID) {
     this.sessionId = session;
     this.senderID = fbID;
@@ -34,9 +35,13 @@ function createClientUser(session, fbID) {
 }
 
 module.exports = createClientUser;
+ClientUser.prototype.setIsSearchNearby = function (isNearby) {
+    this.isSearchNearby = isNearby;
+};
+
 ClientUser.prototype.setCurrentData = function (currentData) {
     this.currentData = currentData
-}
+};
 
 ClientUser.prototype.setData = function (data) {
     this.data = data;
@@ -60,6 +65,10 @@ ClientUser.prototype.setCurrentPositionItem = function (position) {
 
 ClientUser.prototype.setLocation = function (locationObj) {
     this.location = locationObj;
+};
+
+ClientUser.prototype.getIsSearchNearby = function () {
+    return this.isSearchNearby;
 };
 
 ClientUser.prototype.getResponseAPI = function () {

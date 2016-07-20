@@ -155,6 +155,8 @@ function createUrl(item) {
 // create query nearby
 function handleQueryNearbyLocation(user, tmp, location) {
     console.log('location:', tmp);
+    var products = [];
+
     return new Promise(function (resolve, reject) {
         var option = {
             productName: user.getFood().trim().toLocaleLowerCase(),
@@ -162,65 +164,24 @@ function handleQueryNearbyLocation(user, tmp, location) {
         };
         createQueryNearbyWithType(config.QUERY_TYPE.FOOD_LOCATION, (rows, error) => {
             if (!error) {
-                resolve(rows);
+                var count = 0;
+                var tmpDistance;
+                for (var i = 0; i < rows.length; i++) {
+                    tmpDistance = getDistanceFromCoordinate(location[0], location[1], rows[i].latitude, rows[i].longitude);
+                    if (tmpDistance <= config.maximum_nearby) {
+                        products[count] = rows[i];
+                        count++;
+                    }
+                }
+                resolve(products);
             } else {
-                reject(error);
+                console.log('ERROR:' , error);
             }
         }, option);
     })
-        .then((rows) => {
-            console.log('go to query');
-            var products = [];
-            var count = 0;
-            var tmpDistance;
-            for (var i = 0; i < rows.length; i++) {
-                tmpDistance = getDistanceFromCoordinate(location[0], location[1], rows[i].latitude, rows[i].longitude);
-                if (tmpDistance <= config.maximum_nearby) {
-                    console.log('LOG: Good distance: ', tmpDistance);
-                    products[count] = rows[i];
-                    count++;
-                }
-            }
-            user.setData(products);
 
-            if (products.length > 0) {
-                var elementArray = [];
-                var lengthArray = products.length >= 10 ? 10 : products.length;
-                user.setCurrentPositionItem(lengthArray);
-                for (var i = 0; i < lengthArray; i++) {
-                    var structureObj = createItemOfStructureResponseForProduct(products[i]);
-                    elementArray.push(structureObj);
-                }
-                user.sendFBMessageTypeStructureMessage(elementArray);
-
-                // nếu lớn hơn 10  thì mới paging
-                if (products.length > 10) {
-                    setTimeout(function () {
-                        elementArray = createItemOfStructureButton(config.PAGING_BUTTON, user);
-                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
-                    }, 5000);
-                } else {
-                    setTimeout(function () {
-                        elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
-                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
-                    }, 5000);
-                }
-            } else {
-                user.setStatusCode(404);
-                var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
-                user.sendFBMessageTypeText(responseText);
-
-                setTimeout(function () {
-                    elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
-                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
-                }, 5000);
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-        })
 }
-function createQueryNearbyWithType(queryType, callback,option) {
+function createQueryNearbyWithType(queryType, callback, option) {
     var productName = (checkIsDefined(option.productName)) ? option.productName : {};
     var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
 
@@ -378,8 +339,7 @@ function createItemOfStructureButton(type, user) {
     }
     var elementArray;
     switch (type) {
-        case (config.PAGING_BUTTON):
-        {
+        case (config.PAGING_BUTTON): {
             if (position <= 10) {
                 elementArray = [{
                     type: "postback",
@@ -438,8 +398,7 @@ function createItemOfStructureButton(type, user) {
             }
             break;
         }
-        case (config.CHANGE_BUTTON_TYPE_1):
-        {
+        case (config.CHANGE_BUTTON_TYPE_1): {
             elementArray = [{
                 type: "postback",
                 title: "Thay đi món ăn",
@@ -463,8 +422,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        case (config.CHANGE_BUTTON_TYPE_2):
-        {
+        case (config.CHANGE_BUTTON_TYPE_2): {
             elementArray = [{
                 type: "postback",
                 title: "Thay đổi",
@@ -481,8 +439,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        case (config.ASK_FOOD_BUTTON):
-        {
+        case (config.ASK_FOOD_BUTTON): {
             elementArray = [{
                 type: "postback",
                 title: "Món gì cũng ăn",
@@ -506,8 +463,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        case (config.ASK_FOOD_BUTTON_TYPE_SENSATION):
-        {
+        case (config.ASK_FOOD_BUTTON_TYPE_SENSATION): {
             elementArray = [{
                 type: "postback",
                 title: "Món gì ngon thì ăn!",
@@ -531,8 +487,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        case (config.ASK_LOCATION_BUTTON):
-        {
+        case (config.ASK_LOCATION_BUTTON): {
             elementArray = [{
                 type: "postback",
                 title: "Ăn ở gần đây",
@@ -558,8 +513,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        case (config.YES_NO_BUTTON) :
-        {
+        case (config.YES_NO_BUTTON) : {
             elementArray = [{
                 type: "postback",
                 title: "OK! Được thôi",
@@ -577,8 +531,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        case (config.MORE_FUNCTION_BUTTON) :
-        {
+        case (config.MORE_FUNCTION_BUTTON) : {
             elementArray = [{
                 type: "postback",
                 title: "Training cho Bot",
@@ -605,8 +558,7 @@ function createItemOfStructureButton(type, user) {
                 }];
             break;
         }
-        case (config.GUIDELINE_BUTTON) :
-        {
+        case (config.GUIDELINE_BUTTON) : {
             elementArray = [{
                 type: "postback",
                 title: "Hướng dẫn Training",
@@ -630,8 +582,7 @@ function createItemOfStructureButton(type, user) {
             }];
             break;
         }
-        default:
-        {
+        default: {
             console.log('wrong type button');
             break;
         }
@@ -642,36 +593,31 @@ function createQueryData(user, queryType, option) {
     var productName = (checkIsDefined(option.productName)) ? option.productName : {};
     var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
     switch (queryType) {
-        case config.QUERY_TYPE.ONLY_FOOD:
-        {
+        case config.QUERY_TYPE.ONLY_FOOD: {
             databaseConnection.getProductWithOnlyProductName(productName, (rows, err) => {
                 return createStructureResponseQueryFromDatabase(user, rows, err);
             });
             break;
         }
-        case config.QUERY_TYPE.ONLY_LOCATION:
-        {
+        case config.QUERY_TYPE.ONLY_LOCATION: {
             databaseConnection.getProductWithOnlyAddressName(addressName, (rows, err) => {
                 return createStructureResponseQueryFromDatabase(user, rows, err);
             });
             break;
         }
-        case config.QUERY_TYPE.FOOD_LOCATION:
-        {
+        case config.QUERY_TYPE.FOOD_LOCATION: {
             databaseConnection.getProductWithProductNameAndAddressName(productName, addressName, (rows, err) => {
                 return createStructureResponseQueryFromDatabase(user, rows, err);
             });
             break;
         }
-        case config.QUERY_TYPE.NO_FOOD_LOCATION:
-        {
+        case config.QUERY_TYPE.NO_FOOD_LOCATION: {
             databaseConnection.getProductWithoutAnything((rows, err) => {
                 return createStructureResponseQueryFromDatabase(user, rows, err);
             });
             break;
         }
-        default:
-        {
+        default: {
             console.log('ERROR: bug create query not match');
         }
     }

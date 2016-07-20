@@ -49,6 +49,8 @@ function doDispathchingMesssage(response, user, userMappingObject) {
     });
     var intentName = response.result.metadata.intentName;
     if (response.status.code === 200) {
+        user.setIsSearchNearby(false);
+
         if (intentName.indexOf(config.INPUT_INTENT_GREETING) > -1) {
             user.setStatusCode(200);
             return greetingMessageFilter.getCurrentSenderInformation(user);
