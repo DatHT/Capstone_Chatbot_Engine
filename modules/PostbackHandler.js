@@ -130,14 +130,18 @@ function handleRatingPostbackFromUser(jsonObject, user) {
             } else {
                 console.log("query success");
                 user.setData(rows);
+                var currentData = [];
                 if (rows.length > 0) {
                     var elementArray = [];
                     var lengthArray = rows.length >= 10 ? 10 : rows.length;
                     user.setCurrentPositionItem(lengthArray);
                     for (var i = 0; i < lengthArray; i++) {
+                        currentData[i] = rows[i];
                         var structureObj = util.createItemOfStructureResponseForProduct(rows[i]);
                         elementArray.push(structureObj);
                     }
+
+                    user.setCurrentData(currentData);
                     user.sendFBMessageTypeStructureMessage(elementArray);
                     // nếu lớn hơn 10  thì mới paging
                     if (rows.length > 10) {
@@ -161,14 +165,18 @@ function handleRatingPostbackFromUser(jsonObject, user) {
             } else {
                 console.log("query success");
                 user.setData(rows);
+                var currentData = [];
                 if (rows.length > 0) {
                     var elementArray = [];
                     var lengthArray = rows.length >= 10 ? 10 : rows.length;
                     user.setCurrentPositionItem(lengthArray);
                     for (var i = 0; i < lengthArray; i++) {
+                        currentData[i] = rows[i];
                         var structureObj = util.createItemOfStructureResponseForRestaurant(rows[i]);
                         elementArray.push(structureObj);
                     }
+
+                    user.setCurrentData(currentData);
                     user.sendFBMessageTypeStructureMessage(elementArray);
                     // nếu lớn hơn 10  thì mới paging
                     if (rows.length > 10) {

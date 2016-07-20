@@ -16,7 +16,7 @@ function createFoodFirstMessage(user) {
 
 FoodFirstMessage.prototype.handleWordProcessingFoodFirst = function (response) {
     return handleWordProcessingFoodFirst(response, this.user);
-}
+};
 
 function handleWordProcessingFoodFirst(response, user) {
     var action = response.result.action;

@@ -38,7 +38,7 @@ function handleWordProcessingRatingFoodInLocation(response, user) {
                 var typeQuery;
                 if (params.Location_Ambiguity && params.Location_Ambiguity === config.LOCATION_AMBIGUITY2) {
                     user.setLocation({
-                        name: params.Location_Ambiguity2,
+                        name: params.Location_Ambiguity,
                         type: config.location_type.anywhere
                     });
                     typeQuery = config.QUERY_TYPE.NO_FOOD_LOCATION;

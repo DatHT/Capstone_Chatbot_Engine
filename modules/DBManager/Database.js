@@ -209,7 +209,7 @@ function createQueryNearbyWithProductAndLocation(product, location) {
 }
 
 function createQueryNearbyWithOnlyLocation(location) {
-    var sql = 'select * from productdetail where ' + setParamAddressName(location) + ' order by rate desc ';
+    var sql = 'select * from productdetail where productName regexp' + setParamAddressName(location) + ' order by rate desc ';
     console.log("LOG: SQL = ", sql);
     return sql;
 

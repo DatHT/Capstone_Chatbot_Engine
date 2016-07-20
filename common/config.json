@@ -79,9 +79,9 @@
     "protocol": "http:",
     "slashes": true,
     "auth": null,
-    "host": "b67a7c20.ngrok.io",
+    "host": "eb696fb6.ngrok.io",
     "port": "5000",
-    "hostname": "https://b67a7c20.ngrok.io",
+    "hostname": "https://eb696fb6.ngrok.io",
     "hash": null,
     "pathname": "/redirect"
   },
@@ -215,7 +215,7 @@
       ]
     },
     "district_tan_phu": {
-      "name": "quận tân phú",
+      "name": "tân phú",
       "nearby": [
         "Quận Phú Nhuận",
         "Quận Tân Phú",
@@ -226,7 +226,7 @@
       ]
     },
     "district_tan_binh": {
-      "name": "quận tân bình",
+      "name": "tân bình",
       "nearby": [
         "Quận Tân Bình",
         "Quận Tân Phú",
@@ -236,7 +236,7 @@
       ]
     },
     "district_go_vap": {
-      "name": "quận gò ",
+      "name": "gò vấp",
       "nearby": [
         "Quận Gò Vấp",
         "Quận Tân Bình",
@@ -245,7 +245,7 @@
       ]
     },
     "district_binh_thanh": {
-      "name": "quận bình thạnh",
+      "name": "bình thạnh",
       "nearby": [
         "Quận Gò Vấp",
         "Huyện Hóc Môn",
@@ -256,7 +256,7 @@
       ]
     },
     "district_binh_tan": {
-      "name": "quận bình tân",
+      "name": "bình tân",
       "nearby": [
         "Quận Bình Tân",
         "Quận Tân Phú",
@@ -265,7 +265,7 @@
       ]
     },
     "district_phu_nhuan": {
-      "name": "quận Phú Nhuận",
+      "name": "phú nhuận",
       "nearby": [
         "Quận Gò Vấp",
         "Quận Phú Nhuận",
@@ -282,5 +282,5 @@
     "nearby": "nearby",
     "anywhere": "anywhere"
   },
-  "maximum_nearby" : 5
+  "maximum_nearby" : 2
 }
