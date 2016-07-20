@@ -472,7 +472,7 @@ function createPersistentMenu(callback) {
                 },
                 {
                     type: "postback",
-                    title: "Hướng dẫn Training Bot",
+                    title: "Hướng dẫn",
                     payload: JSON.stringify({
                         type: "more",
                         typeMore: 'guideline_function'

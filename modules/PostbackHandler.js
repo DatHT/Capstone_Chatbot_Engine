@@ -22,6 +22,7 @@ const PAYLOAD_SENSATION = 'sensation';
 const PAYLOAD_TREND = 'trend';
 const PAYLOAD_GUIDELINE = 'guideline';
 const PAYLOAD_MORE = 'more';
+const PAYLOAD_HOTKEY_GUIDELINE = 'hotkey_guideline';
 
 module.exports = createPostbackHandler;
 
@@ -79,9 +80,24 @@ function handlePostback(jsonObject, user, userMappingObject) {
             return handleMoreFunctionPostback(jsonObject, user);
         case PAYLOAD_GUIDELINE:
             return handleGuidelineFunctionPostback(jsonObject, user);
+        case PAYLOAD_HOTKEY_GUIDELINE:
+            return handleHotkeyGuidelinePostback(jsonObject, user);
         default:
             break;
     }
+}
+
+function handleHotkeyGuidelinePostback(jsonObject, user) {
+    if (jsonObject.hotkeyGuidelineType === 'map') {
+        var responseText = "Bạn có thể xem nhanh bản đồ theo cú pháp sau: \nMap: Vị trí Item \nVí dụ: Map: 1";
+        user.sendFBMessageTypeText(responseText);
+    }
+
+    if (jsonObject.hotkeyGuidelineType === 'paging') {
+        var responseText = "Bạn có thể chuyển nhanh tới hoặc lùi 10 phần theo cú pháp: \nNext - tới 10 item \nBack - quay lại 10";
+        user.sendFBMessageTypeText(responseText);
+    }
+
 }
 
 function handleGetStartButtonPostback(tmpString, user) {
@@ -94,7 +110,7 @@ function handleGetStartButtonPostback(tmpString, user) {
 function handleMoreFunctionPostback(jsonObject, user) {
     if (jsonObject.typeMore === 'more_function') {
         var elementArray = util.createItemOfStructureButton(config.MORE_FUNCTION_BUTTON, user);
-        var responseText = 'Bạn có thể chọn 1 trong 3 chức năng dưới đây :D';
+        var responseText = 'Bạn có thể chọn 1 trong những chức năng dưới đây :D';
         user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
     }
 
@@ -104,8 +120,9 @@ function handleMoreFunctionPostback(jsonObject, user) {
     }
 
     if (jsonObject.typeMore === 'guideline_function') {
-        var responseText = 'Bạn có thể training cho bot bằng cách nhập theo cú pháp sau: \n[train: "câu bạn muốn train"]\nVD: train: ăn bánh mì!';
-        user.sendFBMessageTypeText(responseText);
+        var elementArray = util.createItemOfStructureButton(config.HOTKEY_GUIDELINE_BUTTON, user);
+        var responseText = 'Bạn có thể xem hướng dẫn phím ở dưới đây :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
     }
 }
 
@@ -115,6 +132,17 @@ function handleGuidelineFunctionPostback(jsonObject, user) {
         var elementArray = util.createItemOfStructureButton(config.GUIDELINE_BUTTON, user);
         var responseText = 'Bạn có thể xem hướng dẫn dưới đây để có thể sử dụng tốt nhất :D';
         user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    if (jsonObject.typeGuideline === 'hotkey') {
+        var elementArray = util.createItemOfStructureButton(config.GUIDELINE_BUTTON, user);
+        var responseText = 'Bạn có thể xem hướng dẫn dưới đây để có thể sử dụng tốt nhất :D';
+        user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+    }
+
+    if (jsonObject.typeGuideline === 'training') {
+        var responseText = 'Bạn có thể training cho bot bằng cách nhập theo cú pháp sau: \n[train: "câu bạn muốn train"]\nVD: train: ăn bánh mì!';
+        user.sendFBMessageTypeText(responseText);
     }
 }
 

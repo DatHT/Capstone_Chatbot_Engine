@@ -71,10 +71,17 @@ function handleWordProcessingFoodFirst(response, user) {
                 }
             }
 
+            // if (user.getLocation().type !== config.location_type.nearby) {
+            //     util.checkQueryOrCache(user, typeQuery);
+            // } else {
+            //     util.handleQueryNearbyLocation(user, user.getLocation().name, user.getLocation().coordinate);
+            // }
+
             if (user.getLocation().type !== config.location_type.nearby) {
                 util.checkQueryOrCache(user, typeQuery);
-            } else {
-                util.handleQueryNearbyLocation(user, user.getLocation().name, user.getLocation().coordinate);
+            } else  {
+                var tmp;
+                util.getProductNearbyLocation(user.getLocation().coordinate, user, tmp);
             }
         }
 
@@ -123,7 +130,8 @@ function handleWordProcessingFoodFirst(response, user) {
                 if (user.getLocation().type !== config.location_type.nearby) {
                     util.checkQueryOrCache(user, typeQuery);
                 } else  {
-                    util.handleQueryNearbyLocation(user, user.getLocation().name, user.getLocation().coordinate);
+                    var tmp;
+                    util.getProductNearbyLocation(user.getLocation().coordinate, user, tmp);
                 }
             }
         }

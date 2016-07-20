@@ -8,6 +8,7 @@ var careTakerModule = require('./CareTaker');
 var databaseConnection = require('../modules/DBManager/Database');
 var caretaker = careTakerModule();
 var url = require('url');
+var googleMapAPI = require('../lib/GoogleAPI/GoogleMapAPI');
 
 module.exports = {
     isDefined: function (obj) {
@@ -39,6 +40,21 @@ module.exports = {
 
     handleQueryNearbyLocation: (user, tmp, location) => {
         return handleQueryNearbyLocation(user, tmp, location)
+    },
+
+    handleFilteredProductNearbyByGoogleDistanceMatrix : (user, location, products) => {
+        return handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, products);
+    },
+    handleGetDistrictFromCoordinate : (location, user, tmp) => {
+        return handleGetDistrictFromCoordinate(location, user, tmp);
+    },
+
+    getURLParam : (name, url) => {
+        return getURLParam(name, url);
+    },
+
+    getProductNearbyLocation: (location, user, tmp) => {
+        return getProductNearbyLocation (location, user, tmp);
     },
 
     setRemoveDataWhenChangeContext(user) {
@@ -152,80 +168,6 @@ function createUrl(item) {
     return urlString
 }
 
-// create query nearby
-function handleQueryNearbyLocation(user, tmp, location) {
-    console.log('location:', tmp);
-    var products = [];
-
-    return new Promise(function (resolve, reject) {
-        var option = {
-            productName: user.getFood().trim().toLocaleLowerCase(),
-            addressName: user.getLocation().name.trim().toLocaleLowerCase()
-        };
-        createQueryNearbyWithType(config.QUERY_TYPE.FOOD_LOCATION, (rows, error) => {
-            if (!error) {
-                var count = 0;
-                var tmpDistance;
-                for (var i = 0; i < rows.length; i++) {
-                    tmpDistance = getDistanceFromCoordinate(location[0], location[1], rows[i].latitude, rows[i].longitude);
-                    if (tmpDistance <= config.maximum_nearby) {
-                        products[count] = rows[i];
-                        count++;
-                    }
-                }
-                resolve(products);
-            } else {
-                console.log('ERROR:' , error);
-            }
-        }, option);
-    })
-
-}
-function createQueryNearbyWithType(queryType, callback, option) {
-    var productName = (checkIsDefined(option.productName)) ? option.productName : {};
-    var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
-
-    switch (queryType) {
-        case (config.QUERY_TYPE.FOOD_LOCATION): {
-            databaseConnection.getProductNearbyWithProductNameAndAddressName(productName, addressName, (rows, err) => {
-                return callback(rows, err);
-            });
-            break;
-        }
-        case (config.QUERY_TYPE.ONLY_LOCATION): {
-            databaseConnection.getProductNearbyWithOnlyAddressname(addressName, (rows, err) => {
-                return callback(rows, err);
-            });
-            break;
-        }
-    }
-}
-function getDistanceFromCoordinate(latitude1, longitude1, latitude2, longitude2) {
-    function toRad(x) {
-        return x * Math.PI / 180;
-    }
-
-    var lon1 = longitude1;
-    var lat1 = latitude1;
-
-    var lon2 = longitude2;
-    var lat2 = latitude2;
-
-    var R = 6371; // km
-
-    var x1 = lat2 - lat1;
-    var dLat = toRad(x1);
-    var x2 = lon2 - lon1;
-    var dLon = toRad(x2)
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c;
-
-    return d;
-}
-
 // create normarl request query
 function createStructureResponseQueryFromDatabase(user, rows, err) {
     if (checkIsDefined(err)) {
@@ -305,7 +247,7 @@ function checkQueryOrCache(user, queryType) {
             var lengthArray = data.length >= 10 ? 10 : data.length;
             user.setCurrentPositionItem(lengthArray);
             for (var i = 0; i < lengthArray; i++) {
-                currentDataArray[i] = rows[i];
+                currentDataArray[i] = data[i];
                 var structureObj = createItemOfStructureResponseForProduct(data[i]);
                 elementArray.push(structureObj);
             }
@@ -532,25 +474,18 @@ function createItemOfStructureButton(type, user) {
             break;
         }
         case (config.MORE_FUNCTION_BUTTON) : {
-            elementArray = [{
-                type: "postback",
-                title: "Training cho Bot",
-                payload: JSON.stringify({
-                    type: "more",
-                    typeMore: "training"
-                })
-            }
-                //     , {
-                //     type: "postback",
-                //     title: "Đặt Bookmark",
-                //     payload: JSON.stringify({
-                //         type: "more",
-                //         typeMore: 'bookmark'
-                //     })
-                // }
+            elementArray = [
+                {
+                    type: "postback",
+                    title: "Training cho Bot",
+                    payload: JSON.stringify({
+                        type: "more",
+                        typeMore: "training"
+                    })
+                }
                 , {
                     type: "postback",
-                    title: "Hướng dẫn Training Bot",
+                    title: "Hướng dẫn",
                     payload: JSON.stringify({
                         type: "more",
                         typeMore: 'guideline_function'
@@ -564,14 +499,38 @@ function createItemOfStructureButton(type, user) {
                 title: "Hướng dẫn Training",
                 payload: JSON.stringify({
                     type: "guideline",
-                    typeMore: "training"
+                    typeGuideline: "training"
                 })
             }, {
                 type: "postback",
-                title: "Hướng dẫn Bookmark",
+                title: "Hướng dẫn phím tắt",
                 payload: JSON.stringify({
                     type: "guideline",
-                    typeMore: 'bookmark'
+                    typeGuideline: 'hotkey'
+                })
+            }, {
+                type: "postback",
+                title: "Cancel",
+                payload: JSON.stringify({
+                    type: "cancel"
+                })
+            }];
+            break;
+        }
+        case (config.HOTKEY_GUIDELINE_BUTTON) : {
+            elementArray = [{
+                type: "postback",
+                title: "Xem nhanh bản đồ",
+                payload: JSON.stringify({
+                    type: "hotkey_guideline",
+                    hotkeyGuidelineType: "map"
+                })
+            }, {
+                type: "postback",
+                title: "Xem tiếp nhanh",
+                payload: JSON.stringify({
+                    type: "hotkey_guideline",
+                    hotkeyGuidelineType: 'paging'
                 })
             }, {
                 type: "postback",
@@ -679,4 +638,187 @@ function createButton(title, type, optionalString) {
         default:
             return;
     }
+}
+
+// create query nearby
+function handleQueryNearbyLocation(user, tmp, location) {
+    console.log('location:', tmp);
+    var products = [];
+
+    return new Promise(function (resolve, reject) {
+        var option = {
+            productName: user.getFood().trim().toLocaleLowerCase(),
+            addressName: user.getLocation().name.trim().toLocaleLowerCase()
+        };
+        createQueryNearbyWithType(config.QUERY_TYPE.FOOD_LOCATION, (rows, error) => {
+            if (!error) {
+                var count = 0;
+                var tmpDistance;
+                for (var i = 0; i < rows.length; i++) {
+                    tmpDistance = getDistanceFromCoordinate(location[0], location[1], rows[i].latitude, rows[i].longitude);
+                    if (tmpDistance <= config.maximum_nearby) {
+                        products[count] = rows[i];
+                        count++;
+                    }
+                }
+                resolve(products);
+            } else {
+                console.log('ERROR:', error);
+            }
+        }, option);
+    })
+
+}
+function createQueryNearbyWithType(queryType, callback, option) {
+    var productName = (checkIsDefined(option.productName)) ? option.productName : {};
+    var addressName = (checkIsDefined(option.addressName)) ? option.addressName : {};
+
+    switch (queryType) {
+        case (config.QUERY_TYPE.FOOD_LOCATION): {
+            databaseConnection.getProductNearbyWithProductNameAndAddressName(productName, addressName, (rows, err) => {
+                return callback(rows, err);
+            });
+            break;
+        }
+        case (config.QUERY_TYPE.ONLY_LOCATION): {
+            databaseConnection.getProductNearbyWithOnlyAddressname(addressName, (rows, err) => {
+                return callback(rows, err);
+            });
+            break;
+        }
+    }
+}
+function getDistanceFromCoordinate(latitude1, longitude1, latitude2, longitude2) {
+    function toRad(x) {
+        return x * Math.PI / 180;
+    }
+
+    var lon1 = longitude1;
+    var lat1 = latitude1;
+
+    var lon2 = longitude2;
+    var lat2 = latitude2;
+
+    var R = 6371; // km
+
+    var x1 = lat2 - lat1;
+    var dLat = toRad(x1);
+    var x2 = lon2 - lon1;
+    var dLon = toRad(x2)
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+
+    return d;
+}
+function handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, products) {
+    var i = 0;
+    var jsonArray = [];
+    var count = 0;
+    var  filteredArray = [];
+    while (i < products.length) {
+        var destination = [products[i].latitude, products[i].longitude];
+        googleMapAPI.getDistanceBetween2Coordinate(location, destination, products, jsonArray, i, function (response) {
+            for (var i = 0; i<response.length; i++) {
+                var item = JSON.parse(response[i]);
+                if (item.value <1500) {
+                    console.log(item.value);
+                    filteredArray[count] = item.product;
+                    count++;
+                }
+            }
+
+            user.setData(filteredArray);
+            var currentDataArray = [];
+            if (filteredArray.length > 0) {
+                var elementArray = [];
+                var lengthArray = filteredArray.length >= 10 ? 10 : filteredArray.length;
+                user.setCurrentPositionItem(lengthArray);
+                for (var i = 0; i < lengthArray; i++) {
+                    currentDataArray[i] = filteredArray[i];
+                    var structureObj = createItemOfStructureResponseForProduct(filteredArray[i]);
+                    elementArray.push(structureObj);
+                }
+                // set current data
+                user.setCurrentData(currentDataArray);
+
+                // send message
+                user.sendFBMessageTypeStructureMessage(elementArray);
+                // nếu lớn hơn 10  thì mới paging
+                if (filteredArray.length > 10) {
+                    setTimeout(function () {
+                        elementArray = createItemOfStructureButton(config.PAGING_BUTTON, user);
+                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn có muốn tiếp tục xem những món mới không :D");
+                    }, 5000);
+                } else {
+                    setTimeout(function () {
+                        elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                        user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                    }, 5000);
+                }
+            }
+        });
+
+        var e = new Date().getTime() + (100 / 1000);
+        while (new Date().getTime() <= e) {
+            console.log('sleep');
+        }
+        i++;
+    }
+
+}
+function handleGetDistrictFromCoordinate(location, user, tmp) {
+    console.log('get district from coordinate ');
+    return new Promise(function (resolve, reject) {
+        googleMapAPI.reverseGeocodingIntoAddres(Number(location[0]), Number(location[1]), function (response, error) {
+            if (!error) {
+                tmp = handleGoogleAPIRespnose(response);
+                console.log('LOG: district' + tmp);
+                user.setLocation({
+                    name: tmp,
+                    coordinate: location,
+                    type: config.location_type.nearby
+                });
+                resolve(tmp.toLowerCase());
+            } else {
+                reject(error);
+            }
+        });
+    })
+}
+// get url param location
+function getURLParam(name, url) {
+    if (!url) url = location.href;
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(url);
+    return results == null ? null : results[1];
+}
+// handle get location from google api
+function handleGoogleAPIRespnose(response) {
+    for (var i = 0; i < response.results.length; i++) {
+        for (var j = 0; j < response.results[i].types.length; j++) {
+            if (response.results[i].types[j] === 'street_address' || response.results[i].types[j] === 'premise' || response.results[i].types[j] === 'route') {
+                for (var k = 0; k < response.results[i].address_components.length; k++) {
+                    for (var z = 0; z < response.results[i].address_components[k].types.length; z++) {
+                        if (response.results[i].address_components[k].types[z] === 'administrative_area_level_2') {
+                            return response.results[i].address_components[k].long_name;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+function getProductNearbyLocation(location, user, tmp) {
+    handleGetDistrictFromCoordinate(location, user, tmp)
+        .then((tmp) => {
+            return handleQueryNearbyLocation(user, tmp, location);
+        })
+        .then((products) => {
+            handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, products);
+        })
 }
