@@ -42,19 +42,19 @@ module.exports = {
         return handleQueryNearbyLocation(user, tmp, location)
     },
 
-    handleFilteredProductNearbyByGoogleDistanceMatrix : (user, location, products) => {
+    handleFilteredProductNearbyByGoogleDistanceMatrix: (user, location, products) => {
         return handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, products);
     },
-    handleGetDistrictFromCoordinate : (location, user, tmp) => {
+    handleGetDistrictFromCoordinate: (location, user, tmp) => {
         return handleGetDistrictFromCoordinate(location, user, tmp);
     },
 
-    getURLParam : (name, url) => {
+    getURLParam: (name, url) => {
         return getURLParam(name, url);
     },
 
     getProductNearbyLocation: (location, user, tmp) => {
-        return getProductNearbyLocation (location, user, tmp);
+        return getProductNearbyLocation(location, user, tmp);
     },
 
     setRemoveDataWhenChangeContext(user) {
@@ -717,13 +717,15 @@ function handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, produ
     var i = 0;
     var jsonArray = [];
     var count = 0;
-    var  filteredArray = [];
+    var filteredArray = [];
     while (i < products.length) {
         var destination = [products[i].latitude, products[i].longitude];
+        var original = [];
+
         googleMapAPI.getDistanceBetween2Coordinate(location, destination, products, jsonArray, i, function (response) {
-            for (var i = 0; i<response.length; i++) {
+            for (var i = 0; i < response.length; i++) {
                 var item = JSON.parse(response[i]);
-                if (item.value <1500) {
+                if (item.value < 2000) {
                     console.log(item.value);
                     filteredArray[count] = item.product;
                     count++;
@@ -758,6 +760,15 @@ function handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, produ
                         user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
                     }, 5000);
                 }
+            } else  {
+                user.setStatusCode(404);
+                var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
+                user.sendFBMessageTypeText(responseText);
+
+                setTimeout(function () {
+                    var elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                }, 5000);
             }
         });
 
@@ -819,6 +830,17 @@ function getProductNearbyLocation(location, user, tmp) {
             return handleQueryNearbyLocation(user, tmp, location);
         })
         .then((products) => {
-            handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, products);
+            if (products.length > 0) {
+                handleFilteredProductNearbyByGoogleDistanceMatrix(user, location, products);
+            } else {
+                user.setStatusCode(404);
+                var responseText = "Chân thành xin lỗi! Món ăn bạn tìm hiện tại không có!";
+                user.sendFBMessageTypeText(responseText);
+
+                setTimeout(function () {
+                    var elementArray = createItemOfStructureButton(config.CHANGE_BUTTON_TYPE_2);
+                    user.sendFBMessageTypeButtonTemplate(elementArray, "Bạn muốn thay đổi địa điểm hay món ăn hãy chọn lựa chọn ở dưới :D");
+                }, 5000);
+            }
         })
 }

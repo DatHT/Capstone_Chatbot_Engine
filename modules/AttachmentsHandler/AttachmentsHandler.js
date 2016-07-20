@@ -29,6 +29,9 @@ function handlerAttachmentsFromUser(event, user, userMappingObject) {
         var url = event.message.attachments[0].url;
         var param = util.getURLParam("where1", decodeURIComponent(url));
         var location = param.split("%2C");
+        location[0] = parseFloat(location[0]);
+        location[1] = parseFloat(location[1]);
+
         // var location = [10.794107, 106.69584];
         var tmp;
         util.getProductNearbyLocation(location, user, tmp);
