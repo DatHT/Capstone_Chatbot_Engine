@@ -28,8 +28,8 @@ function handlerAttachmentsFromUser(event, user, userMappingObject) {
     if (type === "location" && user.getLocation().name === config.LOCATION_AMBIGUITY1) {
         var url = event.message.attachments[0].url;
         var param = util.getURLParam("where1", decodeURIComponent(url));
-        // var location = param.split("%2C");
-        var location = [10.794107, 106.69584];
+        var location = param.split("%2C");
+        // var location = [10.794107, 106.69584];
         var tmp;
         util.getProductNearbyLocation(location, user, tmp);
     } else {
