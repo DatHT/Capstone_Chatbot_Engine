@@ -32,7 +32,7 @@ function createMessageHandler(user, userMappingObject) {
 
 MessagekHandler.prototype.doDispatchingMessage = function (response) {
     return doDispathchingMesssage(response, this.user, this.userMappingObj);
-}
+};
 
 function doDispathchingMesssage(response, user, userMappingObject) {
     var consoleObject = {
@@ -41,7 +41,7 @@ function doDispathchingMesssage(response, user, userMappingObject) {
         parameters : response.result.parameters,
         intentName : response.result.metadata.intentName,
         action : response.result.action
-    }
+    };
     console.log(consoleObject);
     user.setResponseAPI({
         isLog : false,

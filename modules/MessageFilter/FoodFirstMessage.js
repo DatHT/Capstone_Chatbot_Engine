@@ -71,12 +71,6 @@ function handleWordProcessingFoodFirst(response, user) {
                 }
             }
 
-            // if (user.getLocation().type !== config.location_type.nearby) {
-            //     util.checkQueryOrCache(user, typeQuery);
-            // } else {
-            //     util.handleQueryNearbyLocation(user, user.getLocation().name, user.getLocation().coordinate);
-            // }
-
             if (user.getLocation().type !== config.location_type.nearby) {
                 util.checkQueryOrCache(user, typeQuery);
             } else  {
@@ -89,7 +83,7 @@ function handleWordProcessingFoodFirst(response, user) {
         if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation())) {
             user.setFood(params.Food);
             var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON, user);
-            var responseText = "Bạn muốn ăn ở đâu?"
+            var responseText = "Bạn muốn ăn ở đâu?";
             user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
         }
     }

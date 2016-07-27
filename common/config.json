@@ -148,7 +148,6 @@
         "Quận 6",
         "Quận Bình Tân",
         "Quận 5",
-        "Quận 6",
         "Quận 11",
         "Quận Tân Phú"
       ]
@@ -191,7 +190,6 @@
         "Quận 3",
         "Quận 5",
         "Quận 1",
-        "Quận Tân Phú",
         "Quận 11"
       ]
     },
@@ -218,7 +216,6 @@
     "district_tan_phu": {
       "name": "tân phú",
       "nearby": [
-        "Quận Phú Nhuận",
         "Quận Tân Phú",
         "Quận Tân Bình",
         "Quận 11",
@@ -268,7 +265,6 @@
     "district_phu_nhuan": {
       "name": "phú nhuận",
       "nearby": [
-        "Quận Gò Vấp",
         "Quận Phú Nhuận",
         "Quận Tân Bình",
         "Quận Bình Thạnh",
