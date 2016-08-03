@@ -1,5 +1,5 @@
-var config = require('../../common/app-config').config;
-var util = require('../../common/CommonUtil');
+var config = require('../../../../common/app-config').config;
+var util = require('../../../../common/CommonUtil');
 
 module.exports = createFulfillMessage;
 
@@ -16,7 +16,7 @@ function createFulfillMessage(user) {
 
 FulfillMessage.prototype.handleWordProcessingFulfillMessage = function (response) {
     return handleWordProcessingFulfillMessage(response, this.user);
-}
+};
 
 function handleWordProcessingFulfillMessage(response, user) {
     var action = response.result.action;

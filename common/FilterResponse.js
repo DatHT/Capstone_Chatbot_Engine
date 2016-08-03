@@ -1,7 +1,7 @@
 /**
  * Created by ThanhTV0612 on 6/7/16.
  */
-var config = require('../../common/app-config').config;
+var config = require('./app-config').config;
 
 var obligingFilter = ["Cảm ơn bạn đã quan tâm tới Bot đẹp trai :D",
                     "Lần sau bạn lại ghé thăm tui nhé :3",

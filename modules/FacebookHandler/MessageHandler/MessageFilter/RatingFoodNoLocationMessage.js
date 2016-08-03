@@ -1,5 +1,5 @@
-var config = require('../../common/app-config').config;
-var util = require('../../common/CommonUtil');
+var config = require('../../../../common/app-config').config;
+var util = require('../../../../common/CommonUtil');
 
 module.exports = createRatingFoodNoLocationMessageUser;
 

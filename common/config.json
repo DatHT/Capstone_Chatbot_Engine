@@ -47,6 +47,8 @@
   "ACTION_SENSATION_STATEMENT_REQUEST_CHOOSE_BUTTON": "sensation.statements.request.choose.button",
   "ACTION_TRAINING": "training",
   "ACTION_FEEDBACK": "feedback",
+  "ACTION_USER_COLLECT_INFORMATION" : "collect.user.information",
+
   "INPUT_INTENT_GREETING": "Greeting",
   "INPUT_INTENT_FOOD_FIRST": "FoodFirst",
   "INPUT_INTENT_LOCATION_FIRST": "LocationFirst",
@@ -59,6 +61,9 @@
   "INPUT_INTENT_RATING_REQUEST_LOCATION": "RatingRequestLocation",
   "INPUT_INTENT_TRAINING": "TrainingRequest",
   "INPUT_INTENT_FEEDBACK": "FeedbackMessage",
+  "INPUT_INTENT_GET_START_FOOD": "GetStart_Food",
+  "INPUT_INTENT_GET_START_LOCATION": "GetStart_Location",
+
   "successMessage": "success",
   "PAGING_BUTTON": "PAGING_BUTTON",
   "CHANGE_BUTTON_TYPE_1": "CHANGE_BUTTON_TYPE_1",
@@ -80,9 +85,9 @@
     "protocol": "http:",
     "slashes": true,
     "auth": null,
-    "host": "eb696fb6.ngrok.io",
+    "host": "712bc628.ngrok.io",
     "port": "5000",
-    "hostname": "https://eb696fb6.ngrok.io",
+    "hostname": "https://712bc628.ngrok.io",
     "hash": null,
     "pathname": "/redirect"
   },
@@ -271,6 +276,14 @@
         "Quận Gò Vấp",
         "Quận 3",
         "Quận 1"
+      ]
+    },
+    "district_thu_duc": {
+      "name": "thủ đức",
+      "nearby": [
+        "Quận Thủ Đức",
+        "Quận 12",
+        "Quận 2"
       ]
     }
   },

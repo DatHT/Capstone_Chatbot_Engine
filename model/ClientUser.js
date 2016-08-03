@@ -16,7 +16,16 @@ var responseAPI;
 var statusCode;
 var data;
 var currentData;
-var isSearchNearby;
+
+//user information
+var userLocation;
+var firstname;
+var lastname;
+var gender;
+var locale;
+var favouriteFood;
+var favouriteRestaurant;
+
 function ClientUser(session, fbID) {
     this.sessionId = session;
     this.senderID = fbID;
@@ -35,9 +44,6 @@ function createClientUser(session, fbID) {
 }
 
 module.exports = createClientUser;
-ClientUser.prototype.setIsSearchNearby = function (isNearby) {
-    this.isSearchNearby = isNearby;
-};
 
 ClientUser.prototype.setCurrentData = function (currentData) {
     this.currentData = currentData
@@ -67,8 +73,60 @@ ClientUser.prototype.setLocation = function (locationObj) {
     this.location = locationObj;
 };
 
-ClientUser.prototype.getIsSearchNearby = function () {
-    return this.isSearchNearby;
+ClientUser.prototype.setFirstname = function (firstName) {
+    this.firstname = firstName;
+};
+
+ClientUser.prototype.setLastname = function (lastName) {
+    this.lastname = lastName;
+};
+
+ClientUser.prototype.setLocale = function (locale) {
+    this.locale = locale;
+};
+
+ClientUser.prototype.setFavouriteFood = function (favouriteFood) {
+    this.favouriteFood = favouriteFood;
+};
+
+ClientUser.prototype.setFavouriteRestaurant = function (restaurant) {
+    this.FavouriteRestaurant = restaurant;
+};
+
+ClientUser.prototype.setGender = function (gender) {
+    this.gender = gender;
+};
+
+ClientUser.prototype.setUserLocation = function (userLocation) {
+    this.userLocation = userLocation;
+};
+
+ClientUser.prototype.getUserLocation = function () {
+    return this.userLocation;
+};
+
+ClientUser.prototype.getFavouriteFood = function () {
+    return this.favouriteFood;
+};
+
+ClientUser.prototype.getFavouriteRestaurant = function () {
+    return this.FavouriteRestaurant;
+};
+
+ClientUser.prototype.getGender = function () {
+    return this.gender;
+};
+
+ClientUser.prototype.getFirstname = function () {
+    return this.firstname;
+};
+
+ClientUser.prototype.getLastname = function () {
+    return this.lastname;
+};
+
+ClientUser.prototype.getLocale = function () {
+    return this.locale;
 };
 
 ClientUser.prototype.getResponseAPI = function () {
@@ -105,7 +163,7 @@ ClientUser.prototype.getLocation = function () {
 
 ClientUser.prototype.getCurrentData = function () {
     return this.currentData;
-}
+};
 
 ClientUser.prototype.sendFBMessageTypeText = function (messageData) {
     return fbClient.sendFBMessageTypeText(this.senderID, messageData);
@@ -137,8 +195,8 @@ ClientUser.prototype.getSenderInformation = function (callback) {
     });
 };
 
-ClientUser.prototype.sendFBQuickReplyMessage = function (elementArray, quickReplyArray) {
-    return fbClient.sendFBQuickReplyMessage(this.senderID ,elementArray, quickReplyArray);
+ClientUser.prototype.sendFBQuickReplyMessage = function (quickReplyArray, responseText) {
+    return fbClient.sendFBQuickReplyMessage(this.senderID , quickReplyArray, responseText);
 };
 
 

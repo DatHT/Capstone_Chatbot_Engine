@@ -2,9 +2,9 @@
  * Created by ThanhTV0612 on 6/29/16.
  */
 
-var config = require('../../common/app-config').config;
-var util = require('../../common/CommonUtil');
-var logHandle = require('../LogHandler/Logger');
+var config = require('../../../../common/app-config').config;
+var util = require('../../../../common/CommonUtil');
+var logHandle = require('../../../LogHandler/Logger');
 
 module.exports = createFeedbackMessage;
 

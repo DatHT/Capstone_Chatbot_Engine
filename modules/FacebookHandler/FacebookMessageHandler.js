@@ -7,12 +7,14 @@ var config = require('../../common/app-config').config;
 var clientUser = require('../../model/ClientUser');
 var util = require('../../common/CommonUtil');
 var logHandle = require('../LogHandler/Logger');
-var postbackHandler = require('../PostbackHandler');
-var messageHandler = require('../MessageHandler');
-var attachmentHandler = require('../AttachmentsHandler/AttachmentsHandler');
+var postbackHandler = require('./PostbackHandler/PostbackHandler');
+var messageHandler = require('./MessageHandler/MessageHandler');
+var attachmentHandler = require('./AttachmentsHandler/AttachmentsHandler');
 var uuid = require('node-uuid');
 var apiai = require('apiai');
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
+var databaseConnection = require('../DBManager/Database');
+var quickReplyHandler = require('./MessageHandler/MessageQuickReply/MessageQuickReplyHandler');
 
 
 module.exports = createFacebookMessageHandler;
@@ -36,6 +38,7 @@ function handleFacebookMessageFromUser(req, userMappingObject) {
         var event = req.body.entry[0].messaging[i];
         var sender = event.sender.id;
 
+        console.log(event);
         // get current user
         var existUser;
         if (!userMappingObject.has(sender)) {
@@ -45,23 +48,29 @@ function handleFacebookMessageFromUser(req, userMappingObject) {
             existUser = userMappingObject.get(sender);
         }
 
+
+
         // normal event message
         if (event.message ) {
+            console.log('LOG: message type TEXT');
             handleFacebookMessageText(event,existUser, userMappingObject);
         }
 
         // handler postback
         if (event.postback) {
+            console.log('LOG: message type POSTBACK');
             handleFacebookPostback(event, existUser, userMappingObject);
         }
 
         // handle log
         if (event.delivery) {
+            console.log('LOG: message type DELIVERY');
             handleFacebookDeliver(existUser);
         }
         
         //handle attachment
         if (event.message && event.message.attachments) {
+            console.log('LOG: message type ATTACHMENT');
             handleFacebookAttachments(event, existUser, userMappingObject);
         }
     }
@@ -91,6 +100,16 @@ function handleFacebookMessageText(event,existUser, userMappingObject) {
         handleFacebookMessage(event.message.text, opt, function (response) {
             messageHandlerObject.doDispatchingMessage(response);
         });
+    }
+}
+
+function handleFacebookMessageQuickReply(event,existUser, userMappingObject) {
+    if (event.message.quick_reply) {
+        var opt = {
+            sessionId: existUser.getSessionID()
+        };
+        var quickReplyHandlerObject = quickReplyHandler(existUser, userMappingObject);
+        quickReplyHandlerObject.handleQuickReplyMessage(event.message.quick_reply);
     }
 }
 

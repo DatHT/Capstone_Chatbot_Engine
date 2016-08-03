@@ -2,8 +2,8 @@
  * Created by ThanhTV0612 on 6/29/16.
  */
 'use strict';
-var config = require('../../common/app-config').config;
-var util = require('../../common/CommonUtil');
+var config = require('../../../common/app-config').config;
+var util = require('../../../common/CommonUtil');
 
 module.exports = createAttachmentsHandler;
 

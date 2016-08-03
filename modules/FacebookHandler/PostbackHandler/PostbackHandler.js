@@ -1,11 +1,11 @@
-var config = require('../common/app-config').config;
-var util = require('../common/CommonUtil');
+var config = require('../../../common/app-config').config;
+var util = require('../../../common/CommonUtil');
 var apiai = require('apiai');
-var logHandle = require('./LogHandler/Logger');
+var logHandle = require('./../../LogHandler/Logger');
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
-var responseFilter = require('./MessageFilter/FilterResponse');
-var databaseConnection = require('./DBManager/Database');
-var greetingMessageFilter = require('./MessageFilter/GreetingMessage');
+var responseFilter = require('../../../common/FilterResponse');
+var databaseConnection = require('./../../DBManager/Database');
+var greetingMessageFilter = require('../MessageHandler/MessageFilter/GreetingMessage');
 
 const PAYLOAD_LOCATION = "location";
 const PAYLOAD_REPORT = "report";
@@ -23,6 +23,7 @@ const PAYLOAD_TREND = 'trend';
 const PAYLOAD_GUIDELINE = 'guideline';
 const PAYLOAD_MORE = 'more';
 const PAYLOAD_HOTKEY_GUIDELINE = 'hotkey_guideline';
+const PAYLOAD_GET_START = 'get_start';
 
 module.exports = createPostbackHandler;
 
@@ -82,8 +83,98 @@ function handlePostback(jsonObject, user, userMappingObject) {
             return handleGuidelineFunctionPostback(jsonObject, user);
         case PAYLOAD_HOTKEY_GUIDELINE:
             return handleHotkeyGuidelinePostback(jsonObject, user);
+        case PAYLOAD_GET_START:
+            return handleCollectUserInformation(jsonObject, user);
         default:
             break;
+    }
+}
+
+function handleCollectUserInformation(jsonObject, user) {
+    if (jsonObject.isStart === 'yes') {
+        var responseText = 'Bạn có thể cho tôi biết nơi bạn ở hiện tại là ở quận nào được không :D';
+        user.sendFBQuickReplyMessage([
+            {
+                "content_type": "text",
+                "title": config.districts.district_phu_nhuan.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_phu_nhuan.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_thu_duc.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_thu_duc.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_go_vap.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_go_vap.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_binh_thanh.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_binh_thanh.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_tan_binh.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_tan_binh.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_1.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_1.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_2.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_2.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_7.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_7.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_10.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_10.name
+                })
+            },
+            {
+                "content_type": "text",
+                "title": config.districts.district_5.name,
+                "payload": JSON.stringify({
+                    type : 'user_location',
+                    district :  config.districts.district_5.name
+                })
+            },
+        ], responseText);
     }
 }
 
@@ -102,8 +193,10 @@ function handleHotkeyGuidelinePostback(jsonObject, user) {
 
 function handleGetStartButtonPostback(tmpString, user) {
     if (tmpString === 'get_start') {
-        return greetingMessageFilter.getCurrentSenderInformation(user);
+        return greetingMessageFilter.getCurrentSenderInformationWhenGetStart(user);
     }
+
+
 }
 
 //handle more function postback
@@ -373,7 +466,7 @@ function handleAskLocationPostback(jsonObject, user) {
             user.setStatusCode(200);
             user.setResponseAPI(response);
             console.log("send dummy request successfully");
-        })
+        });
         var responseText = "Bạn hãy chia sẽ địa điểm của bạn cho tôi thông qua Facebook Messenger :D";
         user.sendFBMessageTypeText(responseText);
     }
@@ -435,7 +528,10 @@ function handleYesNoPostback(jsonObject, user) {
     });
 
     if (jsonObject.isYes === 'no') {
-        user.setLocation(config.LOCATION_AMBIGUITY2);
+        user.setLocation({
+            name: config.LOCATION_AMBIGUITY2,
+            type: config.location_type.anywhere
+        });
         util.checkQueryOrCache(user, config.QUERY_TYPE.NO_FOOD_LOCATION)
     }
 

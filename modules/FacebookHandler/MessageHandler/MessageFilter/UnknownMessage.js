@@ -1,7 +1,7 @@
-var config = require('../../common/app-config').config;
-var util = require('../../common/CommonUtil');
-var logHandle = require('../LogHandler/Logger');
-var googleMapAPI = require('../../lib/GoogleAPI/GoogleMapAPI');
+var config = require('../../../../common/app-config').config;
+var util = require('../../../../common/CommonUtil');
+var logHandle = require('../../../LogHandler/Logger');
+var googleMapAPI = require('../../../../lib/GoogleAPI/GoogleMapAPI');
 var fs = require('fs');
 var path = require('path');
 

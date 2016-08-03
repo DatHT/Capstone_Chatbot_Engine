@@ -153,10 +153,11 @@ router.post('/', function (req, res) {
         });
     } catch (err) {
         console.log("ERROR: " + err);
-        return res.status(400).json({
-            status: "error",
-            error: err
-        });
+
+        // return res.status(400).json({
+        //     status: "error",
+        //     error: err
+        // });
     }
 });
 

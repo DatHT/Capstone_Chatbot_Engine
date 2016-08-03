@@ -68,8 +68,8 @@ FacebookAPI.prototype.createPersistentMenu = function (callback) {
     return createPersistentMenu(callback);
 };
 
-FacebookAPI.prototype.sendFBQuickReplyMessage = function (sender, elementArray, quickReplyArray) {
-    return sendFBQuickReplyMessage(sender, elementArray, quickReplyArray);
+FacebookAPI.prototype.sendFBQuickReplyMessage = function (sender, quickReplyArray, responseText) {
+    return sendFBQuickReplyMessage(sender, quickReplyArray, responseText);
 };
 
 function sendFBMessageTypeText(sender, messageData) {
@@ -515,7 +515,7 @@ function createPersistentMenu(callback) {
         payload:"DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN"
     }]
 */
-function sendFBQuickReplyMessage(sender, elementArray, quickReplyArray) {
+function sendFBQuickReplyMessage(sender, quickReplyArray, responseText) {
     console.log("do send structure message");
     request({
         timeout: 20000,
@@ -527,14 +527,14 @@ function sendFBQuickReplyMessage(sender, elementArray, quickReplyArray) {
                 id: sender
             },
             message:{
-                // text:"Pick a color:",
-                attachment: {
-                    type: "template",
-                    payload: {
-                        template_type: "generic",
-                        elements: elementArray
-                    }
-                },
+                text: responseText,
+                // attachment: {
+                //     type: "template",
+                //     payload: {
+                //         template_type: "generic",
+                //         elements: elementArray
+                //     }
+                // },
                 quick_replies: quickReplyArray
             }
         }

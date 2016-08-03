@@ -1,6 +1,6 @@
-var config = require('../../common/app-config').config;
-var util = require('../../common/CommonUtil');
-var databaseConnection = require('../DBManager/Database');
+var config = require('../../../../common/app-config').config;
+var util = require('../../../../common/CommonUtil');
+var databaseConnection = require('../../../DBManager/Database');
 
 module.exports = createRatingLocationMessage;
 

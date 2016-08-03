@@ -227,3 +227,11 @@ function getMultipleDistrict(districts) {
     }
     return tmpAddressName;
 }
+
+function checkUserProfileExisted(senderId, callback) {
+    var sql = '';
+    console.log("LOG: SQL = ", sql);
+    connectToDatabase(sql, (rows, err) => {
+        return callback(rows, err);
+    })
+}

@@ -1,5 +1,5 @@
-var config = require('../common/app-config').config;
-var util = require('../common/CommonUtil');
+var config = require('../../../common/app-config').config;
+var util = require('../../../common/CommonUtil');
 var greetingMessageFilter = require('./MessageFilter/GreetingMessage');
 var foodFirstMessageFilter = require('./MessageFilter/FoodFirstMessage');
 var unknownMessageFilter = require('./MessageFilter/UnknownMessage');
@@ -10,6 +10,8 @@ var ratingFoodInLocationMessageFilter = require('./MessageFilter/RatingFoodInLoc
 var ratingFoodNoLocationMessageFilter = require('./MessageFilter/RatingFoodNoLocationMessage');
 var ratingLocationMessageFilter = require('./MessageFilter/RatingLocationMessage');
 var feedbackMessageFilter = require('./MessageFilter/FeedbackMessage');
+var getStartFoodMessageFilter = require('./MessageFilter/GetStartFoodMessage');
+var getStartLocationMessageFilter = require('./MessageFilter/GetStartLocationMessage');
 
 module.exports = createMessageHandler;
 
@@ -107,6 +109,18 @@ function doDispathchingMesssage(response, user, userMappingObject) {
             user.setStatusCode(609);
             var feedbackMessageFilterObject = feedbackMessageFilter(user, userMappingObject);
             return feedbackMessageFilterObject.handleWordProcessingFeedbackMessage(response);
+        }
+
+        if (intentName.indexOf(config.INPUT_INTENT_GET_START_FOOD)>-1) {
+            user.setStatusCode(200);
+            var getStartFoodMessageFilterObject = getStartFoodMessageFilter(user);
+            return getStartFoodMessageFilterObject.handleWordProcessingGetStartFoodMessage(response);
+        }
+
+        if (intentName.indexOf(config.INPUT_INTENT_GET_START_LOCATION)>-1) {
+            user.setStatusCode(200);
+            var getStartLocationMessageFilterObject = getStartLocationMessageFilter(user, userMappingObject);
+            return getStartLocationMessageFilterObject.handleWordProcessingGetStartLocationMessage(response);
         }
 
     }
