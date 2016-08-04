@@ -1,7 +1,7 @@
 /**
  * Created by DatHTSE61273 on 5/18/16.
  */
-'use strict'
+'use strict';
 const mysql = require('mysql');
 var config = require('../../common/app-config').config;
 
@@ -16,7 +16,8 @@ module.exports = {
     updateNumberOfSearchProductAddress: updateNumberOfSearchProductAddress,
     getCoordinateWithAddress: getCoordinateWithAddress,
     getProductNearbyWithProductNameAndAddressName: getProductNearbyWithProductNameAndAddressName,
-    getProductNearbyWithOnlyAddressname: getProductNearbyWithOnlyAddressname
+    getProductNearbyWithOnlyAddressname: getProductNearbyWithOnlyAddressname,
+    checkoFoodExisted :checkoFoodExisted
 
 }
 
@@ -209,7 +210,7 @@ function createQueryNearbyWithProductAndLocation(product, location) {
 }
 
 function createQueryNearbyWithOnlyLocation(location) {
-    var sql = 'select * from productdetail where productName regexp' + setParamAddressName(location) + ' order by rate desc ';
+    var sql = 'select * from productdetail where ' + setParamAddressName(location) + ' order by rate desc ';
     console.log("LOG: SQL = ", sql);
     return sql;
 
@@ -234,4 +235,11 @@ function checkUserProfileExisted(senderId, callback) {
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     })
+}
+
+function checkoFoodExisted(food, callback) {
+    var sql = 'select * from productdetail where productName regexp "' + food + '"';
+    connectToDatabase(sql, (rows, err) => {
+        return callback(rows, err);
+    });
 }

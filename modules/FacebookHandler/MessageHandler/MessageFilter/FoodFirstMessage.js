@@ -1,5 +1,8 @@
 var config = require('../../../../common/app-config').config;
 var util = require('../../../../common/CommonUtil');
+var dbConnection = require('../../../DBManager/Database');
+var apiai = require('apiai');
+var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
 
 module.exports = createFoodFirstMessage;
 
@@ -26,12 +29,7 @@ function handleWordProcessingFoodFirst(response, user) {
 
     if (action === config.ACTION_FIND_FOOD) {
         user.setFood(params.Food);
-        if (splittedText.length > 0 && splittedText.toString().trim() !== config.successMessage) {
-            for (var i = 0; i < splittedText.length; i++) {
-                var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON)
-                user.sendFBMessageTypeButtonTemplate(elementArray, splittedText[i]);
-            }
-        }
+        checkFoodExisted(user,  splittedText);
     }
 
     if (action === config.ACTION_FIND_LOCATION) {
@@ -82,9 +80,11 @@ function handleWordProcessingFoodFirst(response, user) {
         // have food - do not have location
         if (util.isDefined(user.getFood()) && !util.isDefined(user.getLocation())) {
             user.setFood(params.Food);
-            var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON, user);
-            var responseText = "Bạn muốn ăn ở đâu?";
-            user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+            // var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON, user);
+            // var responseText = "Bạn muốn ăn ở đâu?";
+            // user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+
+            checkFoodExisted(user, splittedText);
         }
     }
 
@@ -130,4 +130,61 @@ function handleWordProcessingFoodFirst(response, user) {
             }
         }
     }
+}
+
+function checkFoodExisted(user, splittedText) {
+    dbConnection.checkoFoodExisted(user.getFood(), (rows, err) => {
+        if (rows.length === 0) {
+            var responseText = 'Theo như tôi biết thì hiện tại món này không có';
+            user.sendFBMessageTypeText(responseText);
+        } else if (rows.length <= 10) {
+            var responseText = 'Theo như tôi biết thì hiện tại chỉ có những địa điểm này có thôi';
+            var elementArray = [];
+            var currentDataArray = [];
+
+            var lengthArray = rows.length >= 10 ? 10 : rows.length;
+            user.setCurrentPositionItem(lengthArray);
+            for (var i = 0; i < lengthArray; i++) {
+                currentDataArray[i] = rows[i];
+                var structureObj = util.createItemOfStructureResponseForProduct(rows[i]);
+                elementArray.push(structureObj);
+            }
+            user.setCurrentData(currentDataArray);
+            user.sendFBMessageTypeStructureMessage(elementArray);
+
+            var opt = {
+                sessionId: user.getSessionID()
+            };
+            sendDummyRequestToApi(config.LOCATION_AMBIGUITY2, opt, function (response) {
+                user.setStatusCode(200);
+                user.setResponseAPI(response);
+                console.log("send dummy request successfully");
+            });
+        } else  {
+            if (splittedText.length > 0 && splittedText.toString().trim() !== config.successMessage) {
+                for (var i = 0; i < splittedText.length; i++) {
+                    var elementArray = util.createItemOfStructureButton(config.ASK_LOCATION_BUTTON)
+                    var responseText = 'Bạn có thể cho tôi biết địa điểm bạn muốn ăn dc không :D'
+                    user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
+                }
+            }
+        }
+
+
+    });
+}
+
+// request dummy request api
+function sendDummyRequestToApi(statements, option, callback) {
+    var request = app_apiai.textRequest(statements, option);
+
+    request.on('response', function (response) {
+        return callback(response)
+    });
+
+    request.on('error', function (error) {
+        console.log(error);
+    });
+
+    request.end();
 }

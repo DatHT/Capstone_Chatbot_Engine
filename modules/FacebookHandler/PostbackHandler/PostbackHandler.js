@@ -1,8 +1,9 @@
 var config = require('../../../common/app-config').config;
 var util = require('../../../common/CommonUtil');
 var apiai = require('apiai');
-var logHandle = require('./../../LogHandler/Logger');
 var app_apiai = apiai(config.API_AI.DEV_ACCESS_TOKEN);
+var logHandle = require('./../../LogHandler/Logger');
+
 var responseFilter = require('../../../common/FilterResponse');
 var databaseConnection = require('./../../DBManager/Database');
 var greetingMessageFilter = require('../MessageHandler/MessageFilter/GreetingMessage');
@@ -193,7 +194,7 @@ function handleHotkeyGuidelinePostback(jsonObject, user) {
 
 function handleGetStartButtonPostback(tmpString, user) {
     if (tmpString === 'get_start') {
-        return greetingMessageFilter.getCurrentSenderInformationWhenGetStart(user);
+        return greetingMessageFilter.getCurrentSenderInformation(user);
     }
 
 
