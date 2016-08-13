@@ -39,7 +39,7 @@ module.exports = {
     },
 
     handleQueryNearbyLocation: (user, tmp, location) => {
-        return handleQueryNearbyLocation(user, tmp, location)
+        return handleQueryNearbyLocation(user, tmp, location);
     },
 
     handleFilteredProductNearbyByGoogleDistanceMatrix: (user, location, products) => {

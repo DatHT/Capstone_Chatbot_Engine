@@ -76,7 +76,7 @@ function getProductWithoutAnything(callback) {
 }
 
 function getProductWithOnlyProductName(productName, callback) {
-    var sql = 'select * from productdetail where productName regexp "' + productName + '" order by rate desc';
+    var sql = 'select * from productdetail where synonymName regexp "' + productName + '" order by rate desc';
     console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
@@ -92,7 +92,7 @@ function getProductWithOnlyAddressName(addressName, callback) {
 }
 
 function getProductWithProductNameAndAddressName(productName, addressName, callback) {
-    var sql = 'select * from productdetail where productName regexp "' + productName + '" and addressName regexp "' + addressName + '" order by rate desc';
+    var sql = 'select * from productdetail where synonymName regexp "' + productName + '" and addressName regexp "' + addressName + '" order by rate desc';
     console.log("LOG: SQL = ", sql);
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
@@ -204,13 +204,13 @@ function setParamAddressName(location) {
 }
 
 function createQueryNearbyWithProductAndLocation(product, location) {
-    var sql = 'select * from productdetail where productName regexp "' + product + '" and ' + setParamAddressName(location) + ' order by rate desc ';
+    var sql = 'select * from productdetail where synonymName regexp "' + product + '" and ' + setParamAddressName(location) + ' order by rate desc ';
     console.log("LOG: SQL = ", sql);
     return sql;
 }
 
 function createQueryNearbyWithOnlyLocation(location) {
-    var sql = 'select * from productdetail where ' + setParamAddressName(location) + ' order by rate desc ';
+    var sql = 'select * from productdetail where synonymName regexp ' + setParamAddressName(location) + ' order by rate desc ';
     console.log("LOG: SQL = ", sql);
     return sql;
 
@@ -238,7 +238,7 @@ function checkUserProfileExisted(senderId, callback) {
 }
 
 function checkoFoodExisted(food, callback) {
-    var sql = 'select * from productdetail where productName regexp "' + food + '"';
+    var sql = 'select * from productdetail where synonymName regexp "' + food + '"';
     connectToDatabase(sql, (rows, err) => {
         return callback(rows, err);
     });
