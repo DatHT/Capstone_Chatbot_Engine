@@ -316,7 +316,7 @@ function handleRatingPostbackFromUser(jsonObject, user) {
 //handle feedback 
 function handleFeedbackFromUser(jsonObject, user) {
     if (jsonObject.isAccept === 'yes') {
-        var responseText = "Bạn hãy làm theo cú pháp sau: \n[feedback: nhập feedback]\nVD: feedback: anh thành làm bot kinh vl";
+        var responseText = "Bạn hãy làm theo cú pháp sau: \n[feedback: nhập feedback]\nVD: feedback: Bot rất khá thông minh! mong team cố gắng cải thiện hơn nữa :D";
         user.sendFBMessageTypeText(responseText);
     }
 
@@ -337,7 +337,7 @@ function handleReportFromUuser(jsonObject, user) {
 // handle postback cancel
 function handleCancelPostback(user, userMappingObject) {
     userMappingObject.delete(user.getSenderID());
-    var responseText = "Cảm ơn bạn đã quan tâm :D Bạn có thể giúp tôi làm 1 ít feedback được không :D";
+    var responseText = "Cảm ơn bạn đã quan tâm :D Bạn có thể giúp tôi làm feedback được không :D";
     var elementArray = util.createItemOfStructureButton(config.YES_NO_BUTTON, user);
     user.sendFBMessageTypeButtonTemplate(elementArray, responseText);
 }

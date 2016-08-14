@@ -343,7 +343,7 @@ function createItemOfStructureButton(type, user) {
         case (config.CHANGE_BUTTON_TYPE_1): {
             elementArray = [{
                 type: "postback",
-                title: "Thay đi món ăn",
+                title: "Thay đổi món ăn",
                 payload: JSON.stringify({
                     type: "change",
                     changeType: 'food'
