@@ -209,7 +209,7 @@ function handleMoreFunctionPostback(jsonObject, user) {
     }
 
     if (jsonObject.typeMore === 'training') {
-        var responseText = 'Xin hãy nhập câu bạn muốn train cho Bot :D';
+        var responseText = 'Xin hãy nhập câu bạn muốn train cho Bot :D\nVí dụ như train:tôi thích tìm món phở';
         user.sendFBMessageTypeText(responseText);
     }
 
@@ -279,7 +279,7 @@ function handleRatingPostbackFromUser(jsonObject, user) {
 
     if (jsonObject.typeTrend === 'location') {
         var setSql = "SET sql_mode = '';";
-        var querySql = 'SELECT  restaurantName,AVG(rate) as Rate_Avg FROM productdetail group by addressId order by Rate_Avg desc limit 10';
+        var querySql = 'SELECT *,restaurantName,AVG(rate) as Rate_Avg FROM productdetail group by addressId order by Rate_Avg desc limit 10';
         var sql = setSql + querySql;
         databaseConnection.queryMultipleSQLStatements(sql, function (rows, err) {
             if (err) {
