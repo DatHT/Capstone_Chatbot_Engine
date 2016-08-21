@@ -240,6 +240,7 @@ function checkQueryOrCache(user, queryType) {
         console.log('CACHEEEEEEEEEEEEEEEEE');
         var temp = new productAddress();
         var data = temp.dehydrate(dataQuery);
+        user.setData(data);
         var currentDataArray = [];
 
         if (data.length > 0) {
@@ -317,7 +318,7 @@ function createItemOfStructureButton(type, user) {
             } else {
                 elementArray = [{
                     type: "postback",
-                    title: "Next",
+                    title: "Tiếp",
                     payload: JSON.stringify({
                         type: "continue",
                         isNext: 1
