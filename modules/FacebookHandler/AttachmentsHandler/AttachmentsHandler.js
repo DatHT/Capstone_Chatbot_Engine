@@ -25,18 +25,20 @@ AttachmentsHandler.prototype.handlerAttachmentsFromUser = function (event) {
 
 function handlerAttachmentsFromUser(event, user, userMappingObject) {
     var type = event.message.attachments[0].type;
-    if (type === "location" && user.getLocation().name === config.LOCATION_AMBIGUITY1) {
-        var url = event.message.attachments[0].url;
-        var param = util.getURLParam("where1", decodeURIComponent(url));
-        var location = param.split("%2C");
-        location[0] = parseFloat(location[0]);
-        location[1] = parseFloat(location[1]);
+    if (type === "location" && util.isDefined(user.getLocation()) ) {
+            if (user.getLocation().name === config.LOCATION_AMBIGUITY1) {
+                var url = event.message.attachments[0].url;
+                var param = util.getURLParam("where1", decodeURIComponent(url));
+                var location = param.split("%2C");
+                location[0] = parseFloat(location[0]);
+                location[1] = parseFloat(location[1]);
 
-        // var location = [10.794107, 106.69584];
-        var tmp;
-        util.getProductNearbyLocation(location, user, tmp);
+                var tmp;
+                util.getProductNearbyLocation(location, user, tmp);
+            }
     } else {
-
+        var responseText = "Xin lỗi hiện tại bot vẫn chưa thể xử lý yêu cầu của bạn\nBạn hãy 1 câu để tìm món ăn\nVD: tìm mì quảng :D";
+        user.sendFBMessageTypeText(responseText);
     }
 }
 

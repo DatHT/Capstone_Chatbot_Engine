@@ -38,7 +38,6 @@ function handleFacebookMessageFromUser(req, userMappingObject) {
         var event = req.body.entry[0].messaging[i];
         var sender = event.sender.id;
 
-        console.log(event);
         // get current user
         var existUser;
         if (!userMappingObject.has(sender)) {
